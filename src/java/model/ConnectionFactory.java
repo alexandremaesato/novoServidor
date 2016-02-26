@@ -30,10 +30,7 @@ public class ConnectionFactory {
     private Connection createConnection() {
         Connection connection = null;
         try {
-
             connection = DriverManager.getConnection("jdbc:mysql://localhost/app_prototipo", "root", "1234");
-//            connection = DriverManager.getConnection("jdbc:mysql://localhost/restaurante?useUnicode=true&characterEncoding=UTF-8", "root", "");
-
         } catch (SQLException e) {
             System.out.println("ERROR: Unable to Connect to Database.");
         }
