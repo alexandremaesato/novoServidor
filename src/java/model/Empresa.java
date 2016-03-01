@@ -5,6 +5,8 @@
  */
 package model;
 
+import java.util.List;
+
 /**
  *
  * @author Guilherme
@@ -15,15 +17,15 @@ public class Empresa {
     private String nome;
     private String cnpj;
     private String descricao;
-    //private int imagemPerfil;
-    //private int imagensNaoOficiais; //List<Imagem>
-    //private int imagensOficiais; //List<Imagem>
-    //private int comentarios; //List<Comentario>
-    //private int avaliacoes; //List<Avaliacao>
-    //private int telefones; //List<Telefone>
-    //private String endereco;
-    //private int produtos; //List<Produto>
-    //private int avaliacaoNota; //List
+    private Imagem imagemPerfil;
+    private List<Imagem> imagensNaoOficiais;
+    private List<Imagem> imagensOficiais;
+    private List<Comentario> comentarios;
+    private List<Avaliacao> avaliacoes;
+    private List<Telefone> telefones;
+    private String endereco;
+    private List<Produto> produtos;
+    private List avaliacaoNota;
 
     public int getEmpresaId() {
         return empresaId;
@@ -55,5 +57,77 @@ public class Empresa {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public Imagem getImagemPerfil() {
+        return imagemPerfil;
+    }
+
+    public void setImagemPerfil(Imagem imagemPerfil) {
+        this.imagemPerfil = imagemPerfil;
+    }
+
+    public List<Imagem> getImagensNaoOficiais() {
+        return imagensNaoOficiais;
+    }
+
+    public void setImagensNaoOficiais(List<Imagem> imagensNaoOficiais) {
+        this.imagensNaoOficiais = imagensNaoOficiais;
+    }
+
+    public List<Imagem> getImagensOficiais() {
+        return imagensOficiais;
+    }
+
+    public void setImagensOficiais(List<Imagem> imagensOficiais) {
+        this.imagensOficiais = imagensOficiais;
+    }
+
+    public List<Comentario> getComentarios() {
+        return comentarios;
+    }
+
+    public void setComentarios(List<Comentario> comentarios) {
+        this.comentarios = comentarios;
+    }
+
+    public List<Avaliacao> getAvaliacoes() {
+        return avaliacoes;
+    }
+
+    public void setAvaliacoes(List<Avaliacao> avaliacoes) {
+        this.avaliacoes = avaliacoes;
+    }
+
+    public List<Telefone> getTelefones() {
+        return telefones;
+    }
+
+    public void setTelefones(List<Telefone> telefones) {
+        this.telefones = telefones;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+
+    public List<Produto> getProdutos() {
+        return produtos;
+    }
+
+    public void setProdutos(List<Produto> produtos) {
+        this.produtos = produtos;
+    }
+
+    public List getAvaliacaoNota() {
+        return avaliacaoNota;
+    }
+
+    public void setAvaliacaoNota(List avaliacaoNota) {
+        this.avaliacaoNota = avaliacaoNota;
     }
 }

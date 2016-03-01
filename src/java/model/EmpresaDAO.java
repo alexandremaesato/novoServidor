@@ -81,4 +81,34 @@ public class EmpresaDAO {
         }
     }
     
+    public Empresa pegarEmpresaporId() throws SQLException{
+        String queryEmpresa = "SELECT * FROM empresa WHERE idempresa = ?;";
+        String queryImagens = "SELECT * FROM imagem";
+        String queryImagenPerfil = "";
+        String queryComentarios = "";
+        String queryTelefone = "";
+        String queryAvaliacao = "";
+        String queryProdutos = "";
+        
+        try{
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(queryEmpresa);
+            resultSet = ptmt.executeQuery();
+            Empresa empresa = new Empresa();
+            
+            if(resultSet.next()){
+                empresa.setEmpresaId(resultSet.getInt("idempresa"));
+                empresa.setNome(resultSet.getString("nome"));
+                empresa.setCnpj(resultSet.getString("cnpj"));
+                empresa.setDescricao(resultSet.getString("descricao"));
+            }
+            
+            
+            
+            return empresa;
+        } finally {
+            ptmt.close();
+        }
+    }
+    
 }
