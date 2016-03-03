@@ -81,7 +81,7 @@ public class EmpresaDAO {
         }
     }
     
-    public Empresa pegarEmpresaporId(int id) throws SQLException{
+    public Empresa pegarEmpresaPorId(int id) throws SQLException{
         String queryEmpresa      = "SELECT * FROM empresa "
                                     + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
                                     + "WHERE idempresa = ?;";
@@ -102,7 +102,6 @@ public class EmpresaDAO {
                                     + "WHERE relacao.identidade = ?;";
         
         String queryTelefone     = "SELECT DISTINCT telefone.* FROM telefone "
-                                    + "INNER JOIN entidade ON telefone.idtelefone = entidade.identidade_criada AND entidade.deletado = 0 "
                                     + "INNER JOIN relacao ON telefone.idtelefone = relacao.idrelacionada AND relacao.tabela_relacionada = 'telefone' "
                                     + "WHERE relacao.identidade = ?;";
         
@@ -117,12 +116,9 @@ public class EmpresaDAO {
                                     + "WHERE relacao.identidade = ?;";
         
         try{
-            con = ConnectionFactory.getConnection();
-            ptmt = con.prepareStatement(queryEmpresa);
-            ptmt.setInt(1, id);
-            resultSet = ptmt.executeQuery();
             Empresa empresa = new Empresa();
             
+            resultSet = retornaResultadoQuery(queryEmpresa, id);
             if(resultSet.next()){
                 empresa.setEmpresaId(resultSet.getInt("idempresa"));
                 empresa.setNome(resultSet.getString("nome"));
@@ -130,12 +126,91 @@ public class EmpresaDAO {
                 empresa.setDescricao(resultSet.getString("descricao"));
             }
             
+            resultSet = retornaResultadoQuery(queryImagemPerfil, id);
+            if(resultSet.next()){
+                Imagem imagemPerfil = new Imagem();
+                imagemPerfil.setImagemid(resultSet.getInt("idimagem"));
+                imagemPerfil.setNome(resultSet.getString("nome"));
+                imagemPerfil.setDescricao(resultSet.getString("descricao"));
+                imagemPerfil.setCaminho(resultSet.getString("caminho"));
+                empresa.setImagemPerfil(imagemPerfil);
+            }
+            
+            resultSet = retornaResultadoQuery(queryImagens, id);
+            List<Imagem> imagensOficiais = new ArrayList<Imagem>();
+            List<Imagem> imagensNaoOficiais = new ArrayList<Imagem>();
+            while(resultSet.next()){
+                Imagem imagem = new Imagem();
+                imagem.setImagemid(resultSet.getInt("idimagem"));
+                imagem.setNome(resultSet.getString("nome"));
+                imagem.setDescricao(resultSet.getString("descricao"));
+                imagem.setCaminho(resultSet.getString("caminho"));
+                imagem.setTipoImagem(resultSet.getInt("fktipo_imagem"));
+                if(imagem.getTipoImagem() == 2){
+                    imagensOficiais.add(imagem);
+                } else{
+                    imagensNaoOficiais.add(imagem);
+                }
+            }
+            empresa.setImagensOficiais(imagensOficiais);
+            empresa.setImagensNaoOficiais(imagensNaoOficiais);
+            
+            resultSet = retornaResultadoQuery(queryComentarios, id);
+            List<Comentario> comentarios = new ArrayList<Comentario>();
+            while(resultSet.next()){
+                Comentario comentario = new Comentario();
+                comentario.setComentadoid(resultSet.getInt("idcomentario"));
+                comentario.setDescricao(resultSet.getString("descricao"));
+                comentario.setComentarioDependenteid(resultSet.getInt("fkidcomentario_dependente"));
+                comentario.setPessoaid(resultSet.getInt("fkpessoa"));
+                comentario.setModificado(resultSet.getInt("modificado"));
+                comentarios.add(comentario);
+            }
+            empresa.setComentarios(comentarios);
+            
+            resultSet = retornaResultadoQuery(queryTelefone, id);
+            List<Telefone> telefones = new ArrayList<Telefone>();
+            while(resultSet.next()){
+                Telefone telefone = new Telefone();
+                telefone.setTelefoneid(resultSet.getInt("idtelefone"));
+                telefone.setNumero(resultSet.getString("numero"));
+                telefone.setTipoTelefone(resultSet.getString("tipo_telefone"));
+                telefones.add(telefone);
+            }
+            empresa.setTelefones(telefones);
+            
+            resultSet = retornaResultadoQuery(queryAvaliacao, id);
+            List<Avaliacao> avaliacoes = new ArrayList<Avaliacao>();
+            while(resultSet.next()){
+                Avaliacao avaliacao = new Avaliacao();
+                avaliacao.setAvaliacaoid(resultSet.getInt("idavaliacao"));
+                avaliacao.setDescricao(resultSet.getString("descricao"));
+                avaliacao.setNota(resultSet.getInt("avaliacao"));
+                avaliacao.setAvaliadoid(resultSet.getInt("idavaliado"));
+                avaliacao.setPessoaid(resultSet.getInt("idpessoa"));
+                avaliacao.setTipoAvalicao(resultSet.getString("tipoavaliacao"));
+                avaliacoes.add(avaliacao);
+            }
+            empresa.setAvaliacoes(avaliacoes);
+            
+            resultSet = retornaResultadoQuery(queryProdutos, id);
+            List<Produto> produtos = new ArrayList<Produto>();// criar metodo pra pegar produtos
+            
+            
             
             
             return empresa;
         } finally {
             ptmt.close();
         }
+    }
+    
+    public ResultSet retornaResultadoQuery(String query, int id) throws SQLException{
+        con = ConnectionFactory.getConnection();
+        ptmt = con.prepareStatement(query);
+        ptmt.setInt(1, id);
+        resultSet = ptmt.executeQuery();
+        return resultSet;
     }
     
 }

@@ -23,7 +23,7 @@ public class Empresa {
     private List<Comentario> comentarios;
     private List<Avaliacao> avaliacoes;
     private List<Telefone> telefones;
-    private String endereco;
+    private Endereco endereco;
     private List<Produto> produtos;
     private List avaliacaoNota;
 
@@ -107,11 +107,11 @@ public class Empresa {
         this.telefones = telefones;
     }
 
-    public String getEndereco() {
+    public Endereco getEndereco() {
         return endereco;
     }
 
-    public void setEndereco(String endereco) {
+    public void setEndereco(Endereco endereco) {
         this.endereco = endereco;
     }
 

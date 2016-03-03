@@ -12,7 +12,7 @@ package model;
 public class Imagem {
     
     private int imagemid;
-    private String tipoImagem;
+    private int tipoImagem;
     private String caminho;
     private String nome;
     private String descricao;
@@ -27,11 +27,11 @@ public class Imagem {
         this.imagemid = imagemid;
     }
 
-    public String getTipoImagem() {
+    public int getTipoImagem() {
         return tipoImagem;
     }
 
-    public void setTipoImagem(String tipoImagem) {
+    public void setTipoImagem(int tipoImagem) {
         this.tipoImagem = tipoImagem;
     }
 

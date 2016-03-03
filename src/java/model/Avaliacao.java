@@ -19,7 +19,6 @@ public class Avaliacao {
     private int nota;
     private String descricao;
     private String tipoAvalicao;
-    private Date dataCriacao;
 
     public int getAvaliacaoid() {
         return avaliacaoid;
@@ -67,13 +66,5 @@ public class Avaliacao {
 
     public void setTipoAvalicao(String tipoAvalicao) {
         this.tipoAvalicao = tipoAvalicao;
-    }
-
-    public Date getDataCriacao() {
-        return dataCriacao;
-    }
-
-    public void setDataCriacao(Date dataCriacao) {
-        this.dataCriacao = dataCriacao;
     }
 }

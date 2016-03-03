@@ -16,6 +16,7 @@ public class Comentario {
     private int pessoaid;
     private int comentarioDependenteid;
     private int comentadoid;
+    private int modificado;
 
     public int getComentarioid() {
         return comentarioid;
@@ -56,4 +57,13 @@ public class Comentario {
     public void setComentadoid(int comentadoid) {
         this.comentadoid = comentadoid;
     }
+
+    public int getModificado() {
+        return modificado;
+    }
+
+    public void setModificado(int modificado) {
+        this.modificado = modificado;
+    }
+    
 }
