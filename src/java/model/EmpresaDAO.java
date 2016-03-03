@@ -81,18 +81,45 @@ public class EmpresaDAO {
         }
     }
     
-    public Empresa pegarEmpresaporId() throws SQLException{
-        String queryEmpresa = "SELECT * FROM empresa WHERE idempresa = ?;";
-        String queryImagens = "SELECT * FROM imagem";
-        String queryImagenPerfil = "";
-        String queryComentarios = "";
-        String queryTelefone = "";
-        String queryAvaliacao = "";
-        String queryProdutos = "";
+    public Empresa pegarEmpresaporId(int id) throws SQLException{
+        String queryEmpresa      = "SELECT * FROM empresa "
+                                    + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
+                                    + "WHERE idempresa = ?;";
+        
+        String queryImagemPerfil = "SELECT DISTINCT imagem.* FROM imagem "
+                                    + "INNER JOIN entidade ON imagem.idimagem = entidade.identidade_criada AND entidade.deletado = 0 "
+                                    + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
+                                    + "WHERE imagem.fktipo_imagem = 1 AND relacao.identidade = ?;";
+        
+        String queryImagens      = "SELECT DISTINCT imagem.* FROM imagem "
+                                    + "INNER JOIN entidade ON imagem.idimagem = entidade.identidade_criada AND entidade.deletado = 0 "
+                                    + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
+                                    + "WHERE imagem.fktipo_imagem IN (2,3) AND relacao.identidade = ?;";
+        
+        String queryComentarios  = "SELECT DISTINCT comentario.* FROM comentario "
+                                    + "INNER JOIN entidade ON comentario.idcomentario = entidade.identidade_criada AND entidade.deletado = 0 "
+                                    + "INNER JOIN relacao ON comentario.idcomentario = relacao.idrelacionada AND relacao.tabela_relacionada = 'comentario' "
+                                    + "WHERE relacao.identidade = ?;";
+        
+        String queryTelefone     = "SELECT DISTINCT telefone.* FROM telefone "
+                                    + "INNER JOIN entidade ON telefone.idtelefone = entidade.identidade_criada AND entidade.deletado = 0 "
+                                    + "INNER JOIN relacao ON telefone.idtelefone = relacao.idrelacionada AND relacao.tabela_relacionada = 'telefone' "
+                                    + "WHERE relacao.identidade = ?;";
+        
+        String queryAvaliacao    = "SELECT DISTINCT avaliacao.* FROM avaliacao "
+                                    + "INNER JOIN entidade ON avaliacao.idavaliacao = entidade.identidade_criada AND entidade.deletado = 0 "
+                                    + "INNER JOIN relacao ON avaliacao.idavaliacao = relacao.idrelacionada AND relacao.tabela_relacionada = 'avaliacao' "
+                                    + "WHERE relacao.identidade = ?;";
+        
+        String queryProdutos     = "SELECT DISTINCT produto.* FROM produto "
+                                    + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 "
+                                    + "INNER JOIN relacao ON produto.idproduto = relacao.idrelacionada AND relacao.tabela_relacionada = 'produto' "
+                                    + "WHERE relacao.identidade = ?;";
         
         try{
             con = ConnectionFactory.getConnection();
             ptmt = con.prepareStatement(queryEmpresa);
+            ptmt.setInt(1, id);
             resultSet = ptmt.executeQuery();
             Empresa empresa = new Empresa();
             
