@@ -82,43 +82,39 @@ public class EmpresaDAO {
     }
     
     public Empresa pegarEmpresaPorId(int id) throws SQLException{
-        String queryEmpresa      = "SELECT * FROM empresa "
-                                    + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
-                                    + "WHERE idempresa = ?;";
         
-        String queryImagemPerfil = "SELECT DISTINCT imagem.* FROM imagem "
-                                    + "INNER JOIN entidade ON imagem.idimagem = entidade.identidade_criada AND entidade.deletado = 0 "
-                                    + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
-                                    + "WHERE imagem.fktipo_imagem = 1 AND relacao.identidade = ?;";
+        String buscarEmpresa      = "SELECT * FROM empresa "
+                                     + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
+                                     + "WHERE idempresa = ?;";
         
-        String queryImagens      = "SELECT DISTINCT imagem.* FROM imagem "
-                                    + "INNER JOIN entidade ON imagem.idimagem = entidade.identidade_criada AND entidade.deletado = 0 "
-                                    + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
-                                    + "WHERE imagem.fktipo_imagem IN (2,3) AND relacao.identidade = ?;";
+        String buscarImagemPerfil = "SELECT DISTINCT imagem.* FROM imagem "
+                                     + "INNER JOIN entidade ON imagem.idimagem = entidade.identidade_criada AND entidade.deletado = 0 "
+                                     + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
+                                     + "WHERE imagem.fktipo_imagem = 1 AND relacao.identidade = ?;";
         
-        String queryComentarios  = "SELECT DISTINCT comentario.* FROM comentario "
-                                    + "INNER JOIN entidade ON comentario.idcomentario = entidade.identidade_criada AND entidade.deletado = 0 "
-                                    + "INNER JOIN relacao ON comentario.idcomentario = relacao.idrelacionada AND relacao.tabela_relacionada = 'comentario' "
-                                    + "WHERE relacao.identidade = ?;";
+        String buscarImagens      = "SELECT DISTINCT imagem.* FROM imagem "
+                                     + "INNER JOIN entidade ON imagem.idimagem = entidade.identidade_criada AND entidade.deletado = 0 "
+                                     + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
+                                     + "WHERE imagem.fktipo_imagem IN (2,3) AND relacao.identidade = ?;";
         
-        String queryTelefone     = "SELECT DISTINCT telefone.* FROM telefone "
-                                    + "INNER JOIN relacao ON telefone.idtelefone = relacao.idrelacionada AND relacao.tabela_relacionada = 'telefone' "
-                                    + "WHERE relacao.identidade = ?;";
+        String buscarComentarios  = "SELECT DISTINCT comentario.* FROM comentario "
+                                     + "INNER JOIN entidade ON comentario.idcomentario = entidade.identidade_criada AND entidade.deletado = 0 "
+                                     + "INNER JOIN relacao ON comentario.idcomentario = relacao.idrelacionada AND relacao.tabela_relacionada = 'comentario' "
+                                     + "WHERE relacao.identidade = ?;";
         
-        String queryAvaliacao    = "SELECT DISTINCT avaliacao.* FROM avaliacao "
-                                    + "INNER JOIN entidade ON avaliacao.idavaliacao = entidade.identidade_criada AND entidade.deletado = 0 "
-                                    + "INNER JOIN relacao ON avaliacao.idavaliacao = relacao.idrelacionada AND relacao.tabela_relacionada = 'avaliacao' "
-                                    + "WHERE relacao.identidade = ?;";
+        String buscarTelefones     = "SELECT DISTINCT telefone.* FROM telefone "
+                                     + "INNER JOIN relacao ON telefone.idtelefone = relacao.idrelacionada AND relacao.tabela_relacionada = 'telefone' "
+                                     + "WHERE relacao.identidade = ?;";
         
-        String queryProdutos     = "SELECT DISTINCT produto.* FROM produto "
-                                    + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 "
-                                    + "INNER JOIN relacao ON produto.idproduto = relacao.idrelacionada AND relacao.tabela_relacionada = 'produto' "
-                                    + "WHERE relacao.identidade = ?;";
+        String buscarAvaliacao    = "SELECT DISTINCT avaliacao.* FROM avaliacao "
+                                     + "INNER JOIN entidade ON avaliacao.idavaliacao = entidade.identidade_criada AND entidade.deletado = 0 "
+                                     + "INNER JOIN relacao ON avaliacao.idavaliacao = relacao.idrelacionada AND relacao.tabela_relacionada = 'avaliacao' "
+                                     + "WHERE relacao.identidade = ?;";
         
         try{
             Empresa empresa = new Empresa();
             
-            resultSet = retornaResultadoQuery(queryEmpresa, id);
+            resultSet = retornaResultadoQuery(buscarEmpresa, id);
             if(resultSet.next()){
                 empresa.setEmpresaId(resultSet.getInt("idempresa"));
                 empresa.setNome(resultSet.getString("nome"));
@@ -126,7 +122,7 @@ public class EmpresaDAO {
                 empresa.setDescricao(resultSet.getString("descricao"));
             }
             
-            resultSet = retornaResultadoQuery(queryImagemPerfil, id);
+            resultSet = retornaResultadoQuery(buscarImagemPerfil, id);
             if(resultSet.next()){
                 Imagem imagemPerfil = new Imagem();
                 imagemPerfil.setImagemid(resultSet.getInt("idimagem"));
@@ -136,7 +132,7 @@ public class EmpresaDAO {
                 empresa.setImagemPerfil(imagemPerfil);
             }
             
-            resultSet = retornaResultadoQuery(queryImagens, id);
+            resultSet = retornaResultadoQuery(buscarImagens, id);
             List<Imagem> imagensOficiais = new ArrayList<Imagem>();
             List<Imagem> imagensNaoOficiais = new ArrayList<Imagem>();
             while(resultSet.next()){
@@ -155,7 +151,7 @@ public class EmpresaDAO {
             empresa.setImagensOficiais(imagensOficiais);
             empresa.setImagensNaoOficiais(imagensNaoOficiais);
             
-            resultSet = retornaResultadoQuery(queryComentarios, id);
+            resultSet = retornaResultadoQuery(buscarComentarios, id);
             List<Comentario> comentarios = new ArrayList<Comentario>();
             while(resultSet.next()){
                 Comentario comentario = new Comentario();
@@ -168,7 +164,7 @@ public class EmpresaDAO {
             }
             empresa.setComentarios(comentarios);
             
-            resultSet = retornaResultadoQuery(queryTelefone, id);
+            resultSet = retornaResultadoQuery(buscarTelefones, id);
             List<Telefone> telefones = new ArrayList<Telefone>();
             while(resultSet.next()){
                 Telefone telefone = new Telefone();
@@ -179,7 +175,7 @@ public class EmpresaDAO {
             }
             empresa.setTelefones(telefones);
             
-            resultSet = retornaResultadoQuery(queryAvaliacao, id);
+            resultSet = retornaResultadoQuery(buscarAvaliacao, id);
             List<Avaliacao> avaliacoes = new ArrayList<Avaliacao>();
             while(resultSet.next()){
                 Avaliacao avaliacao = new Avaliacao();
@@ -193,11 +189,8 @@ public class EmpresaDAO {
             }
             empresa.setAvaliacoes(avaliacoes);
             
-            resultSet = retornaResultadoQuery(queryProdutos, id);
-            List<Produto> produtos = new ArrayList<Produto>();// criar metodo pra pegar produtos
-            
-            
-            
+            List<Produto> produtos = pegarProdutosPorEmpresa(id);
+            empresa.setProdutos(produtos);     
             
             return empresa;
         } finally {
@@ -211,6 +204,51 @@ public class EmpresaDAO {
         ptmt.setInt(1, id);
         resultSet = ptmt.executeQuery();
         return resultSet;
+    }
+    
+    public List<Produto> pegarProdutosPorEmpresa(int id) throws SQLException{
+        
+        String buscarProdutos     = "SELECT DISTINCT produto.*, imagem.*, "
+                                      + "(SELECT COUNT(*) FROM comentario "
+                                        + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
+                                        + "WHERE relacao.identidade = 1 AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
+                                      + "(SELECT COUNT(*) FROM avaliacao "
+                                        + "INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliacao AND relacao.tabela_relacionada = 'avaliacao' "
+                                        + "WHERE relacao.identidade = 1 AND relacao.tabela_entidade = 'produto') AS qtdeavaliacoes "
+                                    + "FROM produto "
+                                    + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 "
+                                    + "INNER JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto' "
+                                    + "INNER JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem' "
+                                    + "INNER JOIN imagem  ON imagem.idimagem = ri.idrelacionada "
+                                    + "WHERE rp.identidade = ?;";
+        
+        try{
+            List<Produto> produtos = new ArrayList<Produto>();
+            resultSet = retornaResultadoQuery(buscarProdutos, id);
+            while(resultSet.next()){
+                Produto produto = new Produto();
+                produto.setProdutoid(resultSet.getInt("idproduto"));
+                produto.setNome(resultSet.getString("nomeproduto"));
+                produto.setDescricao(resultSet.getString("descricao"));
+                produto.setPreco(resultSet.getFloat("preco"));
+                produto.setCategoria(resultSet.getInt("fkcategoria"));
+                
+                Imagem imagemPerfil = new Imagem();
+                imagemPerfil.setImagemid(resultSet.getInt("idimagem"));
+                imagemPerfil.setNome(resultSet.getString("nomeimagem"));
+                imagemPerfil.setCaminho(resultSet.getString("caminho"));
+                imagemPerfil.setDescricao(resultSet.getString("descricao"));
+                imagemPerfil.setTipoImagem(resultSet.getInt("fktipo_imagem"));
+                
+                produto.setImagemPerfil(imagemPerfil);
+                produto.setQtdeComentarios(resultSet.getInt("qtdecomentarios"));
+                produto.setQtdeComentarios(resultSet.getInt("qtdeavaliacoes"));
+                produtos.add(produto);
+            }
+            return produtos;
+        } finally {
+            ptmt.close();
+        }
     }
     
 }

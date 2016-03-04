@@ -26,6 +26,8 @@ public class Empresa {
     private Endereco endereco;
     private List<Produto> produtos;
     private List avaliacaoNota;
+    private int qtdeComentarios;
+    private int qtdeAvaliacoes;
 
     public int getEmpresaId() {
         return empresaId;
@@ -130,4 +132,21 @@ public class Empresa {
     public void setAvaliacaoNota(List avaliacaoNota) {
         this.avaliacaoNota = avaliacaoNota;
     }
+
+    public int getQtdeComentarios() {
+        return qtdeComentarios;
+    }
+
+    public void setQtdeComentarios(int qtdeComentarios) {
+        this.qtdeComentarios = qtdeComentarios;
+    }
+
+    public int getQtdeAvaliacoes() {
+        return qtdeAvaliacoes;
+    }
+
+    public void setQtdeAvaliacoes(int qtdeAvaliacoes) {
+        this.qtdeAvaliacoes = qtdeAvaliacoes;
+    }
+    
 }

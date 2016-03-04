@@ -14,14 +14,17 @@ import java.util.List;
 public class Produto {
     
     private int produtoid;
+    private String nome;
     private int categoria;
     private String descricao;
-    private Double preco;
+    private float preco;
     private Imagem imagemPerfil;
     private List<Imagem> imagensNaoOficiais;
     private List<Imagem> imagensOficiais;
     private List<Comentario> comentarios;
     private List<Avaliacao> avaliacoes;
+    private int qtdeComentarios;
+    private int qtdeAvaliacoes;
 
     public int getProdutoid() {
         return produtoid;
@@ -29,6 +32,14 @@ public class Produto {
 
     public void setProdutoid(int produtoid) {
         this.produtoid = produtoid;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public int getCategoria() {
@@ -47,11 +58,11 @@ public class Produto {
         this.descricao = descricao;
     }
 
-    public Double getPreco() {
+    public float getPreco() {
         return preco;
     }
 
-    public void setPreco(Double preco) {
+    public void setPreco(float preco) {
         this.preco = preco;
     }
 
@@ -94,4 +105,21 @@ public class Produto {
     public void setAvaliacoes(List<Avaliacao> avaliacoes) {
         this.avaliacoes = avaliacoes;
     }
+
+    public int getQtdeComentarios() {
+        return qtdeComentarios;
+    }
+
+    public void setQtdeComentarios(int qtdeComentarios) {
+        this.qtdeComentarios = qtdeComentarios;
+    }
+
+    public int getQtdeAvaliacoes() {
+        return qtdeAvaliacoes;
+    }
+
+    public void setQtdeAvaliacoes(int qtdeAvaliacoes) {
+        this.qtdeAvaliacoes = qtdeAvaliacoes;
+    }
+    
 }
