@@ -14,7 +14,7 @@ public class Imagem {
     private int imagemid;
     private int tipoImagem;
     private String caminho;
-    private String nome;
+    private String nomeImagem;
     private String descricao;
     private int itemid;
     private int pessoaid;
@@ -44,11 +44,11 @@ public class Imagem {
     }
 
     public String getNome() {
-        return nome;
+        return nomeImagem;
     }
 
     public void setNome(String nome) {
-        this.nome = nome;
+        this.nomeImagem = nome;
     }
 
     public String getDescricao() {

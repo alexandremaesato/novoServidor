@@ -14,7 +14,7 @@ import java.util.List;
 public class Produto {
     
     private int produtoid;
-    private String nome;
+    private String nomeProduto;
     private int categoria;
     private String descricao;
     private float preco;
@@ -35,11 +35,11 @@ public class Produto {
     }
 
     public String getNome() {
-        return nome;
+        return nomeProduto;
     }
 
     public void setNome(String nome) {
-        this.nome = nome;
+        this.nomeProduto = nome;
     }
 
     public int getCategoria() {

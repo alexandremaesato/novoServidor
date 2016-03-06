@@ -59,20 +59,58 @@ public class EmpresaDAO {
     }
     
     public List<Empresa> pegarEmpresas() throws SQLException{
-        String queryEmpresa  = "SELECT * FROM empresa;";
+        String buscaEmpresa = "SELECT DISTINCT "
+                               + "empresa.*, imagem.*, endereco.*, "
+                               + "(SELECT COUNT(*) FROM comentario "
+                                  + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
+                                  + "WHERE relacao.identidade = empresa.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdecomentarios, "
+                               + "(SELECT COUNT(*) FROM avaliacao "
+                                  +  "INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliacao AND relacao.tabela_relacionada = 'avaliacao' "
+                                  + "WHERE relacao.identidade = empresa.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdeavaliacoes "
+                               + "FROM empresa "
+                               + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
+                               + "LEFT JOIN relacao ri ON ri.identidade = empresa.idempresa AND ri.tabela_relacionada = 'imagem' "
+                               + "LEFT JOIN relacao ren ON ren.identidade = empresa.idempresa AND ren.tabela_relacionada = 'endereco' "
+                               + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada AND imagem.fktipo_imagem = 1 "
+                               + "LEFT JOIN endereco  ON endereco.idendereco = ren.idrelacionada "
+                               + "GROUP BY empresa.idempresa";
         
         try{
             con = ConnectionFactory.getConnection();
-            ptmt = con.prepareStatement(queryEmpresa);
+            ptmt = con.prepareStatement(buscaEmpresa);
             resultSet = ptmt.executeQuery();
             List<Empresa> empresas = new ArrayList<Empresa>();
             
             while (resultSet.next()) { 
                 Empresa empresa = new Empresa();
                 empresa.setEmpresaId(resultSet.getInt("idempresa"));
-                empresa.setNome(resultSet.getString("nome"));
+                empresa.setNome(resultSet.getString("nomeempresa"));
                 empresa.setCnpj(resultSet.getString("cnpj"));
                 empresa.setDescricao(resultSet.getString("descricao"));
+                
+                Imagem imagemPerfil = new Imagem();
+                imagemPerfil.setImagemid(resultSet.getInt("idimagem"));
+                imagemPerfil.setNome(resultSet.getString("nomeimagem"));
+                imagemPerfil.setCaminho(resultSet.getString("caminho"));
+                imagemPerfil.setDescricao(resultSet.getString("descricao"));
+                imagemPerfil.setTipoImagem(resultSet.getInt("fktipo_imagem"));
+                
+                Endereco endereco = new Endereco();
+                endereco.setEnderecoid(resultSet.getInt("idendereco"));
+                endereco.setRua(resultSet.getString("rua"));
+                endereco.setBairro(resultSet.getString("bairro"));
+                endereco.setCep(resultSet.getString("cep"));
+                endereco.setNumero(resultSet.getString("numero"));
+                endereco.setComplemento(resultSet.getString("complemento"));
+                endereco.setCidade(resultSet.getString("cidade"));
+                endereco.setEstado(resultSet.getString("estado"));
+                endereco.setPais(resultSet.getString("pais"));
+                
+                empresa.setImagemPerfil(imagemPerfil);
+                empresa.setEndereco(endereco);
+                empresa.setQtdeComentarios(resultSet.getInt("qtdecomentarios"));
+                empresa.setQtdeComentarios(resultSet.getInt("qtdeavaliacoes"));
+                
                 empresas.add(empresa);
             }
             return empresas;
@@ -117,7 +155,7 @@ public class EmpresaDAO {
             resultSet = retornaResultadoQuery(buscarEmpresa, id);
             if(resultSet.next()){
                 empresa.setEmpresaId(resultSet.getInt("idempresa"));
-                empresa.setNome(resultSet.getString("nome"));
+                empresa.setNome(resultSet.getString("nomeempresa"));
                 empresa.setCnpj(resultSet.getString("cnpj"));
                 empresa.setDescricao(resultSet.getString("descricao"));
             }
@@ -126,7 +164,7 @@ public class EmpresaDAO {
             if(resultSet.next()){
                 Imagem imagemPerfil = new Imagem();
                 imagemPerfil.setImagemid(resultSet.getInt("idimagem"));
-                imagemPerfil.setNome(resultSet.getString("nome"));
+                imagemPerfil.setNome(resultSet.getString("nomeimagem"));
                 imagemPerfil.setDescricao(resultSet.getString("descricao"));
                 imagemPerfil.setCaminho(resultSet.getString("caminho"));
                 empresa.setImagemPerfil(imagemPerfil);
@@ -138,7 +176,7 @@ public class EmpresaDAO {
             while(resultSet.next()){
                 Imagem imagem = new Imagem();
                 imagem.setImagemid(resultSet.getInt("idimagem"));
-                imagem.setNome(resultSet.getString("nome"));
+                imagem.setNome(resultSet.getString("nomeimagem"));
                 imagem.setDescricao(resultSet.getString("descricao"));
                 imagem.setCaminho(resultSet.getString("caminho"));
                 imagem.setTipoImagem(resultSet.getInt("fktipo_imagem"));
@@ -211,10 +249,10 @@ public class EmpresaDAO {
         String buscarProdutos     = "SELECT DISTINCT produto.*, imagem.*, "
                                       + "(SELECT COUNT(*) FROM comentario "
                                         + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
-                                        + "WHERE relacao.identidade = 1 AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
+                                        + "WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
                                       + "(SELECT COUNT(*) FROM avaliacao "
                                         + "INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliacao AND relacao.tabela_relacionada = 'avaliacao' "
-                                        + "WHERE relacao.identidade = 1 AND relacao.tabela_entidade = 'produto') AS qtdeavaliacoes "
+                                        + "WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdeavaliacoes "
                                     + "FROM produto "
                                     + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 "
                                     + "INNER JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto' "

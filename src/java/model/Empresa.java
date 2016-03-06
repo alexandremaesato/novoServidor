@@ -14,7 +14,7 @@ import java.util.List;
 public class Empresa {
     
     private int empresaId;
-    private String nome;
+    private String nomeEmpresa;
     private String cnpj;
     private String descricao;
     private Imagem imagemPerfil;
@@ -38,11 +38,11 @@ public class Empresa {
     }
 
     public String getNome() {
-        return nome;
+        return nomeEmpresa;
     }
 
     public void setNome(String nome) {
-        this.nome = nome;
+        this.nomeEmpresa = nome;
     }
 
     public String getCnpj() {
