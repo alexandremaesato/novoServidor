@@ -26,7 +26,7 @@ public class Teste {
         
         for( Empresa emp : empresas ){
             
-            System.out.print(emp.getNome());
+            System.out.print(emp.getNomeEmpresa());
         }
         
         

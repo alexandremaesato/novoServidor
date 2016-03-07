@@ -10,7 +10,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,39 +26,88 @@ public class EmpresaDAO {
     PreparedStatement ptmt = null;
     ResultSet resultSet    = null;
     
-    public void cadastrarEmpresa(Empresa emp) throws SQLException{
-        String queryEmpresa  = "INSERT INTO empresa(nome, cnpj, descricao) values(?,?,?);";
-        String queryEntidade = "INSERT INTO entidade(identidade_criada, deletado, tabela, idresponsavel, data_criacao, data_modificacao, idcriador) values(?,?,?,?,?,?,?);";
-        int idEmpresa = 0;
+    public void cadastrarEmpresa(Empresa emp, Pessoa p) throws SQLException{
+        String cadastrarEmpresa  = "INSERT INTO empresa(nomeempresa, cnpj, descricao) values(?,?,?);";
+        String cadastrarEntidade = "INSERT INTO entidade(identidade_criada, deletado, tabela, idresponsavel, data_criacao, data_modificacao, idcriador) values(?,?,?,?,?,?,?);";
+        String cadastrarEndereco = "INSERT INTO endereco(rua, numero, complemento, cep, bairro, cidade, estado, pais) values(?,?,?,?,?,?,?,?);";
+        String cadastrarTelefone = "INSERT INTO telefone(numero, tipo_telefone) values(?,?);";
+        String cadastrarRelacao  = "INSERT INTO relacao(identidade, tabela_entidade, idrelacionada, tabela_relacionada) values(?,?,?,?);";
         
         try {
             con = ConnectionFactory.getConnection();
-            ptmt = con.prepareStatement(queryEmpresa, Statement.RETURN_GENERATED_KEYS);
-            ptmt.setString(1, emp.getNome());
-            ptmt.setString(2, emp.getCnpj());
-            ptmt.setString(3, emp.getDescricao());
+            ptmt = con.prepareStatement(cadastrarEmpresa, Statement.RETURN_GENERATED_KEYS);
+                ptmt.setString(1, emp.getNomeEmpresa());
+                ptmt.setString(2, emp.getCnpj());
+                ptmt.setString(3, emp.getDescricao());
             
             ptmt.executeUpdate();
             resultSet = ptmt.getGeneratedKeys();
             resultSet.next();
-            idEmpresa = resultSet.getInt(1);
+            int idEmpresa = resultSet.getInt(1);
             
             
-            ptmt = con.prepareStatement(queryEntidade);
-            ptmt.setInt(1, idEmpresa);
-            ptmt.setInt(2, 0);
-            ptmt.setString(3, "empresa");
-            ptmt.setInt(4, 1);
-            ptmt.setString(5, "2016-02-22");
-            ptmt.setString(6, "2016-02-22");
-            ptmt.setInt(7, 1);
-            
+            ptmt = con.prepareStatement(cadastrarEntidade);
+                ptmt.setInt(1, idEmpresa);
+                ptmt.setInt(2, 0);
+                ptmt.setString(3, "empresa");
+                ptmt.setInt(4, p.getPessoaid());
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    Date date = new Date();
+                ptmt.setString(5, dateFormat.format(date));
+                ptmt.setString(6, dateFormat.format(date));
+                ptmt.setInt(7, p.getPessoaid());
             ptmt.executeUpdate();
             
             
+            Endereco endereco = emp.getEndereco();
+            ptmt = con.prepareStatement(cadastrarEndereco);
+                ptmt.setString(1, endereco.getRua());
+                ptmt.setString(2, endereco.getNumero());
+                ptmt.setString(3, endereco.getComplemento());
+                ptmt.setString(4, endereco.getCep());
+                ptmt.setString(5, endereco.getBairro());
+                ptmt.setString(6, endereco.getCidade());
+                ptmt.setString(7, endereco.getEstado());
+                ptmt.setString(8, endereco.getPais());
+            ptmt.executeUpdate();
+            resultSet = ptmt.getGeneratedKeys();
+            resultSet.next();
+            int idEndereco = resultSet.getInt(1);
+            
+            ptmt = con.prepareStatement(cadastrarRelacao);
+                ptmt.setInt(1, idEmpresa);
+                ptmt.setString(2, "empresa");
+                ptmt.setInt(3, idEndereco);
+                ptmt.setString(4, "endereco");
+            
+            
+            List<Telefone> telefones = emp.getTelefones();
+            for( Telefone telefone : telefones ){
+                ptmt = con.prepareStatement(cadastrarTelefone);
+                    ptmt.setString(1, telefone.getNumero());
+                    ptmt.setString(1, telefone.getTipoTelefone());
+                ptmt.executeUpdate();
+                resultSet = ptmt.getGeneratedKeys();
+                resultSet.next();
+                int idTelefone = resultSet.getInt(1);
+
+                ptmt = con.prepareStatement(cadastrarRelacao);
+                    ptmt.setInt(1, idEmpresa);
+                    ptmt.setString(2, "empresa");
+                    ptmt.setInt(3, idTelefone);
+                    ptmt.setString(4, "telefone");
+            }
+            
+            
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao inserir empresa no banco de dados. "+ex);
         } finally {
             ptmt.close();
         }
+    }
+    
+    public void atualizarEmpresa(Empresa emp){
+        //TODO
     }
     
     public List<Empresa> pegarEmpresas() throws SQLException{
@@ -84,7 +136,7 @@ public class EmpresaDAO {
             while (resultSet.next()) { 
                 Empresa empresa = new Empresa();
                 empresa.setEmpresaId(resultSet.getInt("idempresa"));
-                empresa.setNome(resultSet.getString("nomeempresa"));
+                empresa.setNomeEmpresa(resultSet.getString("nomeempresa"));
                 empresa.setCnpj(resultSet.getString("cnpj"));
                 empresa.setDescricao(resultSet.getString("descricao"));
                 
@@ -114,6 +166,8 @@ public class EmpresaDAO {
                 empresas.add(empresa);
             }
             return empresas;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao busca empresa no banco de dados. "+ex);
         } finally {
             ptmt.close();
         }
@@ -155,7 +209,7 @@ public class EmpresaDAO {
             resultSet = retornaResultadoQuery(buscarEmpresa, id);
             if(resultSet.next()){
                 empresa.setEmpresaId(resultSet.getInt("idempresa"));
-                empresa.setNome(resultSet.getString("nomeempresa"));
+                empresa.setNomeEmpresa(resultSet.getString("nomeempresa"));
                 empresa.setCnpj(resultSet.getString("cnpj"));
                 empresa.setDescricao(resultSet.getString("descricao"));
             }
@@ -231,6 +285,8 @@ public class EmpresaDAO {
             empresa.setProdutos(produtos);     
             
             return empresa;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao buscar empresa no banco de dados. "+ex);
         } finally {
             ptmt.close();
         }
@@ -255,9 +311,9 @@ public class EmpresaDAO {
                                         + "WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdeavaliacoes "
                                     + "FROM produto "
                                     + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 "
-                                    + "INNER JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto' "
-                                    + "INNER JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem' "
-                                    + "INNER JOIN imagem  ON imagem.idimagem = ri.idrelacionada "
+                                    + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto' "
+                                    + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem' "
+                                    + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada "
                                     + "WHERE rp.identidade = ?;";
         
         try{
@@ -266,7 +322,7 @@ public class EmpresaDAO {
             while(resultSet.next()){
                 Produto produto = new Produto();
                 produto.setProdutoid(resultSet.getInt("idproduto"));
-                produto.setNome(resultSet.getString("nomeproduto"));
+                produto.setNomeProduto(resultSet.getString("nomeproduto"));
                 produto.setDescricao(resultSet.getString("descricao"));
                 produto.setPreco(resultSet.getFloat("preco"));
                 produto.setCategoria(resultSet.getInt("fkcategoria"));
@@ -284,6 +340,8 @@ public class EmpresaDAO {
                 produtos.add(produto);
             }
             return produtos;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao buscar produto no banco de dados. "+ex);
         } finally {
             ptmt.close();
         }

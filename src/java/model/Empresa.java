@@ -37,11 +37,11 @@ public class Empresa {
         this.empresaId = empresaId;
     }
 
-    public String getNome() {
+    public String getNomeEmpresa() {
         return nomeEmpresa;
     }
 
-    public void setNome(String nome) {
+    public void setNomeEmpresa(String nome) {
         this.nomeEmpresa = nome;
     }
 

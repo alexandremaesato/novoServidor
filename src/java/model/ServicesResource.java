@@ -63,10 +63,11 @@ public class ServicesResource {
     @POST
     @Path("/cadastrarEmpresa")
     @Consumes("application/json")
-    public String cadastrarEmpresa(String empresa) throws SQLException {
+    public String cadastrarEmpresa(String empresa, String pessoa) throws SQLException {
         
         Empresa objetoEmpresa = gson.fromJson(empresa, Empresa.class);
-        empresadao.cadastrarEmpresa(objetoEmpresa);
+        Pessoa objetoPessoa   = gson.fromJson(pessoa, Pessoa.class);
+        empresadao.cadastrarEmpresa(objetoEmpresa, objetoPessoa);
         
         return "OK";
     }
