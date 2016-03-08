@@ -17,6 +17,7 @@ public class Comentario {
     private int comentarioDependenteid;
     private int comentadoid;
     private int modificado;
+    private String tipoComentado;
 
     public int getComentarioid() {
         return comentarioid;
@@ -64,6 +65,14 @@ public class Comentario {
 
     public void setModificado(int modificado) {
         this.modificado = modificado;
+    }
+
+    public String getTipoComentado() {
+        return tipoComentado;
+    }
+
+    public void setTipoComentado(String tipoComentado) {
+        this.tipoComentado = tipoComentado;
     }
     
 }

@@ -27,6 +27,7 @@ public class EmpresaDAO {
     ResultSet resultSet    = null;
     
     public void cadastrarEmpresa(Empresa emp, Pessoa p) throws SQLException{
+        
         String cadastrarEmpresa  = "INSERT INTO empresa(nomeempresa, cnpj, descricao) values(?,?,?);";
         String cadastrarEntidade = "INSERT INTO entidade(identidade_criada, deletado, tabela, idresponsavel, data_criacao, data_modificacao, idcriador) values(?,?,?,?,?,?,?);";
         String cadastrarEndereco = "INSERT INTO endereco(rua, numero, complemento, cep, bairro, cidade, estado, pais) values(?,?,?,?,?,?,?,?);";
@@ -106,11 +107,45 @@ public class EmpresaDAO {
         }
     }
     
-    public void atualizarEmpresa(Empresa emp){
-        //TODO
+    public void atualizarEmpresa(Empresa emp) throws SQLException{
+        
+        String alteraEmpresa = "UPDATE empresa SET nomeempresa = ?, cnpj = ?, descricao = ? WHERE idempresa = ?";
+        
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(alteraEmpresa);
+                ptmt.setString(1, emp.getNomeEmpresa());
+                ptmt.setString(2, emp.getCnpj());
+                ptmt.setString(3, emp.getDescricao());
+                ptmt.setInt(4, emp.getEmpresaId());
+            
+            ptmt.executeUpdate();
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao atualizar empresa no banco de dados. "+ex);
+        } finally {
+            ptmt.close();
+        }
+    }
+    
+    public void apagarEmpresa(Empresa emp) throws SQLException{
+        
+        String alteraEmpresa = "UPDATE entidade SET deletado = 1 WHERE identidade_criada = ?";
+        
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(alteraEmpresa);
+                ptmt.setInt(1, emp.getEmpresaId());
+            
+            ptmt.executeUpdate();
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao apagar empresa do banco de dados. "+ex);
+        } finally {
+            ptmt.close();
+        }
     }
     
     public List<Empresa> pegarEmpresas() throws SQLException{
+        
         String buscaEmpresa = "SELECT DISTINCT "
                                + "empresa.*, imagem.*, endereco.*, "
                                + "(SELECT COUNT(*) FROM comentario "
@@ -346,5 +381,4 @@ public class EmpresaDAO {
             ptmt.close();
         }
     }
-    
 }
