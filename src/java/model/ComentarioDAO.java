@@ -55,7 +55,7 @@ public class ComentarioDAO {
         }
     }
     
-    public void atualizarComentarios(Comentario comentario) throws SQLException{
+    public void atualizarComentario(Comentario comentario) throws SQLException{
         
         String alteraEmpresa = "UPDATE comentario SET descricao = ?, modificado = ? WHERE idcomentario = ?";
         
@@ -71,5 +71,9 @@ public class ComentarioDAO {
         } finally {
             ptmt.close();
         }
+    }
+    
+    public void deletarComentario(){
+        
     }
 }

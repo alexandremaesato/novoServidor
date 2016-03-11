@@ -215,17 +215,14 @@ public class EmpresaDAO {
                                      + "WHERE idempresa = ?;";
         
         String buscarImagemPerfil = "SELECT DISTINCT imagem.* FROM imagem "
-                                     + "INNER JOIN entidade ON imagem.idimagem = entidade.identidade_criada AND entidade.deletado = 0 "
                                      + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
                                      + "WHERE imagem.fktipo_imagem = 1 AND relacao.identidade = ?;";
         
         String buscarImagens      = "SELECT DISTINCT imagem.* FROM imagem "
-                                     + "INNER JOIN entidade ON imagem.idimagem = entidade.identidade_criada AND entidade.deletado = 0 "
                                      + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
                                      + "WHERE imagem.fktipo_imagem IN (2,3) AND relacao.identidade = ?;";
         
         String buscarComentarios  = "SELECT DISTINCT comentario.* FROM comentario "
-                                     + "INNER JOIN entidade ON comentario.idcomentario = entidade.identidade_criada AND entidade.deletado = 0 "
                                      + "INNER JOIN relacao ON comentario.idcomentario = relacao.idrelacionada AND relacao.tabela_relacionada = 'comentario' "
                                      + "WHERE relacao.identidade = ?;";
         
@@ -234,7 +231,6 @@ public class EmpresaDAO {
                                      + "WHERE relacao.identidade = ?;";
         
         String buscarAvaliacao    = "SELECT DISTINCT avaliacao.* FROM avaliacao "
-                                     + "INNER JOIN entidade ON avaliacao.idavaliacao = entidade.identidade_criada AND entidade.deletado = 0 "
                                      + "INNER JOIN relacao ON avaliacao.idavaliacao = relacao.idrelacionada AND relacao.tabela_relacionada = 'avaliacao' "
                                      + "WHERE relacao.identidade = ?;";
         

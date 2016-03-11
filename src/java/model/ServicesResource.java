@@ -25,6 +25,8 @@ import javax.ws.rs.PUT;
  * @author Guilherme
  */
 @Path("Services")
+@Consumes("application/json")
+@Produces("application/json")
 public class ServicesResource {
 
     @Context
@@ -38,13 +40,8 @@ public class ServicesResource {
     public ServicesResource() {
     }
 
-    /**
-     * Retrieves representation of an instance of model.ServicesResource
-     * @return an instance of java.lang.String
-     */
     @GET
     @Path("/pegarEmpresas")
-    @Produces("application/json")
     public String pegarEmpresas() throws SQLException{
         
         EmpresaDAO empresadao = new EmpresaDAO();
@@ -55,15 +52,9 @@ public class ServicesResource {
         return emps;
     }
 
-    /**
-     * PUT method for updating or creating an instance of ServicesResource
-     * @param content representation for the resource
-     * @return an HTTP response with content of the updated or created resource.
-     */
     @POST
     @Path("/cadastrarEmpresa")
-    @Consumes("application/json")
-    public String cadastrarEmpresa(@PathParam("empresa")String empresa, @PathParam("pessoa")String pessoa) throws SQLException {
+    public String cadastrarEmpresa(String empresa, String pessoa) throws SQLException {
         
         Empresa objetoEmpresa = gson.fromJson(empresa, Empresa.class);
         Pessoa objetoPessoa   = gson.fromJson(pessoa, Pessoa.class);
