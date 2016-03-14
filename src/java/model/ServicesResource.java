@@ -18,6 +18,7 @@ import static javax.ws.rs.HttpMethod.POST;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
+import javax.ws.rs.core.MediaType;
 
 /**
  * REST Web Service
@@ -25,8 +26,6 @@ import javax.ws.rs.PUT;
  * @author Guilherme
  */
 @Path("Services")
-@Consumes("application/json")
-@Produces("application/json")
 public class ServicesResource {
 
     @Context
@@ -42,6 +41,7 @@ public class ServicesResource {
 
     @GET
     @Path("/pegarEmpresas")
+    @Produces(MediaType.APPLICATION_JSON)
     public String pegarEmpresas() throws SQLException{
         
         EmpresaDAO empresadao = new EmpresaDAO();
@@ -54,7 +54,9 @@ public class ServicesResource {
 
     @POST
     @Path("/cadastrarEmpresa")
-    public String cadastrarEmpresa(String empresa, String pessoa) throws SQLException {
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String cadastrarEmpresa(@PathParam("empresa") String empresa, @PathParam("pessoa") String pessoa) throws SQLException {
         
         Empresa objetoEmpresa = gson.fromJson(empresa, Empresa.class);
         Pessoa objetoPessoa   = gson.fromJson(pessoa, Pessoa.class);

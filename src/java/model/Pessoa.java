@@ -18,7 +18,7 @@ public class Pessoa {
     private String login;
     private String senha;
     private String cpf;
-    private String nome;
+    private String nomePessoa;
     private String sobrenome;
     private Date dataNascimento;
     private int imagemPerfil;
@@ -59,12 +59,12 @@ public class Pessoa {
         this.cpf = cpf;
     }
 
-    public String getNome() {
-        return nome;
+    public String getNomePessoa() {
+        return nomePessoa;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setNome(String nomePessoa) {
+        this.nomePessoa = nomePessoa;
     }
 
     public String getSobrenome() {
