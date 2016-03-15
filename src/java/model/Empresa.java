@@ -41,8 +41,8 @@ public class Empresa {
         return nomeEmpresa;
     }
 
-    public void setNomeEmpresa(String nomeEmpresa) {
-        this.nomeEmpresa = nomeEmpresa;
+    public void setNomeEmpresa(String nome) {
+        this.nomeEmpresa = nome;
     }
 
     public String getCnpj() {

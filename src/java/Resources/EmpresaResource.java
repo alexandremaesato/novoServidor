@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package Resources;
 
 import com.google.gson.Gson;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -18,15 +19,19 @@ import static javax.ws.rs.HttpMethod.POST;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
-import javax.ws.rs.core.MediaType;
+import model.Empresa;
+import model.EmpresaDAO;
+import model.Pessoa;
 
 /**
  * REST Web Service
  *
  * @author Guilherme
  */
-@Path("Services")
-public class ServicesResource {
+@Path("Empresa")
+@Consumes("application/json")
+@Produces("application/json")
+public class EmpresaResource {
 
     @Context
     private UriInfo context;
@@ -36,12 +41,11 @@ public class ServicesResource {
     /**
      * Creates a new instance of ServicesResource
      */
-    public ServicesResource() {
+    public EmpresaResource() {
     }
 
     @GET
     @Path("/pegarEmpresas")
-    @Produces(MediaType.APPLICATION_JSON)
     public String pegarEmpresas() throws SQLException{
         
         EmpresaDAO empresadao = new EmpresaDAO();
@@ -54,15 +58,19 @@ public class ServicesResource {
 
     @POST
     @Path("/cadastrarEmpresa")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public String cadastrarEmpresa(@PathParam("empresa") String empresa, @PathParam("pessoa") String pessoa) throws SQLException {
+    public String cadastrarEmpresa(String val) throws SQLException {
         
-        Empresa objetoEmpresa = gson.fromJson(empresa, Empresa.class);
-        Pessoa objetoPessoa   = gson.fromJson(pessoa, Pessoa.class);
-        empresadao.cadastrarEmpresa(objetoEmpresa, objetoPessoa);
+        Gson gson = new Gson();
+        HashMap params = gson.fromJson(val, HashMap.class );
+        String jsonEmpresa = (String) params.get("empresa").toString();
+        String jsonPessoa = (String) params.get("empresa").toString();
+       
+        //Precisa criar verificacao de todos os dados para nao dar erro no DAO
+        Empresa objetoEmpresa = gson.fromJson(jsonEmpresa, Empresa.class);
+        Pessoa objetoPessoa   = gson.fromJson(jsonPessoa, Pessoa.class);
+//        empresadao.cadastrarEmpresa(objetoEmpresa, objetoPessoa);
         
-        return "OK";
+        return gson.toJson(objetoEmpresa);
     }
     
 }
