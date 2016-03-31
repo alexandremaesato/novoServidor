@@ -35,7 +35,7 @@ public class AutenticacaoResource {
     @Path("/logar")
       
     public String logar(String val) {
-        return "";
+        return "ok";
     }
     
 }

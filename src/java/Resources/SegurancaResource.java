@@ -15,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.POST;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * REST Web Service
@@ -26,9 +27,9 @@ public class SegurancaResource {
 
  @GET
  @Path("message")
- @Produces(MediaType.TEXT_PLAIN)
+ @Produces(MediaType.APPLICATION_JSON+ "; charset=UTF-8")
  public String metodoSeguranca(){
-     return "Esta API é segura  ";
+     return Response.Status.ACCEPTED.toString();
  }
  
 }

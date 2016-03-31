@@ -68,7 +68,7 @@ public class EmpresaResource {
         //Precisa criar verificacao de todos os dados para nao dar erro no DAO
         Empresa objetoEmpresa = gson.fromJson(jsonEmpresa, Empresa.class);
         Pessoa objetoPessoa   = gson.fromJson(jsonPessoa, Pessoa.class);
-//        empresadao.cadastrarEmpresa(objetoEmpresa, objetoPessoa);
+        empresadao.cadastrarEmpresa(objetoEmpresa, objetoPessoa);
         
         return gson.toJson(objetoEmpresa);
     }
