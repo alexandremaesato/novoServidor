@@ -211,5 +211,28 @@ public class AutenticacaoDao {
             return retorno;
         }
     }
+    
+    public int getPessoaId(Pessoa pessoa) throws SQLException{
+        String sql1 = "SELECT idautenticacao FROM autenticacao WHERE login = ? AND senha = ?;";
+        ResultSet rs;
+        int id = 0;
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql1);
+            ptmt.setString(1, pessoa.getLogin());
+            ptmt.setString(2, pessoa.getSenha());
+            ptmt.executeQuery();
+            rs = ptmt.getResultSet();
+            if(rs.next()){
+                id = rs.getInt("idautenticacao");
+            }     
+            return id;
+            
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro: " + ex);
+        } finally {
+            ptmt.close();
+        }
+    }
 
 }

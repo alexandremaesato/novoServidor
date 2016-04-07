@@ -18,6 +18,23 @@ public class Imagem {
     private String descricao;
     private int itemid;
     private int pessoaid;
+    private String img;
+
+    public String getNomeImagem() {
+        return nomeImagem;
+    }
+
+    public void setNomeImagem(String nomeImagem) {
+        this.nomeImagem = nomeImagem;
+    }
+
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
+    }
 
     public int getImagemid() {
         return imagemid;
@@ -41,14 +58,6 @@ public class Imagem {
 
     public void setCaminho(String caminho) {
         this.caminho = caminho;
-    }
-
-    public String getNome() {
-        return nomeImagem;
-    }
-
-    public void setNome(String nome) {
-        this.nomeImagem = nome;
     }
 
     public String getDescricao() {

@@ -25,7 +25,7 @@ import jdk.nashorn.internal.parser.JSONParser;
 import model.AutenticacaoDao;
 import model.Empresa;
 import model.Pessoa;
-import org.apache.xml.security.exceptions.Base64DecodingException;
+//import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.omg.DynamicAny.NameValuePair;
 
 
@@ -38,20 +38,20 @@ import utilitarios.Criptografia;
  * @author Alexandre
  */
 public class TestesDoAle {
-    public static void main(String args[]) throws SQLException, Base64DecodingException{
-        byte[] encodedHelloBytes = DatatypeConverter.parseBase64Binary("dXNlcjpwYXNzd29yZA==");
-            String decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8) ;
-    
-            //String decodeString = Base64.getDecoder().decode(authToken).toString();
-            StringTokenizer tokenizer = new StringTokenizer(decodeString, ":");
-            String username = tokenizer.nextToken();
-            String password = tokenizer.nextToken();
-            
-            String convertido = Base64.encode("qwe123@".getBytes());
-            
-     System.out.println("Convertido: "+convertido);
-     System.out.println("decode : "+decodeString);
-    }
+//    public static void main(String args[]) throws SQLException, Base64DecodingException{
+//        byte[] encodedHelloBytes = DatatypeConverter.parseBase64Binary("dXNlcjpwYXNzd29yZA==");
+//            String decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8) ;
+//    
+//            //String decodeString = Base64.getDecoder().decode(authToken).toString();
+//            StringTokenizer tokenizer = new StringTokenizer(decodeString, ":");
+//            String username = tokenizer.nextToken();
+//            String password = tokenizer.nextToken();
+//            
+//            String convertido = Base64.encode("qwe123@".getBytes());
+//            
+//     System.out.println("Convertido: "+convertido);
+//     System.out.println("decode : "+decodeString);
+//    }
     
     
    

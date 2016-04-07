@@ -26,7 +26,7 @@ public class EmpresaDAO {
     PreparedStatement ptmt = null;
     ResultSet resultSet    = null;
     
-    public void cadastrarEmpresa(Empresa emp, Pessoa p) throws SQLException{
+    public int cadastrarEmpresa(Empresa emp, Pessoa p) throws SQLException{
         
         String cadastrarEmpresa  = "INSERT INTO empresa(nomeempresa, cnpj, descricao) values(?,?,?);";
         String cadastrarEntidade = "INSERT INTO entidade(identidade_criada, deletado, tabela, idresponsavel, data_criacao, data_modificacao, idcriador) values(?,?,?,?,?,?,?);";
@@ -47,7 +47,7 @@ public class EmpresaDAO {
             int idEmpresa = resultSet.getInt(1);
             
             
-            ptmt = con.prepareStatement(cadastrarEntidade);
+            ptmt = con.prepareStatement(cadastrarEntidade, Statement.RETURN_GENERATED_KEYS);
                 ptmt.setInt(1, idEmpresa);
                 ptmt.setInt(2, 0);
                 ptmt.setString(3, "empresa");
@@ -58,6 +58,9 @@ public class EmpresaDAO {
                 ptmt.setString(6, dateFormat.format(date));
                 ptmt.setInt(7, p.getPessoaid());
             ptmt.executeUpdate();
+            resultSet = ptmt.getGeneratedKeys();
+            resultSet.next();
+            int idEntidade = resultSet.getInt(1);
             
             
             Endereco endereco = emp.getEndereco();
@@ -99,7 +102,7 @@ public class EmpresaDAO {
                     ptmt.setString(4, "telefone");
             }
             
-            
+            return idEntidade;
         } catch (SQLException ex) {
             throw new RuntimeException("Erro ao inserir empresa no banco de dados. "+ex);
         } finally {
@@ -177,7 +180,7 @@ public class EmpresaDAO {
                 
                 Imagem imagemPerfil = new Imagem();
                 imagemPerfil.setImagemid(resultSet.getInt("idimagem"));
-                imagemPerfil.setNome(resultSet.getString("nomeimagem"));
+                imagemPerfil.setNomeImagem(resultSet.getString("nomeimagem"));
                 imagemPerfil.setCaminho(resultSet.getString("caminho"));
                 imagemPerfil.setDescricao(resultSet.getString("descricao"));
                 imagemPerfil.setTipoImagem(resultSet.getInt("fktipo_imagem"));
@@ -249,7 +252,7 @@ public class EmpresaDAO {
             if(resultSet.next()){
                 Imagem imagemPerfil = new Imagem();
                 imagemPerfil.setImagemid(resultSet.getInt("idimagem"));
-                imagemPerfil.setNome(resultSet.getString("nomeimagem"));
+                imagemPerfil.setNomeImagem(resultSet.getString("nomeimagem"));
                 imagemPerfil.setDescricao(resultSet.getString("descricao"));
                 imagemPerfil.setCaminho(resultSet.getString("caminho"));
                 empresa.setImagemPerfil(imagemPerfil);
@@ -261,7 +264,7 @@ public class EmpresaDAO {
             while(resultSet.next()){
                 Imagem imagem = new Imagem();
                 imagem.setImagemid(resultSet.getInt("idimagem"));
-                imagem.setNome(resultSet.getString("nomeimagem"));
+                imagem.setNomeImagem(resultSet.getString("nomeimagem"));
                 imagem.setDescricao(resultSet.getString("descricao"));
                 imagem.setCaminho(resultSet.getString("caminho"));
                 imagem.setTipoImagem(resultSet.getInt("fktipo_imagem"));
@@ -360,7 +363,7 @@ public class EmpresaDAO {
                 
                 Imagem imagemPerfil = new Imagem();
                 imagemPerfil.setImagemid(resultSet.getInt("idimagem"));
-                imagemPerfil.setNome(resultSet.getString("nomeimagem"));
+                imagemPerfil.setNomeImagem(resultSet.getString("nomeimagem"));
                 imagemPerfil.setCaminho(resultSet.getString("caminho"));
                 imagemPerfil.setDescricao(resultSet.getString("descricao"));
                 imagemPerfil.setTipoImagem(resultSet.getInt("fktipo_imagem"));
