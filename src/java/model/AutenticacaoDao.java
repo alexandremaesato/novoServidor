@@ -212,15 +212,15 @@ public class AutenticacaoDao {
         }
     }
     
-    public int getPessoaId(Pessoa pessoa) throws SQLException{
+    public int getPessoaId(String login, String senha) throws SQLException{
         String sql1 = "SELECT idautenticacao FROM autenticacao WHERE login = ? AND senha = ?;";
         ResultSet rs;
         int id = 0;
         try {
             con = ConnectionFactory.getConnection();
             ptmt = con.prepareStatement(sql1);
-            ptmt.setString(1, pessoa.getLogin());
-            ptmt.setString(2, pessoa.getSenha());
+            ptmt.setString(1, login);
+            ptmt.setString(2, senha);
             ptmt.executeQuery();
             rs = ptmt.getResultSet();
             if(rs.next()){

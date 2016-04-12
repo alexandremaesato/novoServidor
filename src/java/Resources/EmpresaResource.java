@@ -6,19 +6,29 @@
 package Resources;
 
 import com.google.gson.Gson;
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.StringTokenizer;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.HttpHeaders;
+import javax.xml.bind.DatatypeConverter;
+import javax.xml.ws.WebServiceContext;
 import model.AutenticacaoDao;
 import model.Empresa;
 import model.EmpresaDAO;
@@ -63,27 +73,44 @@ public class EmpresaResource {
     @Path("/cadastrarEmpresa")
     @Consumes("application/json")
     @Produces("application/json")
-    public String cadastrarEmpresa(String val) throws SQLException {
+    public String cadastrarEmpresa(@HeaderParam("Authorization") List<String> autorizacao, String jsonEmpresa) throws SQLException, IOException {
         
-//        HashMap params = gson.fromJson(val, HashMap.class );
-//        String jsonEmpresa = (String) params.get("empresa").toString();
-//        String jsonPessoa = (String) params.get("empresa").toString();
+        //TESTE criando arquivo txt para verificar conteudo vindo no jsonEmpresa
+//            File arquivo = new File("C:\\imagens\\teste.txt");
+//            try( FileWriter fw = new FileWriter(arquivo) ){
+//                fw.write(jsonEmpresa);
+//                fw.flush();
+//            }catch(IOException ex){
+//              ex.printStackTrace();
+//            }
+        //FIM - TESTE
+        
+        // Pega informacoes do usuario no header e busca id do usuario
+//            String authToken = autorizacao.get(0);
+//            authToken = authToken.replaceFirst("Basic", "");
+//
+//            byte[] encodedHelloBytes = DatatypeConverter.parseBase64Binary(authToken);
+//            String decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8) ;
+//
+//            StringTokenizer tokenizer = new StringTokenizer(decodeString, ":");
+//            String login = tokenizer.nextToken();
+//            String senha = tokenizer.nextToken();
+//            int pessoaid = autdao.getPessoaId(login, senha);
 //       
-//        //Precisa criar verificacao de todos os dados para nao dar erro no DAO
-//        Empresa objetoEmpresa = gson.fromJson(jsonEmpresa, Empresa.class);
-//        Pessoa objetoPessoa   = gson.fromJson(jsonPessoa, Pessoa.class);
-//        int idEntidade = empresadao.cadastrarEmpresa(objetoEmpresa, objetoPessoa);
+        //Precisa criar verificacao de todos os dados para nao dar erro no DAO
+        Empresa objetoEmpresa = gson.fromJson(jsonEmpresa, Empresa.class);
+//        int idEntidade = empresadao.cadastrarEmpresa(objetoEmpresa, pessoaid);
 //        
 //        Imagem img = objetoEmpresa.getImagemPerfil();
-//        byte[] imagem = img.getImg().getBytes(Charset.forName("UTF-8"));
-//        String img_name = "img-" + System.currentTimeMillis() + img.getNomeImagem();
+//        byte[] imagem = img.getImg().getBytes();
+//        String img_name = "img-" + System.currentTimeMillis() + ".jpg";
 //        try{
-//            FileOutputStream fos = new FileOutputStream("imagensPerfil/" + img_name );
-//            fos.write(imagem);
-//            FileDescriptor fd = fos.getFD();
-//            fos.flush();
-//            fd.sync();
-//            fos.close(); 
+//                try (FileOutputStream fos = new FileOutputStream("C:/imagens/" + img_name )) {
+//                    fos.write(imagem);
+//                    FileDescriptor fd = fos.getFD();
+//                    fos.flush();
+//                    fd.sync();
+//                } 
 //        }
 //        catch(Exception e){
 //           throw new RuntimeException("Erro ao gravar imagem. " + e);
@@ -91,11 +118,11 @@ public class EmpresaResource {
 //        
 //        img.setNomeImagem(img_name);
 //        img.setCaminho("imagensPerfil/" + img_name);
-//        img.setPessoaid(autdao.getPessoaId(objetoPessoa));
+//        img.setPessoaid(pessoaid);
 //        img.setItemid(idEntidade);
 //        imgdao.inserirIMagem(img);
         
-        return gson.toJson("Cadastrado com Sucesso!");
+        return gson.toJson(objetoEmpresa);
     }
     
 }

@@ -26,7 +26,7 @@ public class EmpresaDAO {
     PreparedStatement ptmt = null;
     ResultSet resultSet    = null;
     
-    public int cadastrarEmpresa(Empresa emp, Pessoa p) throws SQLException{
+    public int cadastrarEmpresa(Empresa emp, int pessoaid) throws SQLException{
         
         String cadastrarEmpresa  = "INSERT INTO empresa(nomeempresa, cnpj, descricao) values(?,?,?);";
         String cadastrarEntidade = "INSERT INTO entidade(identidade_criada, deletado, tabela, idresponsavel, data_criacao, data_modificacao, idcriador) values(?,?,?,?,?,?,?);";
@@ -51,12 +51,12 @@ public class EmpresaDAO {
                 ptmt.setInt(1, idEmpresa);
                 ptmt.setInt(2, 0);
                 ptmt.setString(3, "empresa");
-                ptmt.setInt(4, p.getPessoaid());
+                ptmt.setInt(4, pessoaid);
                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                     Date date = new Date();
                 ptmt.setString(5, dateFormat.format(date));
                 ptmt.setString(6, dateFormat.format(date));
-                ptmt.setInt(7, p.getPessoaid());
+                ptmt.setInt(7, pessoaid);
             ptmt.executeUpdate();
             resultSet = ptmt.getGeneratedKeys();
             resultSet.next();
@@ -64,7 +64,7 @@ public class EmpresaDAO {
             
             
             Endereco endereco = emp.getEndereco();
-            ptmt = con.prepareStatement(cadastrarEndereco);
+            ptmt = con.prepareStatement(cadastrarEndereco, Statement.RETURN_GENERATED_KEYS);
                 ptmt.setString(1, endereco.getRua());
                 ptmt.setString(2, endereco.getNumero());
                 ptmt.setString(3, endereco.getComplemento());
@@ -83,13 +83,13 @@ public class EmpresaDAO {
                 ptmt.setString(2, "empresa");
                 ptmt.setInt(3, idEndereco);
                 ptmt.setString(4, "endereco");
-            
+            ptmt.executeUpdate();
             
             List<Telefone> telefones = emp.getTelefones();
             for( Telefone telefone : telefones ){
-                ptmt = con.prepareStatement(cadastrarTelefone);
+                ptmt = con.prepareStatement(cadastrarTelefone, Statement.RETURN_GENERATED_KEYS);
                     ptmt.setString(1, telefone.getNumero());
-                    ptmt.setString(1, telefone.getTipoTelefone());
+                    ptmt.setString(2, telefone.getTipoTelefone());
                 ptmt.executeUpdate();
                 resultSet = ptmt.getGeneratedKeys();
                 resultSet.next();
@@ -100,6 +100,7 @@ public class EmpresaDAO {
                     ptmt.setString(2, "empresa");
                     ptmt.setInt(3, idTelefone);
                     ptmt.setString(4, "telefone");
+                ptmt.executeUpdate();
             }
             
             return idEntidade;
