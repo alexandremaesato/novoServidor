@@ -10,6 +10,8 @@ import com.google.gson.JsonObject;
 import com.sun.xml.wss.impl.misc.Base64;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -38,7 +40,7 @@ import utilitarios.Criptografia;
  * @author Alexandre
  */
 public class TestesDoAle {
-//    public static void main(String args[]) throws SQLException, Base64DecodingException{
+    public static void main(String args[]) throws SQLException, UnsupportedEncodingException{
 //        byte[] encodedHelloBytes = DatatypeConverter.parseBase64Binary("dXNlcjpwYXNzd29yZA==");
 //            String decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8) ;
 //    
@@ -51,7 +53,13 @@ public class TestesDoAle {
 //            
 //     System.out.println("Convertido: "+convertido);
 //     System.out.println("decode : "+decodeString);
-//    }
+
+    String oldStr = "empresa=%7B%22cnpj%22%3A%22%22%2C%22descricao%22%3A%22a%22%2C%22empresaId%22%3A0%2C%22endereco%22%3A%7B%22bairro%22%3A%22a%22%2C%22cep%22%3A%22%22%2C%22cidade%22%3A%22a%22%2C%22complemento%22%3A%22%22%2C%22enderecoid%22%3A0%2C%22estado%22%3A%22a%22%2C%22numero%22%3A%22444%22%2C%22pais%22%3A%22a%22%2C%22rua%22%3A%22a%22%7D%2C%22imagemPerfil%22%3A%7B%22imagemid%22%3A0%2C%22itemid%22%3A0%2C%22pessoaid%22%3A0%2C%22tipoImagem%22%3A1%7D%2C%22nomeEmpresa%22%3A%22a%22%2C%22qtdeAvaliacoes%22%3A0%2C%22qtdeComentarios%22%3A0%2C%22telefones%22%3A%5B%7B%22numero%22%3A%22%22%2C%22telefoneid%22%3A0%2C%22tipoTelefone%22%3A%22%22%7D%5D%7D&";
+    String newStr;
+    newStr = URLDecoder.decode(URLEncoder.encode(oldStr, "Windows-1252"),"UTF-8");
+    //newStr = URLDecoder.decode(URLEncoder.encode(oldStr, "UTF-8"),"iso8859-1");
+    System.out.println(newStr);
+    }
     
     
    
