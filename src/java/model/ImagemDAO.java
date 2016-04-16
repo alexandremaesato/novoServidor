@@ -21,13 +21,13 @@ public class ImagemDAO {
     ResultSet resultSet    = null;
     
     public void inserirIMagem(Imagem imagem) throws SQLException{
-        String sql1 = "INSERT INTO imagem(fktipo_imagem, caminho, nomeimagem, descricao) VALUES(?,?,?,?);";
+        String sql1 = "INSERT INTO imagem(fktipo_imagem, conteudo, nomeimagem, descricao) VALUES(?,?,?,?);";
 
         try {
             con = ConnectionFactory.getConnection();
             ptmt = con.prepareStatement(sql1);
             ptmt.setInt(1, imagem.getTipoImagem());
-            ptmt.setString(2, imagem.getCaminho());
+            ptmt.setString(2, imagem.getImg());
             ptmt.setString(3, imagem.getNomeImagem());
             ptmt.setString(4, imagem.getDescricao());
             ptmt.executeUpdate();

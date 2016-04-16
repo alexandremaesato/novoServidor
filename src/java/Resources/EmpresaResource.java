@@ -8,21 +8,19 @@ package Resources;
 
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.StringTokenizer;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
@@ -32,14 +30,12 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.DatatypeConverter;
 import model.AutenticacaoDao;
 import model.Empresa;
 import model.EmpresaDAO;
 import model.Imagem;
 import model.ImagemDAO;
-import model.Pessoa;
 
 /**
  * REST Web Service
@@ -78,43 +74,43 @@ public class EmpresaResource {
     @Path("/cadastrarEmpresa")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces("application/json")
-    public String cadastrarEmpresa(String val) throws SQLException {
-        Gson gson = new Gson(); 
-        Empresa emp = new Empresa();
-        String coded = null;
-        Map<String, String> map = new LinkedHashMap<String, String>();
-        for(String keyValue : val.split(" *, *")) {
-            String[] pairs = keyValue.split(" *= *", 2);
-            coded = pairs[1];
-            map.put(pairs[0], pairs.length == 1 ? "" : pairs[1]);
-        }
+    public String cadastrarEmpresa(@HeaderParam("Authorization") List<String> autorizacao, String val) throws SQLException, IOException {
         
-        byte[] encodedHelloBytes = DatatypeConverter.parseBase64Binary(coded);
-        String decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8);
-        emp = gson.fromJson(decodeString, Empresa.class);
-       
-        Imagem img = emp.getImagemPerfil();
-        byte[] imagem = img.getImg().getBytes(Charset.forName("UTF-8"));
-        String img_name = "img-" + System.currentTimeMillis() + img.getNomeImagem();
-        try{
-            FileOutputStream fos = new FileOutputStream("imagensPerfil/" + img_name );
-            fos.write(imagem);
-            FileDescriptor fd = fos.getFD();
-            fos.flush();
-            fd.sync();
-            fos.close(); 
-        }
-        catch(Exception e){
-           throw new RuntimeException("Erro ao gravar imagem. " + e);
-        }
+        // Pega informacoes do usuario no header e busca id do usuario
+            String authToken = autorizacao.get(0);
+            authToken = authToken.replaceFirst("Basic", "");
+
+            byte[] encodedHelloBytes = DatatypeConverter.parseBase64Binary(authToken);
+            String decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8) ;
+
+            StringTokenizer tokenizer = new StringTokenizer(decodeString, ":");
+            String login = tokenizer.nextToken();
+            String senha = tokenizer.nextToken();
+            int pessoaid = autdao.getPessoaId(login, senha);
         
-        img.setNomeImagem(img_name);
-        img.setCaminho("imagensPerfil/" + img_name);
-//        img.setPessoaid(autdao.getPessoaId(objetoPessoa));
-//        img.setItemid(idEntidade);
-        imgdao.inserirIMagem(img);
+        // Decode do hashmap para json e instanciacao/cadastramento de empresa
+            Empresa emp;
+            String coded = null;
+            Map<String, String> map = new LinkedHashMap<String, String>();
+            for(String keyValue : val.split(" *, *")) {
+                String[] pairs = keyValue.split(" *= *", 2);
+                coded = pairs[1];
+                map.put(pairs[0], pairs.length == 1 ? "" : pairs[1]);
+            }
+
+            encodedHelloBytes = DatatypeConverter.parseBase64Binary(coded);
+            decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8);
+            emp = gson.fromJson(decodeString, Empresa.class);
+            int idEntidade = empresadao.cadastrarEmpresa(emp, pessoaid);
+            
+            
+            Imagem img = emp.getImagemPerfil();
+            img.setNomeImagem("img-" + img.getNomeImagem());
+            img.setPessoaid(pessoaid);
+            img.setItemid(idEntidade);
+            imgdao.inserirIMagem(img);
         
-        return gson.toJson(emp);
+        return gson.toJson("Cadastrado com Sucesso!");
     }
     
 }
