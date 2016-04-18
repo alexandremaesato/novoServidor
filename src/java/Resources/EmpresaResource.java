@@ -13,14 +13,13 @@ import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
@@ -36,6 +35,7 @@ import model.Empresa;
 import model.EmpresaDAO;
 import model.Imagem;
 import model.ImagemDAO;
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 
 /**
  * REST Web Service
@@ -47,6 +47,8 @@ public class EmpresaResource {
 
     @Context
     private UriInfo context;
+    @Context
+    private ServletContext servletcontext;
     private final Gson gson = new Gson();
     private final EmpresaDAO empresadao = new EmpresaDAO();
     private final AutenticacaoDao autdao = new AutenticacaoDao();
@@ -103,13 +105,29 @@ public class EmpresaResource {
             emp = gson.fromJson(decodeString, Empresa.class);
             int idEntidade = empresadao.cadastrarEmpresa(emp, pessoaid);
             
-            
             Imagem img = emp.getImagemPerfil();
-            img.setNomeImagem("img-" + img.getNomeImagem());
+            byte[] imagem = parseBase64Binary(img.getImg());
+            String path = servletcontext.getRealPath("/WEB-INF/uploads/");
+            
+            String img_name = "imgPerfil-" + System.currentTimeMillis() + ".jpg";
+            try{
+                    try (FileOutputStream fos = new FileOutputStream(path + "\\" + img_name )) {
+                        fos.write(imagem);
+                        FileDescriptor fd = fos.getFD();
+                        fos.flush();
+                        fd.sync();
+                    } 
+            }
+            catch(Exception e){
+               throw new RuntimeException("Erro ao gravar imagem. " + e);
+            }
+
+            img.setNomeImagem(img_name);
+            img.setCaminho("/WEB-INF/uploads/" + img_name);
             img.setPessoaid(pessoaid);
             img.setItemid(idEntidade);
-            imgdao.inserirIMagem(img);
-        
+            imgdao.inserirImagem(img);
+//        
         return gson.toJson("Cadastrado com Sucesso!");
     }
     
