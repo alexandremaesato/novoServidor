@@ -84,4 +84,11 @@ public class Imagem {
         this.pessoaid = pessoaid;
     }
     
+    public boolean hasImagem(){
+        if( this.caminho == null){
+            return false;
+        }
+        return true;
+    }
+    
 }
