@@ -145,14 +145,20 @@ public class EmpresaResource {
         decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8);
         emp = gson.fromJson(decodeString, Empresa.class);
         int idEntidade = empresadao.cadastrarEmpresa(emp, pessoaid);
-
+        
         Imagem img = emp.getImagemPerfil();
         if (img.hasImagem()) {
             byte[] imagem = parseBase64Binary(img.getImg());
-            String path = servletcontext.getRealPath("/WEB-INF/uploads/");
             String img_name = "imgPerfil-" + System.currentTimeMillis() + ".jpg";
+            String path = servletcontext.getRealPath("/WEB-INF/uploads/");
+            if( path == null ){
+                String directoryPath = servletcontext.getRealPath("/WEB-INF/");
+                new File(directoryPath+"/uploads").mkdirs();
+                path = directoryPath+"/uploads";
+            }
+            
             try {
-                try (FileOutputStream fos = new FileOutputStream(path + "\\" + img_name)) {
+                try (FileOutputStream fos = new FileOutputStream(path + "/" + img_name)) {
                     fos.write(imagem);
                     FileDescriptor fd = fos.getFD();
                     fos.flush();
@@ -168,7 +174,7 @@ public class EmpresaResource {
             img.setItemid(idEntidade);
             imgdao.inserirImagem(img);
         }
-//        
+        
         return gson.toJson("Cadastrado com Sucesso!");
     }
 

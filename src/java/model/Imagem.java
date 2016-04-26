@@ -85,7 +85,7 @@ public class Imagem {
     }
     
     public boolean hasImagem(){
-        if( this.caminho == null){
+        if( this.img == null){
             return false;
         }
         return true;
