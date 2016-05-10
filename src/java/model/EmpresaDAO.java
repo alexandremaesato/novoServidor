@@ -238,6 +238,10 @@ public class EmpresaDAO {
                                      + "INNER JOIN relacao ON avaliacao.idavaliacao = relacao.idrelacionada AND relacao.tabela_relacionada = 'avaliacao' "
                                      + "WHERE relacao.identidade = ?;";
         
+        String buscarEndereco     = "SELECT DISTINCT endereco.* FROM endereco "
+                                     + "INNER JOIN relacao ON endereco.idendereco = relacao.idrelacionada AND relacao.tabela_relacionada = 'endereco' "
+                                     + "WHERE relacao.identidade = ?;";
+        
         try{
             Empresa empresa = new Empresa();
             
@@ -315,6 +319,23 @@ public class EmpresaDAO {
                 avaliacoes.add(avaliacao);
             }
             empresa.setAvaliacoes(avaliacoes);
+            
+            resultSet = retornaResultadoQuery(buscarEndereco, id);
+            Endereco endereco = new Endereco();
+            if(resultSet.next()){
+                endereco.setBairro(resultSet.getString("bairro"));
+                endereco.setCep(resultSet.getString("cep"));
+                endereco.setCidade(resultSet.getString("cidade"));
+                endereco.setEnderecoid(resultSet.getInt("idendereco"));
+                endereco.setComplemento(resultSet.getString("complemento"));
+                endereco.setEstado(resultSet.getString("estado"));
+                endereco.setNumero(resultSet.getString("numero"));
+                endereco.setPais(resultSet.getString("pais"));
+                endereco.setRua(resultSet.getString("rua"));
+            }
+            empresa.setEndereco(endereco);
+            
+            
             
             List<Produto> produtos = pegarProdutosPorEmpresa(id);
             empresa.setProdutos(produtos);     

@@ -40,6 +40,7 @@ import model.ImagemDAO;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import model.Filtro;
 import org.codehaus.jackson.map.util.JSONPObject;
 
 /**
@@ -64,6 +65,16 @@ public class EmpresaResource {
      */
     public EmpresaResource() {
     }
+    
+    @GET
+    @Path("/getEmpresa/{id}")
+    @Produces("application/json")
+    public String getEmpresa(@PathParam("id") String id) throws SQLException {
+            
+        Empresa empresa = empresadao.pegarEmpresaPorId(Integer.parseInt(id));
+        String emps = gson.toJson(empresa);
+        return emps;
+    }
 
     @GET
     @Path("/pegarEmpresas")
@@ -71,9 +82,7 @@ public class EmpresaResource {
     public String pegarEmpresas() throws SQLException {
 
         List<Empresa> empresas = empresadao.pegarEmpresas();
-
         String emps = gson.toJson(empresas);
-
         return emps;
     }
 
@@ -84,22 +93,13 @@ public class EmpresaResource {
     public String buscarEmpresas(String value) throws SQLException {
 
         JsonObject json = new JsonObject();
-
-        
-        value = value.substring(1, value.length() - 1);           //remove curly brackets
-        String[] keyValuePairs = value.split(",");              //split the string to creat key-value pairs
-        Map<String, String> map = new HashMap<>();
-
-        for (String pair : keyValuePairs) //iterate over the pairs
-        {
-            String[] entry = pair.split("=");                   //split the pairs to get key and value 
-            map.put(entry[0].trim(), entry[1].trim());          //add them to the hashmap and trim whitespaces
-        }
-        String a = map.get("teste");
-
+            
+        value = value.substring(1, value.length() - 1);
+        String[] keyValuePairs = value.split(",", 2);   
         
         Gson gson = new Gson();
-
+        Filtro filtro = gson.fromJson(keyValuePairs[1], Filtro.class);
+        
         List<Empresa> empresas = empresadao.pegarEmpresas();
         //Pegar ultima empresa apresentada
         //Pegar qual ordenacao
