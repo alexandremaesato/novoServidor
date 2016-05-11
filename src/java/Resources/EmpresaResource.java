@@ -5,13 +5,21 @@
  */
 package Resources;
 
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.sun.xml.wss.impl.misc.Base64;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -19,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import javax.imageio.ImageIO;
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -41,6 +50,7 @@ import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import model.Filtro;
+import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.codehaus.jackson.map.util.JSONPObject;
 
 /**
@@ -73,6 +83,8 @@ public class EmpresaResource {
             
         Empresa empresa = empresadao.pegarEmpresaPorId(Integer.parseInt(id));
         String emps = gson.toJson(empresa);
+        String image = getImageBase64("teste_1.jpg");
+        
         return emps;
     }
 
@@ -176,6 +188,44 @@ public class EmpresaResource {
         }
         
         return gson.toJson("Cadastrado com Sucesso!");
+    }
+     public static String encodeImage(byte[] imageByteArray) {
+        return Base64.encode(imageByteArray);
+    }
+     public static byte[] decodeImage(String imageDataString) throws Base64DecodingException {
+        return Base64.decode(imageDataString);
+    }
+    
+    public String getImageBase64(String nome){
+        File file = null;
+        try{
+            String path = servletcontext.getRealPath("/WEB-INF/uploads/");
+            if( path != null ){
+                String directoryPath = servletcontext.getRealPath("/WEB-INF/");
+                path = directoryPath+"/uploads/";
+                file = new File(path+nome);
+                
+            // Reading a Image file from file system
+            FileInputStream imageInFile = new FileInputStream(file);
+            byte imageData[] = new byte[(int) file.length()];
+            imageInFile.read(imageData);
+            // Converting Image byte array into Base64 String
+            String imageDataString = encodeImage(imageData);
+            // Converting a Base64 String into Image byte array
+            byte[] imageByteArray = decodeImage(imageDataString);
+            // Write a image byte array into file system
+            //FileOutputStream imageOutFile = new FileOutputStream(path+"/teste_1.jpg");
+            //imageOutFile.write(imageByteArray);
+            imageInFile.close();
+            //imageOutFile.close();
+            
+            return imageDataString;
+            }
+            return null;
+        }catch (Exception e){
+            return null;
+        }  
+            
     }
 
 }
