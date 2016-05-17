@@ -7,11 +7,16 @@ package Resources;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -19,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import javax.imageio.ImageIO;
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -29,7 +35,6 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
 import model.AutenticacaoDao;
@@ -38,9 +43,6 @@ import model.EmpresaDAO;
 import model.Imagem;
 import model.ImagemDAO;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.map.util.JSONPObject;
 
 /**
  * REST Web Service
@@ -118,7 +120,7 @@ public class EmpresaResource {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces("application/json")
     public String cadastrarEmpresa(@HeaderParam("Authorization") List<String> autorizacao, String val) throws SQLException, IOException {
-
+        
         // Pega informacoes do usuario no header e busca id do usuario
         String authToken = autorizacao.get(0);
         authToken = authToken.replaceFirst("Basic", "");
@@ -176,6 +178,37 @@ public class EmpresaResource {
         }
         
         return gson.toJson("Cadastrado com Sucesso!");
+    }
+    
+    @GET
+    @Path("/carregarEmpresas/{nota}")
+    @Produces("application/json")
+    public String carregarEmpresas(@PathParam("nota") String nota) throws SQLException, UnsupportedEncodingException, IOException{
+        
+        int notaAvaliacao = Integer.parseInt(nota);
+        List<Empresa> empresas = empresadao.carregarEmpresas(notaAvaliacao);
+        
+        for(int i = 0, tam = empresas.size(); i < tam; i++){
+            String path = empresas.get(i).getImagemPerfil().getCaminho();
+            if( path != null ){
+                String directoryPath = servletcontext.getRealPath(path);
+//                byte[] byteArray = directoryPath.getBytes("UTF-8");
+//                String base64 = Base64.encode(byteArray);
+//                empresas.get(i).getImagemPerfil().setImg(base64);   
+                
+                 // open image
+                File imgPath = new File(directoryPath);
+                BufferedImage bufferedImage = ImageIO.read(imgPath);
+
+                // get DataBufferBytes from Raster
+                WritableRaster raster = bufferedImage.getRaster();
+                DataBufferByte data   = (DataBufferByte) raster.getDataBuffer();
+                String base64 = Base64.encode(data.getData());
+                empresas.get(i).getImagemPerfil().setImg(base64);
+            }
+        }
+        
+        return gson.toJson(empresas);
     }
 
 }

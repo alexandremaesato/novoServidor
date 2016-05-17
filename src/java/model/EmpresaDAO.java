@@ -79,7 +79,7 @@ public class EmpresaDAO {
             int idEndereco = resultSet.getInt(1);
             
             ptmt = con.prepareStatement(cadastrarRelacao);
-                ptmt.setInt(1, idEmpresa);
+                ptmt.setInt(1, idEntidade);
                 ptmt.setString(2, "empresa");
                 ptmt.setInt(3, idEndereco);
                 ptmt.setString(4, "endereco");
@@ -96,7 +96,7 @@ public class EmpresaDAO {
                 int idTelefone = resultSet.getInt(1);
 
                 ptmt = con.prepareStatement(cadastrarRelacao);
-                    ptmt.setInt(1, idEmpresa);
+                    ptmt.setInt(1, idEntidade);
                     ptmt.setString(2, "empresa");
                     ptmt.setInt(3, idTelefone);
                     ptmt.setString(4, "telefone");
@@ -377,6 +377,76 @@ public class EmpresaDAO {
             return produtos;
         } catch (SQLException ex) {
             throw new RuntimeException("Erro ao buscar produto no banco de dados. "+ex);
+        } finally {
+            ptmt.close();
+        }
+    }
+    
+    public List<Empresa> carregarEmpresas(int nota) throws SQLException{
+        String sqlCarregaEmpresas = "SELECT DISTINCT *, "
+                                        + "FORMAT(((SELECT CASE WHEN COUNT(avaliacao) = 0 THEN COALESCE(SUM(avaliacao), 0) ELSE COALESCE(SUM(avaliacao), 0)/COUNT(avaliacao) END FROM avaliacao "
+                                        +		"INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliado AND relacao.tabela_relacionada = 'produto' "
+                                        +		"WHERE avaliacao.tipoavaliacao = 'prato' AND relacao.identidade = entidade.identidade "
+                                        +		"AND relacao.tabela_relacionada = 'empresa') + "
+                                        +	  "(SELECT CASE WHEN COUNT(avaliacao) = 0 THEN COALESCE(SUM(avaliacao), 0) ELSE COALESCE(SUM(avaliacao), 0)/COUNT(avaliacao) END FROM avaliacao "
+                                        +		"WHERE tipoavaliacao = 'servico' AND idavaliado = entidade.identidade) + "
+                                        +	  "(SELECT CASE WHEN COUNT(avaliacao) = 0 THEN COALESCE(SUM(avaliacao), 0) ELSE COALESCE(SUM(avaliacao), 0)/COUNT(avaliacao) END FROM avaliacao "
+                                        +		"WHERE tipoavaliacao = 'ambiente' AND idavaliado = entidade.identidade)) / 3, 0) AS totalGeral "
+                                        + "FROM empresa "
+                                        + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.tabela = 'empresa' AND entidade.deletado = 0 "
+                                        + "LEFT JOIN relacao re ON re.identidade = entidade.identidade AND re.tabela_entidade = 'empresa' AND re.tabela_relacionada = 'endereco' "
+                                        + "LEFT JOIN endereco ON endereco.idendereco = re.idrelacionada "
+                                        + "LEFT JOIN relacao ri ON ri.identidade = entidade.identidade AND ri.tabela_entidade = 'empresa' AND ri.tabela_relacionada = 'imagem' "
+                                        + "LEFT JOIN entidade ei ON ei.identidade = ri.idrelacionada AND ei.deletado = 0 AND ei.tabela = 'imagem' "
+                                        + "LEFT JOIN imagem ON imagem.idimagem = ei.identidade_criada "
+                                        + "GROUP BY totalGeral DESC";
+        
+        if(nota >= 0){
+            sqlCarregaEmpresas += " HAVING totalGeral < " + nota;
+        }
+        
+        sqlCarregaEmpresas += " LIMIT 2";
+        
+        
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sqlCarregaEmpresas);
+            resultSet = ptmt.executeQuery();
+            List<Empresa> empresas = new ArrayList<Empresa>();
+            while(resultSet.next()){
+                Empresa empresa = new Empresa();
+                empresa.setEmpresaId(resultSet.getInt("idempresa"));
+                empresa.setNomeEmpresa(resultSet.getString("nomeempresa"));
+                empresa.setCnpj(resultSet.getString("cnpj"));
+                empresa.setDescricao(resultSet.getString("descricao"));
+                
+                Endereco endereco = new Endereco();
+                endereco.setEnderecoid(resultSet.getInt("idendereco"));
+                endereco.setRua(resultSet.getString("rua"));
+                endereco.setBairro(resultSet.getString("bairro"));
+                endereco.setCep(resultSet.getString("cep"));
+                endereco.setNumero(resultSet.getString("numero"));
+                endereco.setComplemento(resultSet.getString("complemento"));
+                endereco.setCidade(resultSet.getString("cidade"));
+                endereco.setEstado(resultSet.getString("estado"));
+                endereco.setPais(resultSet.getString("pais"));
+                empresa.setEndereco(endereco);
+                
+                Imagem img = new Imagem();
+                img.setNomeImagem(resultSet.getString("nomeimagem"));
+                img.setDescricao(resultSet.getString("descricao"));
+                img.setImagemid(resultSet.getInt("idimagem"));
+                img.setTipoImagem(resultSet.getInt("fktipo_imagem"));
+                img.setCaminho(resultSet.getString("caminho"));
+                empresa.setImagemPerfil(img);
+                
+                empresa.setAvaliacaoNota(resultSet.getInt("totalGeral"));
+                empresas.add(empresa);
+            }
+            
+            return empresas;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao carregar empresas do banco de dados. "+ex);
         } finally {
             ptmt.close();
         }

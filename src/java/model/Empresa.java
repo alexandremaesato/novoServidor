@@ -25,7 +25,7 @@ public class Empresa {
     private List<Telefone> telefones;
     private Endereco endereco;
     private List<Produto> produtos;
-    private List avaliacaoNota;
+    private int avaliacaoNota;
     private int qtdeComentarios;
     private int qtdeAvaliacoes;
 
@@ -125,11 +125,11 @@ public class Empresa {
         this.produtos = produtos;
     }
 
-    public List getAvaliacaoNota() {
+    public int getAvaliacaoNota() {
         return avaliacaoNota;
     }
 
-    public void setAvaliacaoNota(List avaliacaoNota) {
+    public void setAvaliacaoNota(int avaliacaoNota) {
         this.avaliacaoNota = avaliacaoNota;
     }
 
