@@ -6,6 +6,7 @@
 package model;
 
 import java.util.List;
+import utilitarios.ImageBase64;
 
 /**
  *
@@ -147,6 +148,22 @@ public class Empresa {
 
     public void setQtdeAvaliacoes(int qtdeAvaliacoes) {
         this.qtdeAvaliacoes = qtdeAvaliacoes;
+    }
+    
+    public void mountImages(String path){
+        ImageBase64 imageBase64 = new ImageBase64(path);
+        for( Imagem imagem : this.imagensNaoOficiais ){
+            imagem.setImg(imageBase64.getImageBase64(imagem.getNomeImagem()));
+        }
+        for( Imagem imagem : this.imagensOficiais ){
+            String i = imageBase64.getImageBase64(imagem.getNomeImagem());
+            imagem.setImg(i);
+        }
+        if(this.imagemPerfil != null){
+            this.imagemPerfil.setImg(imageBase64.getImageBase64(this.imagemPerfil.getNomeImagem())); 
+        }
+       
+     
     }
     
 }

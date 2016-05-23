@@ -30,6 +30,7 @@ public class ApplicationConfig extends Application {
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(Resources.AutenticacaoResource.class);
+        resources.add(Resources.AvaliacaoResource.class);
         resources.add(Resources.EmpresaResource.class);
         resources.add(Resources.EnderecoResource.class);
         resources.add(Resources.SecurityFilter.class);

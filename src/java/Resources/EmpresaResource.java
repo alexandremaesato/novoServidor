@@ -23,6 +23,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import model.Filtro;
 import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.codehaus.jackson.map.util.JSONPObject;
+import utilitarios.ImageBase64;
 
 /**
  * REST Web Service
@@ -79,13 +81,16 @@ public class EmpresaResource {
     @GET
     @Path("/getEmpresa/{id}")
     @Produces("application/json")
-    public String getEmpresa(@PathParam("id") String id) throws SQLException {
-            
-        Empresa empresa = empresadao.pegarEmpresaPorId(Integer.parseInt(id));
+    public String getEmpresa(@PathParam("id") String id) {
+        try{
+        Empresa empresa;    
+        empresa = empresadao.pegarEmpresaPorId(Integer.parseInt(id));
+        empresa.mountImages(servletcontext.getRealPath("/WEB-INF/uploads/"));
         String emps = gson.toJson(empresa);
-        String image = getImageBase64("teste_1.jpg");
-        
         return emps;
+        }catch (Exception e){
+            return e.getMessage();
+        }
     }
 
     @GET
@@ -103,14 +108,16 @@ public class EmpresaResource {
     @Produces("application/json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public String buscarEmpresas(String value) throws SQLException {
-
+        
         JsonObject json = new JsonObject();
+        /*
             
         value = value.substring(1, value.length() - 1);
         String[] keyValuePairs = value.split(",", 2);   
         
         Gson gson = new Gson();
         Filtro filtro = gson.fromJson(keyValuePairs[1], Filtro.class);
+*/
         
         List<Empresa> empresas = empresadao.pegarEmpresas();
         //Pegar ultima empresa apresentada

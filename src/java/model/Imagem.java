@@ -5,11 +5,16 @@
  */
 package model;
 
+import javax.servlet.ServletContext;
+import javax.ws.rs.core.Context;
+import utilitarios.ImageBase64;
+
 /**
  *
  * @author Guilherme
  */
 public class Imagem {
+    
     
     private int imagemid;
     private int tipoImagem;
@@ -89,6 +94,10 @@ public class Imagem {
             return false;
         }
         return true;
+    }
+    
+    public void mountImg(ImageBase64 ib64){
+        this.img = ib64.getImageBase64(this.nomeImagem);
     }
     
 }
