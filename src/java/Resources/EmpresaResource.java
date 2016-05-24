@@ -14,9 +14,9 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -152,26 +152,25 @@ public class EmpresaResource {
         if (img.hasImagem()) {
             byte[] imagem = parseBase64Binary(img.getImg());
             String img_name = "imgPerfil-" + System.currentTimeMillis() + ".jpg";
-            String path = servletcontext.getRealPath("/WEB-INF/uploads/");
-            if( path == null ){
-                String directoryPath = servletcontext.getRealPath("/WEB-INF/");
-                new File(directoryPath+"/uploads").mkdirs();
-                path = directoryPath+"/uploads";
+            String path = servletcontext.getRealPath("/");
+            if( path != null ){
+                int pos = path.indexOf("build");
+                path = path.substring(0, pos);
+                new File(path + "uploads").mkdirs();
+                path = path + "uploads/";
             }
             
-            try {
-                try (FileOutputStream fos = new FileOutputStream(path + "/" + img_name)) {
+            try (FileOutputStream fos = new FileOutputStream(path + img_name)) {
                     fos.write(imagem);
                     FileDescriptor fd = fos.getFD();
                     fos.flush();
                     fd.sync();
-                }
             } catch (Exception e) {
                 throw new RuntimeException("Erro ao gravar imagem. " + e);
             }
 
             img.setNomeImagem(img_name);
-            img.setCaminho("/WEB-INF/uploads/" + img_name);
+            img.setCaminho("uploads/" + img_name);
             img.setPessoaid(pessoaid);
             img.setItemid(idEntidade);
             imgdao.inserirImagem(img);
@@ -187,26 +186,6 @@ public class EmpresaResource {
         
         int notaAvaliacao = Integer.parseInt(nota);
         List<Empresa> empresas = empresadao.carregarEmpresas(notaAvaliacao);
-        
-        for(int i = 0, tam = empresas.size(); i < tam; i++){
-            String path = empresas.get(i).getImagemPerfil().getCaminho();
-            if( path != null ){
-                String directoryPath = servletcontext.getRealPath(path);
-//                byte[] byteArray = directoryPath.getBytes("UTF-8");
-//                String base64 = Base64.encode(byteArray);
-//                empresas.get(i).getImagemPerfil().setImg(base64);   
-                
-                 // open image
-                File imgPath = new File(directoryPath);
-                BufferedImage bufferedImage = ImageIO.read(imgPath);
-
-                // get DataBufferBytes from Raster
-                WritableRaster raster = bufferedImage.getRaster();
-                DataBufferByte data   = (DataBufferByte) raster.getDataBuffer();
-                String base64 = Base64.encode(data.getData());
-                empresas.get(i).getImagemPerfil().setImg(base64);
-            }
-        }
         
         return gson.toJson(empresas);
     }

@@ -22,7 +22,7 @@ public class AutenticacaoDao {
     static ResultSet resultSet = null;
 
     public static boolean autenticar(String login, String senha) throws SQLException {
-        String sql = "SELECT * FROM AUTENTICACAO WHERE login = ? and senha = ?";
+        String sql = "SELECT * FROM autenticacao WHERE login = ? and senha = ?";
         ResultSet rs;
         boolean retorno = false;
         try {
