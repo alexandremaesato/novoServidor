@@ -67,4 +67,14 @@ public class Avaliacao {
     public void setTipoAvalicao(String tipoAvalicao) {
         this.tipoAvalicao = tipoAvalicao;
     }
+    
+    public boolean hasAvaliacao(){
+        if(this.avaliacaoid == 0 &&
+           this.avaliadoid == 0 &&
+           this.nota == 0 &&
+           this.pessoaid == 0){
+           return true;
+        }
+           return false;
+    }
 }

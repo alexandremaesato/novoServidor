@@ -23,6 +23,7 @@ public class AutenticacaoDao {
 
     public static boolean autenticar(String login, String senha) throws SQLException {
         String sql = "SELECT * FROM autenticacao WHERE login = ? and senha = ?";
+
         ResultSet rs;
         boolean retorno = false;
         try {
@@ -100,9 +101,9 @@ public class AutenticacaoDao {
         }
     }
 
-    public static void criarAutenticacao(String login, String senha) throws SQLException {
-        String sql1 = "INSERT INTO autenticacao(login, senha) values(?,?);";
-        String sql2 = "INSERT INTO pessoa(fkautenticacao) values(?);";
+    public static int criarAutenticacao(String login, String senha) throws SQLException {
+        String sql1 = "INSERT INTO autenticacao(login, senha) values(?,?);".toLowerCase();
+        String sql2 = "INSERT INTO pessoa(fkautenticacao) values(?);".toLowerCase();
 
         try {
             con = ConnectionFactory.getConnection();
@@ -115,10 +116,15 @@ public class AutenticacaoDao {
             resultSet.next();
             int fkautenticacao = resultSet.getInt(1);
 
-            //con = ConnectionFactory.getConnection();
-            ptmt = con.prepareStatement(sql2);
+            ptmt = con.prepareStatement(sql2, Statement.RETURN_GENERATED_KEYS);
             ptmt.setInt(1, fkautenticacao);
             ptmt.executeUpdate();
+            
+            resultSet = ptmt.getGeneratedKeys();
+            resultSet.next();
+            int idPessoa = resultSet.getInt(1);
+            
+            return idPessoa;
 
         } catch (SQLException ex) {
             throw new RuntimeException("Erro ao criar Autenticação no banco de dados. " + ex);
@@ -128,8 +134,8 @@ public class AutenticacaoDao {
     }
 
     public static boolean verificaToken(TokenInfo tokenInfo, String token) throws SQLException {
-        String sql1 = "SELECT login FROM autenticacao WHERE login = ?;";
-        String sql2 = "SELECT token FROM tokens WHERE login = ? and token = ?;";
+        String sql1 = "SELECT login FROM autenticacao WHERE login = ?;".toLowerCase();
+        String sql2 = "SELECT token FROM tokens WHERE login = ? and token = ?;".toLowerCase();
         boolean result1 = false;
         boolean result2 = true;
         
@@ -167,7 +173,7 @@ public class AutenticacaoDao {
     }
     
     public static boolean verificaEmail(TokenInfo tokenInfo) throws SQLException {
-        String sql1 = "SELECT login FROM autenticacao WHERE login = ?;";
+        String sql1 = "SELECT login FROM autenticacao WHERE login = ?;".toLowerCase();
                
         ResultSet rs;
         try {
@@ -190,7 +196,7 @@ public class AutenticacaoDao {
     }
     
     public static boolean verificaEmail(String email) throws SQLException {
-        String sql1 = "SELECT login FROM autenticacao WHERE login = ?;";
+        String sql1 = "SELECT login FROM autenticacao WHERE login = ?;".toLowerCase();
         boolean retorno = false;       
         ResultSet rs;
         try {

@@ -99,9 +99,11 @@ public class SecurityFilter implements ContainerRequestFilter {
             StringTokenizer tokenizer = new StringTokenizer(decodeString, ":");
             String username = tokenizer.nextToken();
             String password = tokenizer.nextToken();
+            
+            
                         
             if(!AutenticacaoDao.verificaEmail(username)){
-                AutenticacaoDao.criarAutenticacao(username, password);
+                //AutenticacaoDao.criarAutenticacao(username, password);
                 return;
             }else{
                 Response unauthorizedStatus = Response
@@ -110,6 +112,7 @@ public class SecurityFilter implements ContainerRequestFilter {
                                         .entity("Login já está sendo utilizado.")
                                         .build();
                 requestContext.abortWith(unauthorizedStatus);
+                return;
                
             }
             }catch(Exception e){
@@ -123,6 +126,7 @@ public class SecurityFilter implements ContainerRequestFilter {
             }
         }
         if(authHeader != null && authHeader.size() > 0){
+            String path = requestContext.getUriInfo().getPath();
             try{
             String authToken = authHeader.get(0);
             authToken = authToken.replaceFirst(AUTHORIZATION_HEADER_PREFIX, "");
@@ -135,12 +139,10 @@ public class SecurityFilter implements ContainerRequestFilter {
             String password = tokenizer.nextToken();
             
             
-            if(AutenticacaoDao.autenticar(username, password)){
+            if(AutenticacaoDao.autenticar(username, password) && !"autenticacao/cadastrar".equals(path)){
                 return;
             }
-//            if ("user@user".equals(username) && "password".equals(password)){
-//                return;
-//            }
+
             }catch (Exception e){
                 Response unauthorizedStatus = Response
                                         .status(Response.Status.UNAUTHORIZED)
