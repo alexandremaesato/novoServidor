@@ -160,8 +160,8 @@ public class EmpresaResource {
             if( path != null ){
                 int pos = path.indexOf("build");
                 path = path.substring(0, pos);
-                new File(path + "uploads").mkdirs();
-                path = path + "uploads/";
+                new File(path + "web/uploads").mkdirs();
+                path = path + "web/uploads/";
             }
             
             try (FileOutputStream fos = new FileOutputStream(path + img_name)) {
@@ -197,7 +197,7 @@ public class EmpresaResource {
     public static String encodeImage(byte[] imageByteArray) {
         return Base64.encode(imageByteArray);
     }
-     public static byte[] decodeImage(String imageDataString) throws Base64DecodingException {
+     public static byte[] decodeImage(String imageDataString) throws Base64DecodingException, org.apache.xml.security.exceptions.Base64DecodingException {
         return Base64.decode(imageDataString);
     }
     

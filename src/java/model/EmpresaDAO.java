@@ -157,7 +157,10 @@ public class EmpresaDAO {
                                   + "WHERE relacao.identidade = empresa.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdecomentarios, "
                                + "(SELECT COUNT(*) FROM avaliacao "
                                   +  "INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliacao AND relacao.tabela_relacionada = 'avaliacao' "
-                                  + "WHERE relacao.identidade = empresa.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdeavaliacoes "
+                                  + "WHERE relacao.identidade = empresa.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdeavaliacoes, "
+                               + "(SELECT AVG(avaliacao) FROM avaliacao "
+                                  + "WHERE avaliacao.idavaliado = empresa.idempresa) AS avaliacaogeral "
+                
                                + "FROM empresa "
                                + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
                                + "LEFT JOIN relacao ri ON ri.identidade = empresa.idempresa AND ri.tabela_relacionada = 'imagem' "
@@ -201,6 +204,8 @@ public class EmpresaDAO {
                 empresa.setEndereco(endereco);
                 empresa.setQtdeComentarios(resultSet.getInt("qtdecomentarios"));
                 empresa.setQtdeComentarios(resultSet.getInt("qtdeavaliacoes"));
+                empresa.setAvaliacaoNota(Math.round(resultSet.getInt("avaliacaogeral")));
+                
                 
                 empresas.add(empresa);
             }
@@ -471,5 +476,10 @@ public class EmpresaDAO {
         } finally {
             ptmt.close();
         }
+    }
+    
+    public void atualizaAvaliacaoGeralById(int id){
+        
+        
     }
 }
