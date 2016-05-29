@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
@@ -138,6 +139,7 @@ public class EmpresaResource {
         int pessoaid = autdao.getPessoaId(login, senha);
 
         // Decode do hashmap para json e instanciacao/cadastramento de empresa
+        /*
         Empresa emp;
         String coded = null;
         Map<String, String> map = new LinkedHashMap<String, String>();
@@ -150,8 +152,15 @@ public class EmpresaResource {
         encodedHelloBytes = DatatypeConverter.parseBase64Binary(coded);
         decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8);
         emp = gson.fromJson(decodeString, Empresa.class);
-        int idEntidade = empresadao.cadastrarEmpresa(emp, pessoaid);
+*/
+      
+        val = URLDecoder.decode(val, "UTF-8");
+        val = val.substring(0, val.length() - 1);
+        String[] keyValuePairs = val.split("=", 2);
+        Empresa emp;
+        emp = gson.fromJson(keyValuePairs[1], Empresa.class);
         
+        int idEntidade = empresadao.cadastrarEmpresa(emp, pessoaid);
         Imagem img = emp.getImagemPerfil();
         if (img.hasImagem()) {
             byte[] imagem = parseBase64Binary(img.getImg());
