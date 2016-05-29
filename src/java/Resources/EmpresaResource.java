@@ -197,7 +197,7 @@ public class EmpresaResource {
     public static String encodeImage(byte[] imageByteArray) {
         return Base64.encode(imageByteArray);
     }
-     public static byte[] decodeImage(String imageDataString) throws Base64DecodingException, org.apache.xml.security.exceptions.Base64DecodingException {
+     public static byte[] decodeImage(String imageDataString) throws Base64DecodingException {
         return Base64.decode(imageDataString);
     }
     
