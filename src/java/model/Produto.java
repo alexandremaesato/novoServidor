@@ -16,8 +16,9 @@ public class Produto {
     private int produtoid;
     private String nomeProduto;
     private int categoria;
+    private int culinaria;
     private String descricao;
-    private float preco;
+    private Double preco;
     private Imagem imagemPerfil;
     private List<Imagem> imagensNaoOficiais;
     private List<Imagem> imagensOficiais;
@@ -25,6 +26,7 @@ public class Produto {
     private List<Avaliacao> avaliacoes;
     private int qtdeComentarios;
     private int qtdeAvaliacoes;
+    private int empresaid;
 
     public int getProdutoid() {
         return produtoid;
@@ -50,20 +52,28 @@ public class Produto {
         this.categoria = categoria;
     }
 
+    public int getCulinaria() {
+        return culinaria;
+    }
+
+    public void setCulinaria(int culinaria) {
+        this.culinaria = culinaria;
+    }
+
+    public Double getPreco() {
+        return preco;
+    }
+
+    public void setPreco(Double preco) {
+        this.preco = preco;
+    }
+
     public String getDescricao() {
         return descricao;
     }
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
-    }
-
-    public float getPreco() {
-        return preco;
-    }
-
-    public void setPreco(float preco) {
-        this.preco = preco;
     }
 
     public Imagem getImagemPerfil() {
@@ -122,4 +132,11 @@ public class Produto {
         this.qtdeAvaliacoes = qtdeAvaliacoes;
     }
     
+    public int getEmpresaid() {
+        return empresaid;
+    }
+
+    public void setEmpresaid(int empresaid) {
+        this.empresaid = empresaid;
+    }
 }

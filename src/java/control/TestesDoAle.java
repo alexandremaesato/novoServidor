@@ -87,16 +87,6 @@ public class TestesDoAle {
 //    newStr = URLDecoder.decode(URLEncoder.encode(oldStr, "Windows-1252"),"UTF-8");
 //    //newStr = URLDecoder.decode(URLEncoder.encode(oldStr, "UTF-8"),"iso8859-1");
 //    System.out.println(newStr);
-        
-        
-//        byte[] encodedHelloBytes = 
-//        
-//        String decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8);
-//        
-//        Gson gson = new Gson();
-//        Empresa emp = gson.fromJson(decodeString, Empresa.class);
-//        
-//        System.out.println(emp.getNomeEmpresa());
     }
     
     

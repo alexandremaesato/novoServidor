@@ -385,7 +385,7 @@ public class EmpresaDAO {
                 produto.setProdutoid(resultSet.getInt("idproduto"));
                 produto.setNomeProduto(resultSet.getString("nomeproduto"));
                 produto.setDescricao(resultSet.getString("descricao"));
-                produto.setPreco(resultSet.getFloat("preco"));
+                produto.setPreco(resultSet.getDouble("preco"));
                 produto.setCategoria(resultSet.getInt("fkcategoria"));
                 
                 Imagem imagemPerfil = new Imagem();
