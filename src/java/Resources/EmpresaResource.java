@@ -186,7 +186,7 @@ public class EmpresaResource {
             img.setCaminho("uploads/" + img_name);
             img.setPessoaid(pessoaid);
             img.setItemid(idEntidade);
-            imgdao.inserirImagem(img);
+            imgdao.inserirImagem(img, "empresa");
         }
         
         return gson.toJson("Cadastrado com Sucesso!");
@@ -206,7 +206,7 @@ public class EmpresaResource {
     public static String encodeImage(byte[] imageByteArray) {
         return Base64.encode(imageByteArray);
     }
-     public static byte[] decodeImage(String imageDataString) throws Base64DecodingException, org.apache.xml.security.exceptions.Base64DecodingException {
+     public static byte[] decodeImage(String imageDataString) throws Base64DecodingException {
         return Base64.decode(imageDataString);
     }
     

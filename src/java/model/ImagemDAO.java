@@ -24,7 +24,7 @@ public class ImagemDAO {
     PreparedStatement ptmt = null;
     ResultSet resultSet    = null;
     
-    public void inserirImagem(Imagem imagem) throws SQLException{
+    public void inserirImagem(Imagem imagem, String tabela) throws SQLException{
         String sql1 = "INSERT INTO imagem(fktipo_imagem, caminho, nomeimagem, descricao) VALUES(?,?,?,?);";
         String sql2 = "INSERT INTO entidade(identidade_criada, deletado, tabela, idresponsavel, data_criacao, data_modificacao, idcriador) values(?,?,?,?,?,?,?);";
         String sql3 = "INSERT INTO relacao(identidade, tabela_entidade, idrelacionada, tabela_relacionada) values(?,?,?,?);";
@@ -58,8 +58,8 @@ public class ImagemDAO {
             
             ptmt = con.prepareStatement(sql3);
             ptmt.setInt(1, imagem.getItemid());
-            ptmt.setString(2, "empresa");
-            ptmt.setInt(3, idImagem);
+            ptmt.setString(2, tabela);
+            ptmt.setInt(3, idEntidade);
             ptmt.setString(4, "imagem");
             ptmt.executeUpdate();
 
