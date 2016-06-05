@@ -85,10 +85,10 @@ public class ProdutoResource {
             if (img.hasImagem()) {
                 byte[] imagem = parseBase64Binary(img.getImg());
                 String img_name = "imgPerfil-" + System.currentTimeMillis() + ".jpg";
-                String path = servletcontext.getRealPath("/web");
+                String path = servletcontext.getRealPath("/").replace("\\", "/");
                 if( path != null ){
-                    new File(path + "/uploads").mkdirs();
-                    path = path + "/uploads/";
+                    new File(path + "uploads").mkdirs();
+                    path = path + "uploads/";
                 }
                 
                 try (FileOutputStream fos = new FileOutputStream(path + img_name)) {
@@ -101,13 +101,13 @@ public class ProdutoResource {
                 }
     
                 img.setNomeImagem(img_name);
-                img.setCaminho("/uploads/" + img_name);
+                img.setCaminho("/uploads/");
                 img.setPessoaid(pessoaid);
                 img.setItemid(entidade.getIdentidade());
                 
             }else{
                 img.setNomeImagem("sem_imagem.jpg");
-                img.setCaminho("/images/sem_imagem.jpg");
+                img.setCaminho("/images/");
                 img.setPessoaid(pessoaid);
                 img.setItemid(entidade.getIdentidade_criada());
             }
