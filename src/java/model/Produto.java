@@ -25,6 +25,7 @@ public class Produto {
     private List<Comentario> comentarios;
     private List<Avaliacao> avaliacoes;
     private int qtdeComentarios;
+    private int avaliacaoGeral;
     private int qtdeAvaliacoes;
     private int empresaid;
 
@@ -130,6 +131,14 @@ public class Produto {
 
     public void setQtdeAvaliacoes(int qtdeAvaliacoes) {
         this.qtdeAvaliacoes = qtdeAvaliacoes;
+    }
+    
+    public int getAvaliacaoGeral() {
+        return avaliacaoGeral;
+    }
+
+    public void setAvaliacaoGeral(int avaliacaoGeral) {
+        this.avaliacaoGeral = avaliacaoGeral;
     }
     
     public int getEmpresaid() {

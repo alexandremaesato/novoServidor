@@ -103,6 +103,31 @@ public class AvaliacaoDAO {
         }
     }
     
+    public int getIdAvaliacao(Avaliacao avaliacao) throws SQLException{
+        String sql = "SELECT idavaliacao FROM avaliacao WHERE idpessoa = ? and idavaliado = ? and tipoavaliacao = ?";
+        int id =0;
+        
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+            ptmt.setInt(1, avaliacao.getPessoaid());
+            ptmt.setInt(2, avaliacao.getAvaliadoid());
+            ptmt.setString(3, avaliacao.getTipoAvalicao());
+
+            resultSet = ptmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("idavaliacao");
+            }
+            return -1;
+            
+            
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao buscar a avaliação no banco de dados. " + ex);
+        } finally {
+            ptmt.close();
+        }
+    }
+    
     public Avaliacao getAvaliacao(int idPessoa, int idAvaliado, String tipoAvaliacao) throws SQLException{
         String sql = "SELECT * FROM avaliacao WHERE idpessoa = ? and idavaliado = ? and tipoavaliacao = ?";
         String sqlCreate = "INSERT INTO avaliacao (idpessoa, idavaliado, tipoavaliacao) VALUES (?,?,?);";

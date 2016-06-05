@@ -49,13 +49,20 @@ public class AvaliacaoResource {
     public String setAvaliacao(String content) throws UnsupportedEncodingException, SQLException {
         content = URLDecoder.decode(content, "UTF-8");
         content = content.substring(0, content.length() - 1);
-        String[] keyValuePairs = content.split("=", 2);   
+            String[] keyValuePairs = content.split("=", 2);   
         
         Gson gson = new Gson();
         Avaliacao avaliacao = gson.fromJson(keyValuePairs[1], Avaliacao.class);
         AvaliacaoDAO avaliacaoDAO = new AvaliacaoDAO();
-        avaliacaoDAO.updateAvaliacao(avaliacao);
-        return gson.toJson(avaliacaoDAO.getAvaliacao(avaliacao));
+        int id = avaliacaoDAO.getIdAvaliacao(avaliacao);
+        avaliacao.setAvaliacaoid(id);
+        if(id == -1 || id == 0){
+            avaliacao.setAvaliacaoid(avaliacaoDAO.setAvaliacao(avaliacao));
+        }else{
+            avaliacaoDAO.updateAvaliacao(avaliacao);
+        }
+        return gson.toJson(avaliacao);
+        //return gson.toJson(avaliacaoDAO.getAvaliacao(avaliacao));
         
     }
     

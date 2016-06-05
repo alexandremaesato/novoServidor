@@ -218,34 +218,41 @@ public class EmpresaDAO {
     }
     
     public Empresa pegarEmpresaPorId(int id) throws SQLException{
-        
-        String buscarEmpresa      = "SELECT * FROM empresa "
-                                     + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
-                                     + "WHERE idempresa = ?;";
-        
+
+        String buscarEmpresa = "SELECT * FROM empresa "
+                + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
+                + "WHERE idempresa = ?;";
+
         String buscarImagemPerfil = "SELECT DISTINCT imagem.* FROM imagem "
-                                     + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
-                                     + "WHERE imagem.fktipo_imagem = 1 AND relacao.identidade = ?;";
-        
-        String buscarImagens      = "SELECT DISTINCT imagem.* FROM imagem "
-                                     + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
-                                     + "WHERE imagem.fktipo_imagem IN (2,3) AND relacao.identidade = ?;";
-        
-        String buscarComentarios  = "SELECT DISTINCT comentario.* FROM comentario "
-                                     + "INNER JOIN relacao ON comentario.idcomentario = relacao.idrelacionada AND relacao.tabela_relacionada = 'comentario' "
-                                     + "WHERE relacao.identidade = ?;";
-        
-        String buscarTelefones     = "SELECT DISTINCT telefone.* FROM telefone "
-                                     + "INNER JOIN relacao ON telefone.idtelefone = relacao.idrelacionada AND relacao.tabela_relacionada = 'telefone' "
-                                     + "WHERE relacao.identidade = ?;";
-        
-        String buscarAvaliacao    = "SELECT DISTINCT avaliacao.* FROM avaliacao "
-                                     + "INNER JOIN relacao ON avaliacao.idavaliacao = relacao.idrelacionada AND relacao.tabela_relacionada = 'avaliacao' "
-                                     + "WHERE relacao.identidade = ?;";
-        
-        String buscarEndereco     = "SELECT DISTINCT endereco.* FROM endereco "
-                                     + "INNER JOIN relacao ON endereco.idendereco = relacao.idrelacionada AND relacao.tabela_relacionada = 'endereco' "
-                                     + "WHERE relacao.identidade = ?;";
+                + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
+                + "WHERE imagem.fktipo_imagem = 1 AND relacao.identidade = ?;";
+
+        String buscarImagens = "SELECT DISTINCT imagem.* FROM imagem "
+                + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
+                + "WHERE imagem.fktipo_imagem IN (2,3) AND relacao.identidade = ?;";
+
+        String buscarComentarios = "SELECT DISTINCT comentario.* FROM comentario "
+                + "INNER JOIN relacao ON comentario.idcomentario = relacao.idrelacionada AND relacao.tabela_relacionada = 'comentario' "
+                + "WHERE relacao.identidade = ?;";
+
+        String buscarTelefones = "SELECT DISTINCT telefone.* FROM telefone "
+                + "INNER JOIN relacao ON telefone.idtelefone = relacao.idrelacionada AND relacao.tabela_relacionada = 'telefone' "
+                + "WHERE relacao.identidade = ?;";
+
+        String buscarAvaliacao = "SELECT DISTINCT avaliacao.* FROM avaliacao "
+                + "INNER JOIN relacao ON avaliacao.idavaliacao = relacao.idrelacionada AND relacao.tabela_relacionada = 'avaliacao' "
+                + "WHERE relacao.identidade = ?;";
+
+        String buscarEndereco = "SELECT DISTINCT endereco.* FROM endereco "
+                + "INNER JOIN relacao ON endereco.idendereco = relacao.idrelacionada AND relacao.tabela_relacionada = 'endereco' "
+                + "WHERE relacao.identidade = ?;";
+
+        String qtdAvaliacao = "SELECT count(*) as qtd FROM avaliacao where idavaliado = ? and tipoavaliacao = 'empresa'";
+
+        String avaliacaoGeralProduto = "SELECT *, avg(avaliacao) as resultado FROM relacao "
+                + "inner join avaliacao aval on aval.idavaliado = idrelacionada and tabela_relacionada = aval.tipoavaliacao "
+                + "where tabela_entidade ='empresa' and identidade = ? "
+                + "group by descricao";
         
         try{
             Empresa empresa = new Empresa();
@@ -340,8 +347,11 @@ public class EmpresaDAO {
             }
             empresa.setEndereco(endereco);
             
-            
-            
+            resultSet = retornaResultadoQuery(qtdAvaliacao, id);
+            if(resultSet.next()){
+                empresa.setQtdeAvaliacoes(resultSet.getInt("qtd"));
+            }
+         
             List<Produto> produtos = pegarProdutosPorEmpresa(id);
             empresa.setProdutos(produtos);     
             
@@ -363,23 +373,31 @@ public class EmpresaDAO {
     
     public List<Produto> pegarProdutosPorEmpresa(int id) throws SQLException{
         
-        String buscarProdutos     = "SELECT DISTINCT produto.*, imagem.*, "
-                                      + "(SELECT COUNT(*) FROM comentario "
-                                        + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
-                                        + "WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
-                                      + "(SELECT COUNT(*) FROM avaliacao "
-                                        + "INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliacao AND relacao.tabela_relacionada = 'avaliacao' "
-                                        + "WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdeavaliacoes "
-                                    + "FROM produto "
-                                    + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 "
-                                    + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto' "
-                                    + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem' "
-                                    + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada "
-                                    + "WHERE rp.identidade = ?;";
+        String buscarProdutos = "SELECT DISTINCT produto.*, imagem.*, "
+                + "	(SELECT COUNT(*) FROM comentario "
+                + "		INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
+                + "		WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
+                + "    (SELECT COUNT(*) FROM avaliacao "
+                + "		INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliacao AND relacao.tabela_relacionada = 'avaliacao' "
+                + "		WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdeavaliacoes, "
+                + "    (SELECT avg(avaliacao) FROM relacao "
+                + "        inner join avaliacao aval on aval.idavaliado = idrelacionada and tabela_relacionada = aval.tipoavaliacao "
+                + "        where tabela_entidade ='empresa' and identidade = ?  and idrelacionada = produto.idproduto) as media "
+                + "FROM produto "
+                + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0  "
+                + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto'  "
+                + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem'  "
+                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada  "
+                + "WHERE rp.identidade = ?;";
         
         try{
             List<Produto> produtos = new ArrayList<Produto>();
-            resultSet = retornaResultadoQuery(buscarProdutos, id);
+            //resultSet = retornaResultadoQuery(buscarProdutos, id);
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(buscarProdutos);
+            ptmt.setInt(1, id);
+            ptmt.setInt(2, id);
+            resultSet = ptmt.executeQuery();
             while(resultSet.next()){
                 Produto produto = new Produto();
                 produto.setProdutoid(resultSet.getInt("idproduto"));
@@ -398,6 +416,7 @@ public class EmpresaDAO {
                 produto.setImagemPerfil(imagemPerfil);
                 produto.setQtdeComentarios(resultSet.getInt("qtdecomentarios"));
                 produto.setQtdeComentarios(resultSet.getInt("qtdeavaliacoes"));
+                produto.setAvaliacaoGeral(resultSet.getInt("media"));
                 produtos.add(produto);
             }
             return produtos;
