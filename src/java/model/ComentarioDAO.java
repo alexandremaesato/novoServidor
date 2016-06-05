@@ -93,7 +93,8 @@ public class ComentarioDAO {
                    + "tabela_entidade = 'empresa' AND "
                    + "identidade = ? AND "
                    + "idcomentario = idrelacionada "
-                   + " limit 3"; 
+                   + "order by idcomentario DESC "
+                   + "limit 3"; 
         List<Comentario> comentarios = new ArrayList<Comentario>();
         try{
             con = ConnectionFactory.getConnection();

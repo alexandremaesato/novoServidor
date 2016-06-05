@@ -65,7 +65,7 @@ public class ProdutoDAO {
             ptmt = con.prepareStatement(cadastrarRelacao);
                 ptmt.setInt(1, prod.getEmpresaid());
                 ptmt.setString(2, "empresa");
-                ptmt.setInt(3, idEntidade);
+                ptmt.setInt(3, idProduto);
                 ptmt.setString(4, "produto");
             ptmt.executeUpdate();
             
