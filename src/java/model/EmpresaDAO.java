@@ -248,6 +248,11 @@ public class EmpresaDAO {
                 + "WHERE relacao.identidade = ?;";
 
         String qtdAvaliacao = "SELECT count(*) as qtd FROM avaliacao where idavaliado = ? and tipoavaliacao = 'empresa'";
+        
+        String qtdComentario = "SELECT count(*) as qtd FROM comentario " 
+                + "inner join relacao on identidade = ? and tabela_entidade = 'empresa' "
+                + "and tabela_relacionada = 'comentario' "
+                + "and idrelacionada = idcomentario";
 
         String avaliacaoGeralProduto = "SELECT *, avg(avaliacao) as resultado FROM relacao "
                 + "inner join avaliacao aval on aval.idavaliado = idrelacionada and tabela_relacionada = aval.tipoavaliacao "
@@ -351,6 +356,11 @@ public class EmpresaDAO {
             if(resultSet.next()){
                 empresa.setQtdeAvaliacoes(resultSet.getInt("qtd"));
             }
+            
+            resultSet = retornaResultadoQuery(qtdComentario, id);
+            if(resultSet.next()){
+                empresa.setQtdeComentarios(resultSet.getInt("qtd"));
+            }
          
             List<Produto> produtos = pegarProdutosPorEmpresa(id);
             empresa.setProdutos(produtos);     
@@ -405,6 +415,7 @@ public class EmpresaDAO {
                 produto.setDescricao(resultSet.getString("descricao"));
                 produto.setPreco(resultSet.getDouble("preco"));
                 produto.setCategoria(resultSet.getInt("fkcategoria"));
+                produto.setCulinaria(resultSet.getInt("fktipo_culinaria"));
                 
                 Imagem imagemPerfil = new Imagem();
                 imagemPerfil.setImagemid(resultSet.getInt("idimagem"));

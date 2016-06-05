@@ -24,13 +24,15 @@ public class ImagemDAO {
     PreparedStatement ptmt = null;
     ResultSet resultSet    = null;
     
-    public void inserirImagem(Imagem imagem, String tabela) throws SQLException{
+    public void inserirImagem(Imagem imagem, String tabela, int identidade) throws SQLException{
         String sql1 = "INSERT INTO imagem(fktipo_imagem, caminho, nomeimagem, descricao) VALUES(?,?,?,?);";
         String sql2 = "INSERT INTO entidade(identidade_criada, deletado, tabela, idresponsavel, data_criacao, data_modificacao, idcriador) values(?,?,?,?,?,?,?);";
         String sql3 = "INSERT INTO relacao(identidade, tabela_entidade, idrelacionada, tabela_relacionada) values(?,?,?,?);";
 
         try {
+                       
             con = ConnectionFactory.getConnection();
+            con.setAutoCommit(false);
             ptmt = con.prepareStatement(sql1, Statement.RETURN_GENERATED_KEYS);
             ptmt.setInt(1, imagem.getTipoImagem());
             ptmt.setString(2, imagem.getCaminho());
@@ -57,13 +59,16 @@ public class ImagemDAO {
             int idEntidade = resultSet.getInt(1);
             
             ptmt = con.prepareStatement(sql3);
-            ptmt.setInt(1, imagem.getItemid());
+            ptmt.setInt(1, identidade);
             ptmt.setString(2, tabela);
-            ptmt.setInt(3, idEntidade);
+            ptmt.setInt(3, idImagem);
             ptmt.setString(4, "imagem");
             ptmt.executeUpdate();
+            
+            con.commit();
 
         } catch (SQLException ex) {
+            con.rollback();
             throw new RuntimeException("Erro ao inserir imagem no banco de dados. " + ex);
         } finally {
             ptmt.close();

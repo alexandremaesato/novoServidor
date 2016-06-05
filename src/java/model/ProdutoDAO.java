@@ -25,11 +25,12 @@ public class ProdutoDAO {
     PreparedStatement ptmt = null;
     ResultSet resultSet    = null;
     
-    public int cadastrarProduto(Produto prod, int pessoaid) throws SQLException{
+    public Entidade cadastrarProduto(Produto prod, int pessoaid) throws SQLException{
         
         String cadastrarEmpresa  = "INSERT INTO produto(nomeproduto, descricao, preco, fkcategoria, fktipo_culinaria) values(?,?,?,?,?);";
         String cadastrarEntidade = "INSERT INTO entidade(identidade_criada, deletado, tabela, idresponsavel, data_criacao, data_modificacao, idcriador) values(?,?,?,?,?,?,?);";
         String cadastrarRelacao  = "INSERT INTO relacao(identidade, tabela_entidade, idrelacionada, tabela_relacionada) values(?,?,?,?);";
+        
         
         try {
             con = ConnectionFactory.getConnection();
@@ -59,9 +60,10 @@ public class ProdutoDAO {
             ptmt.executeUpdate();
             resultSet = ptmt.getGeneratedKeys();
             resultSet.next();
-            int idEntidade = resultSet.getInt(1);
+            Entidade entidade = new Entidade();
+            entidade.setIdentidade(resultSet.getInt(1));
+            entidade.setIdentidade_criada(idProduto);
             
-
             ptmt = con.prepareStatement(cadastrarRelacao);
                 ptmt.setInt(1, prod.getEmpresaid());
                 ptmt.setString(2, "empresa");
@@ -69,12 +71,25 @@ public class ProdutoDAO {
                 ptmt.setString(4, "produto");
             ptmt.executeUpdate();
             
-            return idEntidade;
+            return entidade;
             
         } catch (SQLException ex) {
             throw new RuntimeException("Erro ao inserir empresa no banco de dados. "+ex);
         } finally {
             ptmt.close();
         }
+    }
+    
+    private Entidade setGetEntidade(ResultSet resultSet)throws SQLException{
+        Entidade entidade = new Entidade();
+        entidade.setData_criacao(resultSet.getDate("data_criacao"));
+        entidade.setData_modificacao(resultSet.getDate("data_modificacao"));
+        entidade.setDeletado(resultSet.getInt("deletado"));
+        entidade.setIdcriador(resultSet.getInt("idcriador"));
+        entidade.setIdentidade(resultSet.getInt("identidade"));
+        entidade.setIdentidade_criada(resultSet.getInt("identidade_criada"));
+        entidade.setIdresponsavel(resultSet.getInt("idresponsavel"));
+        entidade.setTabela(resultSet.getString("tabela"));
+        return entidade;
     }
 }

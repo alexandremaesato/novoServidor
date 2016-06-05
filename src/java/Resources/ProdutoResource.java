@@ -27,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import model.AutenticacaoDao;
+import model.Entidade;
 import model.Imagem;
 import model.ImagemDAO;
 import model.Produto;
@@ -79,7 +80,7 @@ public class ProdutoResource {
         prod = gson.fromJson(keyValuePairs[1], Produto.class);
         
         try {
-            int idEntidade = pDao.cadastrarProduto(prod, pessoaid);
+            Entidade entidade = pDao.cadastrarProduto(prod, pessoaid);
             Imagem img = prod.getImagemPerfil();
             if (img.hasImagem()) {
                 byte[] imagem = parseBase64Binary(img.getImg());
@@ -100,11 +101,17 @@ public class ProdutoResource {
                 }
     
                 img.setNomeImagem(img_name);
-                img.setCaminho("uploads/" + img_name);
+                img.setCaminho("/uploads/" + img_name);
                 img.setPessoaid(pessoaid);
-                img.setItemid(idEntidade);
-                imgdao.inserirImagem(img, "produto");
+                img.setItemid(entidade.getIdentidade());
+                
+            }else{
+                img.setNomeImagem("sem_imagem.jpg");
+                img.setCaminho("/images/sem_imagem.jpg");
+                img.setPessoaid(pessoaid);
+                img.setItemid(entidade.getIdentidade_criada());
             }
+            imgdao.inserirImagem(img, "produto", entidade.getIdentidade_criada());
             
         } catch (Exception e) {
             return gson.toJson("Erro ao cadastrar. Tente novamente mais tarde!");
