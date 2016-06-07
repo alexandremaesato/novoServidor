@@ -41,6 +41,8 @@ import model.EmpresaDAO;
 import model.Imagem;
 import model.ImagemDAO;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import model.Filtro;
+import model.FiltroDAO;
 
 
 /**
@@ -95,24 +97,31 @@ public class EmpresaResource {
     @Path("/buscarEmpresas")
     @Produces("application/json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public String buscarEmpresas(String value) throws SQLException {
-        
+    public String buscarEmpresas(String value) throws SQLException, UnsupportedEncodingException {
+        value = URLDecoder.decode(value, "UTF-8");
+        value = value.substring(0, value.length() - 1);
+        String[] keyValuePairs = value.split("=", 2);   
+            
         JsonObject json = new JsonObject();
         /*
             
         value = value.substring(1, value.length() - 1);
         String[] keyValuePairs = value.split(",", 2);   
-        
+        */
         Gson gson = new Gson();
         Filtro filtro = gson.fromJson(keyValuePairs[1], Filtro.class);
-*/
+        
+        FiltroDAO filtroDao = new FiltroDAO();
+        
+        List<Empresa>empresasFiltradas = filtroDao.filtraEmpresa(filtro);
+        
         
         List<Empresa> empresas = empresadao.pegarEmpresas();
         //Pegar ultima empresa apresentada
         //Pegar qual ordenacao
         //Pegar Parametros da filtragem (Culinaria, Endereco, preco max e min)
         String teste = "testando";
-        json.add("Empresas", gson.toJsonTree(empresas));
+        json.add("Empresas", gson.toJsonTree(empresasFiltradas));
         json.add("Teste", gson.toJsonTree(teste));
         //String emps = gson.toJsonTree(empresas);
         //emps = emps+gson.toJson(teste);

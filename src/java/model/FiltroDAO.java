@@ -32,7 +32,7 @@ public class FiltroDAO {
      * ~Funcao~
      * # Retornar uma lista de restaurantes com base nos filtros escolhidos
     **************************************************************************************************************************/
-    public List<Empresa> filtraRestaurante(Filtro filtro, int idUltimoRestaurante) throws SQLException{
+    public List<Empresa> filtraEmpresa(Filtro filtro) throws SQLException{
         String sqlFiltro = " SELECT DISTINCT "
                                   + " e.*, im.*, en.*,  "
                                   + "(SELECT COUNT(*) FROM comentario "
@@ -45,49 +45,51 @@ public class FiltroDAO {
                 
                                + "INNER JOIN entidade ent   ON e.idempresa = ent.identidade_criada AND ent.deletado = 0 "
                                + "LEFT JOIN relacao rp      ON e.idempresa = rp.identidade AND rp.tabela_relacionada = 'produto'"
-                               + "LEFT JOIN produto p       ON p.idproduto  = rp.idrelacionada"
-                               + "INNER JOIN categoria c    ON p.fkcategoria = c.idcategoria "
+                               + "LEFT JOIN produto p       ON p.idproduto  = rp.idrelacionada "
+                               + "LEFT JOIN categoria c    ON p.fkcategoria = c.idcategoria "
                                + "LEFT JOIN relacao ri      ON ri.identidade = e.idempresa AND ri.tabela_relacionada = 'imagem' "
                                + "LEFT JOIN relacao ren     ON ren.identidade = e.idempresa AND ren.tabela_relacionada = 'endereco' "
                                + "LEFT JOIN imagem  im      ON im.idimagem = ri.idrelacionada AND im.fktipo_imagem = 1 "
                                + "LEFT JOIN endereco en     ON en.idendereco = ren.idrelacionada ";
         String filtragem = "";
-        if(filtro.nomeempresa != null && !filtro.nomeempresa.isEmpty()){
+        
+        if(filtro.getNomeempresa() != null && !filtro.getNomeempresa().isEmpty()){
+            filtro.setNomeempresa(filtro.getNomeempresa()+"%");
             filtragem = sePrimeiroElemento(filtragem);
-            filtragem = filtragem+" e.nomeempresa = "+filtro.nomeempresa+ " " ;
+            filtragem = filtragem+" e.nomeempresa LIKE \""+filtro.getNomeempresa()+"\" " ;
         }
-        if(filtro.nomeproduto != null && !filtro.nomeproduto.isEmpty()){
-            filtragem = sePrimeiroElemento(filtragem);
-            filtragem = filtragem+" p.nomeproduto = "+filtro.nomeproduto+ " " ;
-        }
-        if(filtro.precoMinimo > 0 && filtro.precoMinimo < filtro.precoMaximo){
-            filtragem = sePrimeiroElemento(filtragem);
-            filtragem = filtragem+" p.preco > "+filtro.precoMinimo+ " " ;
-        }
-        if(filtro.precoMaximo > 0 && filtro.precoMaximo > filtro.precoMinimo){
-            filtragem = sePrimeiroElemento(filtragem);
-            filtragem = filtragem+" p.preco < "+filtro.precoMaximo+ " " ;
-        }
-        if(filtro.nome_categoria != null  && !filtro.nome_categoria.isEmpty()){
-            filtragem = sePrimeiroElemento(filtragem);
-            filtragem = filtragem+" c.nome_categoria = "+filtro.nome_categoria+ " " ;
-        }
-        if(filtro.estado != null && !filtro.estado.isEmpty()){
-            filtragem = sePrimeiroElemento(filtragem);
-            filtragem = filtragem+" en.estado = "+filtro.estado+ " " ;
-        }
-        if(filtro.cidade != null && !filtro.cidade.isEmpty()){
-            filtragem = sePrimeiroElemento(filtragem);
-            filtragem = filtragem+" en.cidade = "+filtro.cidade+ " " ;
-        }
-        if(filtro.bairro != null && !filtro.bairro.isEmpty()){
-            filtragem = sePrimeiroElemento(filtragem);
-            filtragem = filtragem+" en.bairro = "+filtro.bairro+ " " ;
-        }
+//        if(filtro.nomeproduto != null && !filtro.nomeproduto.isEmpty()){
+//            filtragem = sePrimeiroElemento(filtragem);
+//            filtragem = filtragem+" p.nomeproduto = "+filtro.nomeproduto+ " " ;
+//        }
+//        if(filtro.precoMinimo > 0 && filtro.precoMinimo < filtro.precoMaximo){
+//            filtragem = sePrimeiroElemento(filtragem);
+//            filtragem = filtragem+" p.preco > "+filtro.precoMinimo+ " " ;
+//        }
+//        if(filtro.precoMaximo > 0 && filtro.precoMaximo > filtro.precoMinimo){
+//            filtragem = sePrimeiroElemento(filtragem);
+//            filtragem = filtragem+" p.preco < "+filtro.precoMaximo+ " " ;
+//        }
+//        if(filtro.nome_categoria != null  && !filtro.nome_categoria.isEmpty()){
+//            filtragem = sePrimeiroElemento(filtragem);
+//            filtragem = filtragem+" c.nome_categoria = "+filtro.nome_categoria+ " " ;
+//        }
+//        if(filtro.estado != null && !filtro.estado.isEmpty()){
+//            filtragem = sePrimeiroElemento(filtragem);
+//            filtragem = filtragem+" en.estado = \""+filtro.estado+ "\" " ;
+//        }
+//        if(filtro.cidade != null && !filtro.cidade.isEmpty()){
+//            filtragem = sePrimeiroElemento(filtragem);
+//            filtragem = filtragem+(" en.cidade = \""+filtro.getCidade()+ "\" ") ;
+//        }
+//        if(filtro.getBairro() != null && !filtro.getBairro().isEmpty()){
+//            filtragem = sePrimeiroElemento(filtragem);
+//            filtragem = filtragem+" en.bairro = \""+filtro.getBairro()+ "\" " ;
+//        }
         //aqui verifica-se se o objeto filtro entrou em algum dos ifs acima, se sim, então remove-se o ultimo "and" da string
-        if(!filtragem.equals("")){
-            filtragem = filtragem.substring(0, filtragem.length() - 5);          
-        }
+//        if(!filtragem.equals("")){
+//            filtragem = filtragem.substring(0, filtragem.length() - 5);          
+//        }
          filtragem += " GROUP BY e.idempresa ";
         //aqui coloca-se algum order by se houver
         if(filtro.maisComentado){
@@ -96,7 +98,7 @@ public class FiltroDAO {
         else if(filtro.maisBuscado){
             filtragem = sePrimeiroElemento(filtragem);
             filtragem = filtragem+" order by e.vezesBuscado DESC " ;
-        }
+        } 
         sqlFiltro = sqlFiltro+" "+filtragem+" ; ";
         
         
