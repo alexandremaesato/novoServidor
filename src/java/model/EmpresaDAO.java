@@ -155,9 +155,8 @@ public class EmpresaDAO {
                                + "(SELECT COUNT(*) FROM comentario "
                                   + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
                                   + "WHERE relacao.identidade = empresa.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdecomentarios, "
-                               + "(SELECT COUNT(*) FROM avaliacao "
-                                  +  "INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliacao AND relacao.tabela_relacionada = 'avaliacao' "
-                                  + "WHERE relacao.identidade = empresa.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdeavaliacoes, "
+                               +"(SELECT COUNT(*) FROM avaliacao "
+                               +" WHERE avaliacao.idavaliado = empresa.idempresa) AS qtdeavaliacoes, "
                                + "(SELECT AVG(avaliacao) FROM avaliacao "
                                   + "WHERE avaliacao.idavaliado = empresa.idempresa) AS avaliacaogeral "
                 
@@ -258,6 +257,11 @@ public class EmpresaDAO {
                 + "inner join avaliacao aval on aval.idavaliado = idrelacionada and tabela_relacionada = aval.tipoavaliacao "
                 + "where tabela_entidade ='empresa' and identidade = ? "
                 + "group by descricao";
+        
+        String buscarEntidade = "SELECT * FROM empresa "
+                + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
+                + "where idempresa = ? "
+                + "GROUP BY empresa.idempresa ";
         
         try{
             Empresa empresa = new Empresa();
@@ -360,6 +364,13 @@ public class EmpresaDAO {
             resultSet = retornaResultadoQuery(qtdComentario, id);
             if(resultSet.next()){
                 empresa.setQtdeComentarios(resultSet.getInt("qtd"));
+            }
+            
+            resultSet = retornaResultadoQuery(buscarEntidade, id);
+            if(resultSet.next()){
+                Entidade entidade = new Entidade();
+                entidade.setIdresponsavel(resultSet.getInt("idresponsavel"));
+                empresa.setEntidade(entidade);
             }
          
             List<Produto> produtos = pegarProdutosPorEmpresa(id);
@@ -508,8 +519,28 @@ public class EmpresaDAO {
         }
     }
     
-    public void atualizaAvaliacaoGeralById(int id){
+    public void atualizaAvaliacaoGeralById(int id){    
+    }
+    
+    public void setSouDono(int idresponsavel, int identidade_criada) throws SQLException{
+        String cadastrarEntidade = "UPDATE entidade SET idresponsavel=?, data_modificacao=?"
+                + "where tabela='empresa' and identidade_criada = ?;";
         
-        
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(cadastrarEntidade);
+                ptmt.setInt(1, idresponsavel);                
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    Date date = new Date();
+                ptmt.setString(2, dateFormat.format(date));
+                ptmt.setInt(3, identidade_criada);
+                
+            
+            ptmt.executeUpdate();
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao atualizar entidade no banco de dados. "+ex);
+        } finally {
+            ptmt.close();
+        }
     }
 }

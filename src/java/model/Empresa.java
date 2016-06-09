@@ -29,6 +29,15 @@ public class Empresa {
     private int avaliacaoNota;
     private int qtdeComentarios;
     private int qtdeAvaliacoes;
+    private Entidade entidade;
+
+    public Entidade getEntidade() {
+        return entidade;
+    }
+
+    public void setEntidade(Entidade enteidade) {
+        this.entidade = enteidade;
+    }
 
     public int getEmpresaId() {
         return empresaId;

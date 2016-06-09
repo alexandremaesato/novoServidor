@@ -146,22 +146,6 @@ public class EmpresaResource {
         String login = tokenizer.nextToken();
         String senha = tokenizer.nextToken();
         int pessoaid = autdao.getPessoaId(login, senha);
-
-        // Decode do hashmap para json e instanciacao/cadastramento de empresa
-        /*
-        Empresa emp;
-        String coded = null;
-        Map<String, String> map = new LinkedHashMap<String, String>();
-        for (String keyValue : val.split(" *, *")) {
-            String[] pairs = keyValue.split(" *= *", 2);
-            coded = pairs[1];
-            map.put(pairs[0], pairs.length == 1 ? "" : pairs[1]);
-        }
-
-        encodedHelloBytes = DatatypeConverter.parseBase64Binary(coded);
-        decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8);
-        emp = gson.fromJson(decodeString, Empresa.class);
-*/
       
         val = URLDecoder.decode(val, "UTF-8");
         val = val.substring(0, val.length() - 1);
@@ -210,6 +194,23 @@ public class EmpresaResource {
         List<Empresa> empresas = empresadao.carregarEmpresas(notaAvaliacao);
         
         return gson.toJson(empresas);
+    }
+    
+    @POST
+    @Path("/setSouDono/{identidade_criada}/{idreponsavel}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces("application/json")
+    public String setSouDono(@PathParam("identidade_criada")String id1, 
+            @PathParam("idreponsavel")String id2) throws UnsupportedEncodingException, SQLException{
+       
+        int identidade_criada = Integer.parseInt(id1);
+        int idreponsavel = Integer.parseInt(id2);
+        
+        EmpresaDAO empresaDao = new EmpresaDAO();
+        empresaDao.setSouDono(idreponsavel, identidade_criada);
+        
+        
+        return "";
     }
 
     public static String encodeImage(byte[] imageByteArray) {

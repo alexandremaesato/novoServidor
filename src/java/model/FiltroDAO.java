@@ -40,7 +40,9 @@ public class FiltroDAO {
                                   + "WHERE relacao.identidade = e.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdecomentarios, "
                                   + "(SELECT COUNT(*) FROM avaliacao "
                                   +  "INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliacao AND relacao.tabela_relacionada = 'avaliacao' "
-                                  + "WHERE relacao.identidade = e.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdeavaliacoes "
+                                  + "WHERE relacao.identidade = e.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdeavaliacoes, "
+                                  + "(SELECT AVG(avaliacao) FROM avaliacao "
+                                  + "WHERE avaliacao.idavaliado = e.idempresa) AS avaliacaogeral "
                                   + "FROM empresa e "
                 
                                + "INNER JOIN entidade ent   ON e.idempresa = ent.identidade_criada AND ent.deletado = 0 "
@@ -137,6 +139,7 @@ public class FiltroDAO {
                 empresa.setEndereco(endereco);
                 empresa.setQtdeComentarios(resultSet.getInt("qtdecomentarios"));
                 empresa.setQtdeComentarios(resultSet.getInt("qtdeavaliacoes"));
+                empresa.setAvaliacaoNota(Math.round(resultSet.getInt("avaliacaogeral")));
                 
                 empresas.add(empresa);
             }

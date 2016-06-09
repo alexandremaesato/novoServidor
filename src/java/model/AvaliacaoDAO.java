@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +29,8 @@ public class AvaliacaoDAO {
         String sql = "INSERT INTO avaliacao " +
                         "(idavaliado, idpessoa, avaliacao, descricao, tipoavaliacao) " +
                         "VALUES (?,?,?,?,?);";
+        
+        
         
         try {
             con = ConnectionFactory.getConnection();
@@ -186,6 +189,51 @@ public class AvaliacaoDAO {
                 avaliacao.setTipoAvalicao(resultSet.getString("tipoavaliacao"));
             }
             return avaliacao;
+            
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao buscar a avaliação no banco de dados. " + ex);
+        } finally {
+            ptmt.close();
+        }
+    }
+    
+    public List<Object> getAvaliacoesByIdEmpresa(int id) throws SQLException{
+        String sql = "select distinct * from avaliacao " +
+                     "inner join pessoa on pessoa.idpessoa = avaliacao.idpessoa " +
+                     "where idavaliado = ? and tipoavaliacao = 'empresa' " + 
+                     "order by idavaliacao DESC " +
+                     "limit 3";
+        
+        List<Avaliacao> avaliacoes = new ArrayList<>();
+        List<Pessoa> pessoas = new ArrayList<>();
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+            ptmt.setInt(1, id);
+            resultSet = ptmt.executeQuery();
+            while (resultSet.next()) {
+                Avaliacao avaliacao = new Avaliacao();
+                avaliacao.setAvaliacaoid(resultSet.getInt("idavaliacao"));
+                avaliacao.setAvaliadoid(resultSet.getInt("idavaliado"));
+                avaliacao.setDescricao(resultSet.getString("descricao"));
+                avaliacao.setNota(resultSet.getInt("avaliacao"));
+                avaliacao.setPessoaid(resultSet.getInt("idpessoa"));
+                avaliacao.setTipoAvalicao(resultSet.getString("tipoavaliacao"));
+                avaliacao.setData_criacao(resultSet.getDate("data_criacao"));
+                avaliacao.setData_modificacao(resultSet.getDate("data_modificacao"));
+                avaliacoes.add(avaliacao);
+                
+                Pessoa pessoa = new Pessoa();
+                pessoa.setPessoaid(resultSet.getInt("idpessoa"));
+                pessoa.setNome(resultSet.getString("nome"));
+                pessoa.setSobrenome(resultSet.getString("sobrenome"));
+                pessoas.add(pessoa);
+            }
+            List<Object> lista = new ArrayList<>();
+            lista.add(avaliacoes);
+            lista.add(pessoas);
+            
+            return lista;
             
         } catch (SQLException ex) {
             throw new RuntimeException("Erro ao buscar a avaliação no banco de dados. " + ex);

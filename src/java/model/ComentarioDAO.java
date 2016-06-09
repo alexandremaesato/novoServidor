@@ -10,7 +10,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,7 +28,7 @@ public class ComentarioDAO {
 
     public boolean inserirComentario(Comentario comentario) throws SQLException {
 
-        String insereComentario = "INSERT INTO comentario( descricao, modificado, fkpessoa, fkidcomentario_dependente ) VALUES( ?,?,?,? )";
+        String insereComentario = "INSERT INTO comentario( descricao, modificado, fkpessoa, fkidcomentario_dependente, data_criacao, data_modificacao ) VALUES( ?,?,?,?,?,? )";
         String insereRelacao = "INSERT INTO relacao( identidade, tabela_entidade, idrelacionada, tabela_relacionada ) VALUES( ?,?,?,? )";
         boolean result = false;
 
@@ -37,8 +40,12 @@ public class ComentarioDAO {
             ptmt.setInt(2, 0);
             ptmt.setInt(3, comentario.getPessoaid());
             ptmt.setInt(4, comentario.getComentarioDependenteid());
+             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    Date date = new Date();
+            ptmt.setString(5, dateFormat.format(date));
+            ptmt.setString(6, dateFormat.format(date));
 
-            ptmt.execute();
+            ptmt.executeUpdate();
             resultSet = ptmt.getGeneratedKeys();
             resultSet.next();
             int idComentario = resultSet.getInt(1);
@@ -88,13 +95,20 @@ public class ComentarioDAO {
     }
     
     public List<Comentario> getComentariosByIdEmpresa(int idEmpresa) throws SQLException{
-        String sql = "SELECT distinct * FROM comentario"
+/*        String sql = "SELECT distinct * FROM comentario";;
                    + " INNER JOIN relacao ON tabela_relacionada = 'comentario' AND  "
                    + "tabela_entidade = 'empresa' AND "
                    + "identidade = ? AND "
                    + "idcomentario = idrelacionada "
                    + "order by idcomentario DESC "
                    + "limit 3"; 
+*/
+        String sql = "SELECT distinct comentario.*, pessoa.* FROM comentario "
+                + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario'  "
+                + "INNER JOIN pessoa ON fkpessoa = idpessoa "
+                + "where tabela_entidade = 'empresa' and relacao.identidade = ? "
+                + "order by idcomentario DESC "
+                + "LIMIT 3";
         List<Comentario> comentarios = new ArrayList<Comentario>();
         try{
             con = ConnectionFactory.getConnection();
@@ -103,13 +117,19 @@ public class ComentarioDAO {
             resultSet = ptmt.executeQuery();
             while(resultSet.next()){
                 Comentario comentario = new Comentario();
+                Pessoa pessoa = new Pessoa();
                 comentario.setComentarioid(resultSet.getInt("idcomentario"));
-                comentario.setComentadoid(resultSet.getInt("identidade"));
+                comentario.setComentadoid(idEmpresa);
                 comentario.setComentarioDependenteid(resultSet.getInt("fkidcomentario_dependente"));
                 comentario.setDescricao(resultSet.getString("descricao"));
                 comentario.setModificado(resultSet.getInt("modificado"));
                 comentario.setPessoaid(resultSet.getInt("fkpessoa"));
+                comentario.setData_criacao(resultSet.getDate("data_criacao"));
+                comentario.setData_modificacao(resultSet.getDate("data_modificacao"));
                 comentarios.add(comentario);
+                pessoa.setNome(resultSet.getString("nome"));
+                pessoa.setSobrenome(resultSet.getString("sobrenome"));
+                comentario.setPessoa(pessoa);
             }
             return comentarios;
 

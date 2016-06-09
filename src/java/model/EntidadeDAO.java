@@ -11,4 +11,7 @@ package model;
  */
 public class EntidadeDAO {
     
+    public void cadastraEntidade(){
+        
+    }
 }
