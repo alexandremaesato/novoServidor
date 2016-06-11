@@ -140,7 +140,7 @@ public class ProdutoDAO {
             p.setQtdeAvaliacoes(resultSet.getInt("qtdeavaliacoes"));
             
             AvaliacaoDAO avaliacaoDao = new AvaliacaoDAO();
-            p.setAvaliacoes(avaliacaoDao.getAvaliacoesByIdProduto(idProduto));
+            //p.setAvaliacoes(avaliacaoDao.getAvaliacoesByIdProduto(idProduto));
             return p;
             }
             return null;

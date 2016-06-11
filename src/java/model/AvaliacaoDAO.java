@@ -248,18 +248,56 @@ public class AvaliacaoDAO {
         }
     }
     
-    public List<Avaliacao> getAvaliacoesByIdProduto(int id) throws SQLException{
+//    public List<Avaliacao> getAvaliacoesByIdProduto(int id) throws SQLException{
+//        String sql = "select distinct * from avaliacao " +
+//                     "left join pessoa on pessoa.idpessoa = avaliacao.idpessoa " +
+//                     "where idavaliado = ? and tipoavaliacao = 'produto' " + 
+//                     "order by data_modificacao DESC ";
+//                     
+//        List<Avaliacao> avaliacoes = new ArrayList<>();
+//        try {
+//            con = ConnectionFactory.getConnection();
+//            ptmt = con.prepareStatement(sql);
+//            ptmt.setInt(1, id);
+//            resultSet = ptmt.executeQuery();
+//            while (resultSet.next()) {
+//                Avaliacao avaliacao = new Avaliacao();
+//                avaliacao.setAvaliacaoid(resultSet.getInt("idavaliacao"));
+//                avaliacao.setAvaliadoid(resultSet.getInt("idavaliado"));
+//                avaliacao.setDescricao(resultSet.getString("descricao"));
+//                avaliacao.setNota(resultSet.getInt("avaliacao"));
+//                avaliacao.setPessoaid(resultSet.getInt("idpessoa"));
+//                avaliacao.setTipoAvalicao(resultSet.getString("tipoavaliacao"));
+//                avaliacao.setData_criacao(resultSet.getDate("data_criacao"));
+//                avaliacao.setData_modificacao(resultSet.getDate("data_modificacao")); 
+//                avaliacoes.add(avaliacao);
+//                
+//                
+//            }
+//            return avaliacoes;
+//            
+//        } catch (SQLException ex) {
+//            throw new RuntimeException("Erro ao buscar as avaliações no banco de dados. " + ex);
+//        } finally {
+//            ptmt.close();
+//        }
+//    }
+    
+     public List<Object> getAvaliacoesByIdProduto(int id) throws SQLException{
         String sql = "select distinct * from avaliacao " +
                      "left join pessoa on pessoa.idpessoa = avaliacao.idpessoa " +
                      "where idavaliado = ? and tipoavaliacao = 'produto' " + 
                      "order by data_modificacao DESC ";
                      
-        List<Avaliacao> avaliacoes = new ArrayList<>();
+        List<Object> objetos = new ArrayList<>();
         try {
             con = ConnectionFactory.getConnection();
             ptmt = con.prepareStatement(sql);
             ptmt.setInt(1, id);
             resultSet = ptmt.executeQuery();
+            List<Avaliacao> avaliacoes = new ArrayList<>();
+            List<Pessoa> pessoas = new ArrayList<>();
+            
             while (resultSet.next()) {
                 Avaliacao avaliacao = new Avaliacao();
                 avaliacao.setAvaliacaoid(resultSet.getInt("idavaliacao"));
@@ -271,8 +309,17 @@ public class AvaliacaoDAO {
                 avaliacao.setData_criacao(resultSet.getDate("data_criacao"));
                 avaliacao.setData_modificacao(resultSet.getDate("data_modificacao")); 
                 avaliacoes.add(avaliacao);
+                
+                Pessoa pessoa = new Pessoa();
+                pessoa.setNome(resultSet.getString("nome"));
+                pessoa.setSobrenome(resultSet.getString("sobrenome"));
+                pessoas.add(pessoa);
             }
-            return avaliacoes;
+            List<Object> lista = new ArrayList<>();
+            lista.add(avaliacoes);
+            lista.add(pessoas);
+            
+            return lista;
             
         } catch (SQLException ex) {
             throw new RuntimeException("Erro ao buscar as avaliações no banco de dados. " + ex);

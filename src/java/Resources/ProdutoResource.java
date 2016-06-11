@@ -37,6 +37,7 @@ import model.AvaliacaoDAO;
 import model.Entidade;
 import model.Imagem;
 import model.ImagemDAO;
+import model.Pessoa;
 import model.Produto;
 import model.ProdutoDAO;
 
@@ -134,10 +135,22 @@ public class ProdutoResource {
     public String getProdutoById(@PathParam("idProduto") String idProduto) throws SQLException{
         Produto produto = new Produto();
         ProdutoDAO produtoDao = new ProdutoDAO();
+        AvaliacaoDAO avaliacaoDAO = new AvaliacaoDAO();
+        List<Object> lista = new ArrayList<>();
+        Map<String,String> result = new HashMap<String,String>();
+        
         Gson gson = new Gson();
         produto = produtoDao.getProdutoById(Integer.parseInt(idProduto));
+        lista = avaliacaoDAO.getAvaliacoesByIdProduto(produto.getProdutoid());
+        List<Avaliacao>avaliacoes = (List<Avaliacao>)lista.get(0);
+        List<Pessoa>pessoas = (List<Pessoa>)lista.get(1);
         
-        return gson.toJson(produto, Produto.class);
+        produto.setAvaliacoes(avaliacoes);
+        
+        result.put("produto", gson.toJson(produto));
+        result.put("pessoas",gson.toJson(pessoas));
+    
+        return result.toString();
         
         
     }
