@@ -27,11 +27,9 @@ public class AvaliacaoDAO {
     
     public int setAvaliacao(Avaliacao avaliacao) throws SQLException{
         String sql = "INSERT INTO avaliacao " +
-                        "(idavaliado, idpessoa, avaliacao, descricao, tipoavaliacao) " +
-                        "VALUES (?,?,?,?,?);";
-        
-        
-        
+                        "(idavaliado, idpessoa, avaliacao, descricao, tipoavaliacao, data_criacao, data_modificacao) " +
+                        "VALUES (?,?,?,?,?,?,?);";
+
         try {
             con = ConnectionFactory.getConnection();
             ptmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -40,6 +38,10 @@ public class AvaliacaoDAO {
                 ptmt.setInt(3, avaliacao.getNota());
                 ptmt.setString(4, avaliacao.getDescricao());
                 ptmt.setString(5, avaliacao.getTipoAvalicao());
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    Date date = new Date();
+                ptmt.setString(6, dateFormat.format(date));
+                ptmt.setString(7, dateFormat.format(date));
             
             ptmt.executeUpdate();
             resultSet = ptmt.getGeneratedKeys();
@@ -58,7 +60,7 @@ public class AvaliacaoDAO {
     public void updateAvaliacao(Avaliacao avaliacao) throws SQLException{
         
         String sql = "UPDATE avaliacao SET idavaliado = ?, idpessoa = ?, "
-                + "avaliacao = ?, descricao = ?, tipoavaliacao = ? WHERE idavaliacao = ?;";
+                + "avaliacao = ?, descricao = ?, tipoavaliacao = ?, data_modificacao = ?  WHERE idavaliacao = ?;";
         
         try {
             con = ConnectionFactory.getConnection();
@@ -68,7 +70,11 @@ public class AvaliacaoDAO {
                 ptmt.setInt(3, avaliacao.getNota());
                 ptmt.setString(4, avaliacao.getDescricao());
                 ptmt.setString(5, avaliacao.getTipoAvalicao());
-                ptmt.setInt(6, avaliacao.getAvaliacaoid());
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    Date date = new Date();
+                ptmt.setString(6, dateFormat.format(date));
+                ptmt.setInt(7, avaliacao.getAvaliacaoid());
+                
             
             ptmt.executeUpdate();
         } catch (SQLException ex) {
@@ -237,6 +243,39 @@ public class AvaliacaoDAO {
             
         } catch (SQLException ex) {
             throw new RuntimeException("Erro ao buscar a avaliação no banco de dados. " + ex);
+        } finally {
+            ptmt.close();
+        }
+    }
+    
+    public List<Avaliacao> getAvaliacoesByIdProduto(int id) throws SQLException{
+        String sql = "select distinct * from avaliacao " +
+                     "left join pessoa on pessoa.idpessoa = avaliacao.idpessoa " +
+                     "where idavaliado = ? and tipoavaliacao = 'produto' " + 
+                     "order by data_modificacao DESC ";
+                     
+        List<Avaliacao> avaliacoes = new ArrayList<>();
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+            ptmt.setInt(1, id);
+            resultSet = ptmt.executeQuery();
+            while (resultSet.next()) {
+                Avaliacao avaliacao = new Avaliacao();
+                avaliacao.setAvaliacaoid(resultSet.getInt("idavaliacao"));
+                avaliacao.setAvaliadoid(resultSet.getInt("idavaliado"));
+                avaliacao.setDescricao(resultSet.getString("descricao"));
+                avaliacao.setNota(resultSet.getInt("avaliacao"));
+                avaliacao.setPessoaid(resultSet.getInt("idpessoa"));
+                avaliacao.setTipoAvalicao(resultSet.getString("tipoavaliacao"));
+                avaliacao.setData_criacao(resultSet.getDate("data_criacao"));
+                avaliacao.setData_modificacao(resultSet.getDate("data_modificacao")); 
+                avaliacoes.add(avaliacao);
+            }
+            return avaliacoes;
+            
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao buscar as avaliações no banco de dados. " + ex);
         } finally {
             ptmt.close();
         }

@@ -13,20 +13,27 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import model.AutenticacaoDao;
+import model.Avaliacao;
+import model.AvaliacaoDAO;
 import model.Entidade;
 import model.Imagem;
 import model.ImagemDAO;
@@ -118,5 +125,20 @@ public class ProdutoResource {
         }
         
         return gson.toJson("Cadastrado com Sucesso!");
+    }
+    
+    @GET
+    @Path("/getProdutoDetalhes/{idProduto}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces("application/json")
+    public String getProdutoById(@PathParam("idProduto") String idProduto) throws SQLException{
+        Produto produto = new Produto();
+        ProdutoDAO produtoDao = new ProdutoDAO();
+        Gson gson = new Gson();
+        produto = produtoDao.getProdutoById(Integer.parseInt(idProduto));
+        
+        return gson.toJson(produto, Produto.class);
+        
+        
     }
 }

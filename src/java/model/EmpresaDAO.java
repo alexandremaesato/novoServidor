@@ -398,9 +398,8 @@ public class EmpresaDAO {
                 + "	(SELECT COUNT(*) FROM comentario "
                 + "		INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
                 + "		WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
-                + "    (SELECT COUNT(*) FROM avaliacao "
-                + "		INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliacao AND relacao.tabela_relacionada = 'avaliacao' "
-                + "		WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdeavaliacoes, "
+                + "(SELECT COUNT(*) FROM avaliacao WHERE produto.idproduto = avaliacao.idavaliado " 
+                + "AND avaliacao.tipoavaliacao = 'produto') AS qtdeavaliacoes, "
                 + "    (SELECT avg(avaliacao) FROM relacao "
                 + "        inner join avaliacao aval on aval.idavaliado = idrelacionada and tabela_relacionada = aval.tipoavaliacao "
                 + "        where tabela_entidade ='empresa' and identidade = ?  and idrelacionada = produto.idproduto) as media "
@@ -437,7 +436,7 @@ public class EmpresaDAO {
                 
                 produto.setImagemPerfil(imagemPerfil);
                 produto.setQtdeComentarios(resultSet.getInt("qtdecomentarios"));
-                produto.setQtdeComentarios(resultSet.getInt("qtdeavaliacoes"));
+                produto.setQtdeAvaliacoes(resultSet.getInt("qtdeavaliacoes"));
                 produto.setAvaliacaoGeral(resultSet.getInt("media"));
                 produtos.add(produto);
             }
