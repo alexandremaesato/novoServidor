@@ -449,34 +449,54 @@ public class EmpresaDAO {
     }
     
     public List<Empresa> carregarEmpresas(int nota) throws SQLException{
-        String sqlCarregaEmpresas = "SELECT DISTINCT *, "
-                                        + "FORMAT(((SELECT CASE WHEN COUNT(avaliacao) = 0 THEN COALESCE(SUM(avaliacao), 0) ELSE COALESCE(SUM(avaliacao), 0)/COUNT(avaliacao) END FROM avaliacao "
-                                        +		"INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliado AND relacao.tabela_relacionada = 'produto' "
-                                        +		"WHERE avaliacao.tipoavaliacao = 'prato' AND relacao.identidade = entidade.identidade "
-                                        +		"AND relacao.tabela_relacionada = 'empresa') + "
-                                        +	  "(SELECT CASE WHEN COUNT(avaliacao) = 0 THEN COALESCE(SUM(avaliacao), 0) ELSE COALESCE(SUM(avaliacao), 0)/COUNT(avaliacao) END FROM avaliacao "
-                                        +		"WHERE tipoavaliacao = 'servico' AND idavaliado = entidade.identidade) + "
-                                        +	  "(SELECT CASE WHEN COUNT(avaliacao) = 0 THEN COALESCE(SUM(avaliacao), 0) ELSE COALESCE(SUM(avaliacao), 0)/COUNT(avaliacao) END FROM avaliacao "
-                                        +		"WHERE tipoavaliacao = 'ambiente' AND idavaliado = entidade.identidade)) / 3, 0) AS totalGeral "
-                                        + "FROM empresa "
-                                        + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.tabela = 'empresa' AND entidade.deletado = 0 "
-                                        + "LEFT JOIN relacao re ON re.identidade = entidade.identidade AND re.tabela_entidade = 'empresa' AND re.tabela_relacionada = 'endereco' "
-                                        + "LEFT JOIN endereco ON endereco.idendereco = re.idrelacionada "
-                                        + "LEFT JOIN relacao ri ON ri.identidade = entidade.identidade AND ri.tabela_entidade = 'empresa' AND ri.tabela_relacionada = 'imagem' "
-                                        + "LEFT JOIN entidade ei ON ei.identidade = ri.idrelacionada AND ei.deletado = 0 AND ei.tabela = 'imagem' "
-                                        + "LEFT JOIN imagem ON imagem.idimagem = ei.identidade_criada "
-                                        + "GROUP BY totalGeral DESC";
+//        String sqlCarregaEmpresas = "SELECT DISTINCT *, "
+//                                        + "FORMAT(((SELECT CASE WHEN COUNT(avaliacao) = 0 THEN COALESCE(SUM(avaliacao), 0) ELSE COALESCE(SUM(avaliacao), 0)/COUNT(avaliacao) END FROM avaliacao "
+//                                        +		"INNER JOIN relacao ON relacao.idrelacionada = avaliacao.idavaliado AND relacao.tabela_relacionada = 'produto' "
+//                                        +		"WHERE avaliacao.tipoavaliacao = 'prato' AND relacao.identidade = entidade.identidade "
+//                                        +		"AND relacao.tabela_relacionada = 'empresa') + "
+//                                        +	  "(SELECT CASE WHEN COUNT(avaliacao) = 0 THEN COALESCE(SUM(avaliacao), 0) ELSE COALESCE(SUM(avaliacao), 0)/COUNT(avaliacao) END FROM avaliacao "
+//                                        +		"WHERE tipoavaliacao = 'servico' AND idavaliado = entidade.identidade) + "
+//                                        +	  "(SELECT CASE WHEN COUNT(avaliacao) = 0 THEN COALESCE(SUM(avaliacao), 0) ELSE COALESCE(SUM(avaliacao), 0)/COUNT(avaliacao) END FROM avaliacao "
+//                                        +		"WHERE tipoavaliacao = 'ambiente' AND idavaliado = entidade.identidade)) / 3, 0) AS totalGeral "
+//                                        + "FROM empresa "
+//                                        + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.tabela = 'empresa' AND entidade.deletado = 0 "
+//                                        + "LEFT JOIN relacao re ON re.identidade = entidade.identidade AND re.tabela_entidade = 'empresa' AND re.tabela_relacionada = 'endereco' "
+//                                        + "LEFT JOIN endereco ON endereco.idendereco = re.idrelacionada "
+//                                        + "LEFT JOIN relacao ri ON ri.identidade = entidade.identidade AND ri.tabela_entidade = 'empresa' AND ri.tabela_relacionada = 'imagem' "
+//                                        + "LEFT JOIN entidade ei ON ei.identidade = ri.idrelacionada AND ei.deletado = 0 AND ei.tabela = 'imagem' "
+//                                        + "LEFT JOIN imagem ON imagem.idimagem = ei.identidade_criada "
+//                                        + "GROUP BY totalGeral DESC";
+        String sqlCarregaEmpresas = "SELECT DISTINCT  "
+                + "empresa.*, imagem.*, endereco.*,  "
+                + "(SELECT COUNT(*) FROM comentario  "
+                + " INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario'  "
+                + " WHERE relacao.identidade = empresa.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdecomentarios,  "
+                + "(SELECT COUNT(*) FROM avaliacao  "
+                + "WHERE avaliacao.idavaliado = empresa.idempresa) AS qtdeavaliacoes,  "
+                + "(SELECT AVG(avaliacao) FROM avaliacao "
+                + " WHERE avaliacao.idavaliado = empresa.idempresa) AS avaliacaogeral "
+                + "FROM empresa "
+                + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
+                + "LEFT JOIN relacao ri ON ri.identidade = empresa.idempresa AND ri.tabela_relacionada = 'imagem' "
+                + "LEFT JOIN relacao ren ON ren.identidade = empresa.idempresa AND ren.tabela_relacionada = 'endereco' "
+                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada AND imagem.fktipo_imagem = 1 "
+                + "LEFT JOIN endereco  ON endereco.idendereco = ren.idrelacionada "
+                + "GROUP BY empresa.idempresa "
+                + "order by avaliacaogeral DESC "
+                + "limit 10 "
+                + "OFFSET ?";
         
-        if(nota >= 0){
-            sqlCarregaEmpresas += " HAVING totalGeral < " + nota;
-        }
-        
-        sqlCarregaEmpresas += " LIMIT 2";
+//        if(nota >= 0){
+//            sqlCarregaEmpresas += " HAVING totalGeral < " + nota;
+//        }
+//        
+//        sqlCarregaEmpresas += " LIMIT 2";
         
         
         try {
             con = ConnectionFactory.getConnection();
             ptmt = con.prepareStatement(sqlCarregaEmpresas);
+            ptmt.setInt(1, nota);
             resultSet = ptmt.executeQuery();
             List<Empresa> empresas = new ArrayList<Empresa>();
             while(resultSet.next()){
@@ -506,7 +526,7 @@ public class EmpresaDAO {
                 img.setCaminho(resultSet.getString("caminho"));
                 empresa.setImagemPerfil(img);
                 
-                empresa.setAvaliacaoNota(resultSet.getInt("totalGeral"));
+                empresa.setAvaliacaoNota(resultSet.getInt("avaliacaogeral"));
                 empresas.add(empresa);
             }
             
