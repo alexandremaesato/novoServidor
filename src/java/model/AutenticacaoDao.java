@@ -219,7 +219,9 @@ public class AutenticacaoDao {
     }
     
     public int getPessoaId(String login, String senha) throws SQLException{
-        String sql1 = "SELECT idautenticacao FROM autenticacao WHERE login = ? AND senha = ?;";
+        String sql1 = "select idpessoa from pessoa  " +
+                      "inner join autenticacao on autenticacao.idautenticacao = pessoa.fkautenticacao " +
+                      "where login = ? and senha = ?;";
         ResultSet rs;
         int id = 0;
         try {
@@ -230,7 +232,7 @@ public class AutenticacaoDao {
             ptmt.executeQuery();
             rs = ptmt.getResultSet();
             if(rs.next()){
-                id = rs.getInt("idautenticacao");
+                id = rs.getInt("idpessoa");
             }     
             return id;
             

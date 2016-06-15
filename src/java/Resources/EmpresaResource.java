@@ -41,6 +41,8 @@ import model.EmpresaDAO;
 import model.Imagem;
 import model.ImagemDAO;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import model.Filtro;
+import model.FiltroDAO;
 
 
 /**
@@ -95,24 +97,31 @@ public class EmpresaResource {
     @Path("/buscarEmpresas")
     @Produces("application/json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public String buscarEmpresas(String value) throws SQLException {
-        
+    public String buscarEmpresas(String value) throws SQLException, UnsupportedEncodingException {
+        value = URLDecoder.decode(value, "UTF-8");
+        value = value.substring(0, value.length() - 1);
+        String[] keyValuePairs = value.split("=", 2);   
+            
         JsonObject json = new JsonObject();
         /*
             
         value = value.substring(1, value.length() - 1);
         String[] keyValuePairs = value.split(",", 2);   
-        
+        */
         Gson gson = new Gson();
         Filtro filtro = gson.fromJson(keyValuePairs[1], Filtro.class);
-*/
+        
+        FiltroDAO filtroDao = new FiltroDAO();
+        
+        List<Empresa>empresasFiltradas = filtroDao.filtraEmpresa(filtro);
+        
         
         List<Empresa> empresas = empresadao.pegarEmpresas();
         //Pegar ultima empresa apresentada
         //Pegar qual ordenacao
         //Pegar Parametros da filtragem (Culinaria, Endereco, preco max e min)
         String teste = "testando";
-        json.add("Empresas", gson.toJsonTree(empresas));
+        json.add("Empresas", gson.toJsonTree(empresasFiltradas));
         json.add("Teste", gson.toJsonTree(teste));
         //String emps = gson.toJsonTree(empresas);
         //emps = emps+gson.toJson(teste);
@@ -137,22 +146,6 @@ public class EmpresaResource {
         String login = tokenizer.nextToken();
         String senha = tokenizer.nextToken();
         int pessoaid = autdao.getPessoaId(login, senha);
-
-        // Decode do hashmap para json e instanciacao/cadastramento de empresa
-        /*
-        Empresa emp;
-        String coded = null;
-        Map<String, String> map = new LinkedHashMap<String, String>();
-        for (String keyValue : val.split(" *, *")) {
-            String[] pairs = keyValue.split(" *= *", 2);
-            coded = pairs[1];
-            map.put(pairs[0], pairs.length == 1 ? "" : pairs[1]);
-        }
-
-        encodedHelloBytes = DatatypeConverter.parseBase64Binary(coded);
-        decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8);
-        emp = gson.fromJson(decodeString, Empresa.class);
-*/
       
         val = URLDecoder.decode(val, "UTF-8");
         val = val.substring(0, val.length() - 1);
@@ -201,6 +194,23 @@ public class EmpresaResource {
         List<Empresa> empresas = empresadao.carregarEmpresas(notaAvaliacao);
         
         return gson.toJson(empresas);
+    }
+    
+    @POST
+    @Path("/setSouDono/{identidade_criada}/{idreponsavel}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces("application/json")
+    public String setSouDono(@PathParam("identidade_criada")String id1, 
+            @PathParam("idreponsavel")String id2) throws UnsupportedEncodingException, SQLException{
+       
+        int identidade_criada = Integer.parseInt(id1);
+        int idreponsavel = Integer.parseInt(id2);
+        
+        EmpresaDAO empresaDao = new EmpresaDAO();
+        empresaDao.setSouDono(idreponsavel, identidade_criada);
+        
+        
+        return "";
     }
 
     public static String encodeImage(byte[] imageByteArray) {

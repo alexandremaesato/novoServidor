@@ -25,6 +25,7 @@ public class Filtro {
     String bairro; //tabela endereco 
     boolean maisComentado; //tabela empresa A SER ADICIONADA COLUNA
     boolean maisBuscado; //tabela empresa A SER ADICIONADA COLUNA
+    private String ordenacao;
 
     public String getNomeempresa() {
         return nomeempresa;
@@ -104,5 +105,13 @@ public class Filtro {
 
     public void setMaisBuscado(boolean maisBuscado) {
         this.maisBuscado = maisBuscado;
+    }
+
+    public String getOrdenacao() {
+        return ordenacao;
+    }
+
+    public void setOrdenacao(String ordenacao) {
+        this.ordenacao = ordenacao;
     }
 }

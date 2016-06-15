@@ -63,12 +63,12 @@ public class ComentarioResource {
         comentarios = comentarioDAO.getComentariosByIdEmpresa(Integer.parseInt(idEmpresa));
         
         PessoaDAO pessoaDao = new PessoaDAO();
-        for(int i=0; i<pessoas.size(); i++){
-            pessoas.add(pessoaDao.getPessoaById(comentarios.get(i).getPessoaid()));
-        }
+//        for(int i=0; i<pessoas.size(); i++){
+//            pessoas.add(pessoaDao.getPessoaById(comentarios.get(i).getPessoaid()));
+//        }
         Map<String,String> result = new HashMap<String,String>();
         result.put("comentarios",gson.toJson(comentarios));
-        result.put("pessoas",gson.toJson(pessoas));
+        //result.put("pessoas",gson.toJson(pessoas));
         
         return result.toString();
     }

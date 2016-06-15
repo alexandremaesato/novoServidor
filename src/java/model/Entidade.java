@@ -84,8 +84,5 @@ public class Entidade {
     public void setIdcriador(int idcriador) {
         this.idcriador = idcriador;
     }
-    
-    
-    
-    
+        
 }

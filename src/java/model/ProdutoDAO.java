@@ -92,4 +92,62 @@ public class ProdutoDAO {
         entidade.setTabela(resultSet.getString("tabela"));
         return entidade;
     }
+
+    public Produto getProdutoById(int idProduto) throws SQLException {
+        String sql = "SELECT DISTINCT produto.*, imagem.*, "
+                + "	(SELECT COUNT(*) FROM comentario "
+                + "		INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
+                + "		WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
+                + "(SELECT COUNT(*) FROM avaliacao WHERE produto.idproduto = avaliacao.idavaliado " 
+                + "     AND avaliacao.tipoavaliacao = 'produto') AS qtdeavaliacoes, "
+                
+                + "(SELECT avg(avaliacao) FROM avaliacao "
+                + "WHERE produto.idproduto = avaliacao.idavaliado AND avaliacao.tipoavaliacao = 'produto') AS media "
+                
+                + "FROM produto "
+                + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0  "
+                + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto'  "
+                + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem'  "
+                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada  "
+                + "WHERE idproduto = ?;";
+
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+                ptmt.setInt(1, idProduto);
+                //ptmt.setInt(2, idProduto);
+                
+            resultSet = ptmt.executeQuery();
+            if (resultSet.next()){
+            Produto p = new Produto();
+            p.setProdutoid(idProduto);
+            p.setAvaliacaoGeral(resultSet.getInt("media"));
+
+            p.setCategoria(resultSet.getInt("fkcategoria"));
+            p.setPreco(resultSet.getDouble("preco"));
+            
+            Imagem imagem = new Imagem();
+            imagem.setCaminho(resultSet.getString("caminho"));
+            imagem.setDescricao(resultSet.getString("descricao"));
+            imagem.setImagemid(resultSet.getInt("idimagem"));
+            imagem.setItemid(idProduto);
+            imagem.setNomeImagem(resultSet.getString("nomeimagem"));
+            imagem.setTipoImagem(resultSet.getInt("fktipo_imagem"));
+            
+            p.setImagemPerfil(imagem);
+            
+            p.setNomeProduto(resultSet.getString("nomeproduto"));
+            p.setQtdeAvaliacoes(resultSet.getInt("qtdeavaliacoes"));
+            
+            AvaliacaoDAO avaliacaoDao = new AvaliacaoDAO();
+            //p.setAvaliacoes(avaliacaoDao.getAvaliacoesByIdProduto(idProduto));
+            return p;
+            }
+            return null;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao recuperar o produto no banco de dados. "+ex);
+        } finally {
+            ptmt.close();
+        }
+    }
 }

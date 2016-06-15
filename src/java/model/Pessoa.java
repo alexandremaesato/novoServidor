@@ -5,7 +5,8 @@
  */
 package model;
 
-import java.sql.Date;
+
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ public class Pessoa {
     private String nome;
     private String sobrenome;
     private Date dataNascimento;
-    private int imagemPerfil;
+    private Imagem imagemPerfil;
     private int numeroFavoritados;
     private int numeroDesejados;
     private List listaFavoritos;
@@ -83,11 +84,11 @@ public class Pessoa {
         this.dataNascimento = dataNascimento;
     }
 
-    public int getImagemPerfil() {
+    public Imagem getImagemPerfil() {
         return imagemPerfil;
     }
 
-    public void setImagemPerfil(int imagemPerfil) {
+    public void setImagemPerfil(Imagem imagemPerfil) {
         this.imagemPerfil = imagemPerfil;
     }
 

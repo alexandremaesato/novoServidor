@@ -9,6 +9,10 @@ import com.google.gson.Gson;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
@@ -21,6 +25,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import model.Avaliacao;
 import model.AvaliacaoDAO;
+import model.Pessoa;
 
 /**
  * REST Web Service
@@ -92,6 +97,31 @@ public class AvaliacaoResource {
             Gson gson = new Gson();
             Integer idi = Integer.parseInt(id);
             return gson.toJson(avaliacaoDAO.getAvaliacaoById(idi));
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+    
+    @GET
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Path("/getAvaliacoesByIdEmpresa/{id}")
+    public String getAvaliacoesByIdEmpresa(@PathParam("id") String id) {
+        try {
+            AvaliacaoDAO avaliacaoDAO = new AvaliacaoDAO();
+            Avaliacao avaliacao = new Avaliacao();
+            Gson gson = new Gson();
+            Integer idi = Integer.parseInt(id);
+            
+            Map<String,String> result = new HashMap<String,String>();
+            List<Object> lista = new ArrayList<Object>();
+            lista = avaliacaoDAO.getAvaliacoesByIdEmpresa(idi);
+            List<Avaliacao>avaliacoes = (List<Avaliacao>)lista.get(0);
+            List<Pessoa>pessoas = (List<Pessoa>)lista.get(1);
+            
+            result.put("avaliacoes",gson.toJson(avaliacoes));
+            result.put("pessoas",gson.toJson(pessoas));
+            
+            return result.toString();
         } catch (Exception e) {
             return e.getMessage();
         }
