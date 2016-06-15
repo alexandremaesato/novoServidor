@@ -56,7 +56,7 @@ public class FiltroDAO {
         String filtragem = "";
         
         if(filtro.getNomeempresa() != null && !filtro.getNomeempresa().isEmpty()){
-            filtro.setNomeempresa(filtro.getNomeempresa()+"%");
+            filtro.setNomeempresa("%"+filtro.getNomeempresa()+"%");
             filtragem = sePrimeiroElemento(filtragem);
             filtragem = filtragem+" e.nomeempresa LIKE \""+filtro.getNomeempresa()+"\" " ;
         }
@@ -80,10 +80,10 @@ public class FiltroDAO {
 //            filtragem = sePrimeiroElemento(filtragem);
 //            filtragem = filtragem+" en.estado = \""+filtro.estado+ "\" " ;
 //        }
-//        if(filtro.cidade != null && !filtro.cidade.isEmpty()){
-//            filtragem = sePrimeiroElemento(filtragem);
-//            filtragem = filtragem+(" en.cidade = \""+filtro.getCidade()+ "\" ") ;
-//        }
+        if(filtro.cidade != null && !filtro.cidade.isEmpty() && filtro.cidade != "Todos"){
+            filtragem = sePrimeiroElemento(filtragem);
+            filtragem = filtragem+(" en.cidade = \""+filtro.getCidade()+ "\" ") ;
+        }
 //        if(filtro.getBairro() != null && !filtro.getBairro().isEmpty()){
 //            filtragem = sePrimeiroElemento(filtragem);
 //            filtragem = filtragem+" en.bairro = \""+filtro.getBairro()+ "\" " ;
