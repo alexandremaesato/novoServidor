@@ -119,4 +119,67 @@ public class ProdutoResource {
         
         return gson.toJson("Cadastrado com Sucesso!");
     }
+    
+    
+    @POST
+    @Path("/cadastrarProdutoWeb")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String cadastrarProdutoWeb(@HeaderParam("Authorization") List<String> autorizacao, String json) throws SQLException, IOException {
+        
+        // Pega informacoes do usuario no header e busca id do usuario
+            String authToken = autorizacao.get(0);
+            authToken = authToken.replaceFirst("Basic", "");
+
+            byte[] encodedHelloBytes = DatatypeConverter.parseBase64Binary(authToken);
+            String decodeString = new String(encodedHelloBytes, StandardCharsets.UTF_8);
+
+            StringTokenizer tokenizer = new StringTokenizer(decodeString, ":");
+            String login = tokenizer.nextToken();
+            String senha = tokenizer.nextToken();
+            int pessoaid = autdao.getPessoaId(login, senha);
+
+
+        Produto prod = gson.fromJson(json, Produto.class);
+        
+        try {
+            Entidade entidade = pDao.cadastrarProduto(prod, pessoaid);
+            Imagem img = prod.getImagemPerfil();
+            if (img.hasImagem()) {
+                byte[] imagem = parseBase64Binary(img.getImg());
+                String img_name = "imgPerfil-" + System.currentTimeMillis() + ".jpg";
+                String path = servletcontext.getRealPath("/").replace("\\", "/");
+                if( path != null ){
+                    new File(path + "uploads").mkdirs();
+                    path = path + "uploads/";
+                }
+                
+                try (FileOutputStream fos = new FileOutputStream(path + img_name)) {
+                        fos.write(imagem);
+                        FileDescriptor fd = fos.getFD();
+                        fos.flush();
+                        fd.sync();
+                } catch (Exception e) {
+                    throw new RuntimeException("Erro ao gravar imagem. " + e);
+                }
+    
+                img.setNomeImagem(img_name);
+                img.setCaminho("/uploads/");
+                img.setPessoaid(pessoaid);
+                img.setItemid(entidade.getIdentidade());
+                
+            }else{
+                img.setNomeImagem("sem_imagem.jpg");
+                img.setCaminho("/images/");
+                img.setPessoaid(pessoaid);
+                img.setItemid(entidade.getIdentidade_criada());
+            }
+            imgdao.inserirImagem(img, "produto", entidade.getIdentidade_criada());
+            
+        } catch (Exception e) {
+            return gson.toJson("Erro ao cadastrar. Tente novamente mais tarde!");
+        }
+        
+        return gson.toJson("Produto cadastrado com Sucesso!");
+    }
 }
