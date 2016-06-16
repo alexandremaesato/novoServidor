@@ -128,6 +128,20 @@ public class EmpresaResource {
 
         return json.toString();
     }
+    
+    @POST
+    @Path("/buscarEmpresasJson")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String buscarEmpresasJson(String json) throws SQLException {
+        
+        Filtro filtro = gson.fromJson(json, Filtro.class);
+        
+        FiltroDAO filtroDao = new FiltroDAO();
+        List<Empresa> empresasFiltradas = filtroDao.filtraEmpresa(filtro);
+        
+        return gson.toJson(empresasFiltradas);
+    }
 
     @POST
     @Path("/cadastrarEmpresa")
