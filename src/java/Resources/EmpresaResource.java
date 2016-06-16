@@ -19,9 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
@@ -312,7 +310,7 @@ public class EmpresaResource {
             img.setCaminho("/uploads/");
             img.setPessoaid(pessoaid);
             img.setItemid(idEntidade);
-            imgdao.inserirImagem(img, "empresa", emp.getEmpresaId());
+            imgdao.inserirImagem(img, "empresa", idEntidade);
         }
         
         return gson.toJson("Empresa cadastrada com sucesso!");

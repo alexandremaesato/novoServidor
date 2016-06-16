@@ -28,6 +28,7 @@ public class Produto {
     private int avaliacaoGeral;
     private int qtdeAvaliacoes;
     private int empresaid;
+    private Entidade entidade;
 
     public int getProdutoid() {
         return produtoid;
@@ -147,5 +148,13 @@ public class Produto {
 
     public void setEmpresaid(int empresaid) {
         this.empresaid = empresaid;
+    }
+    
+    public Entidade getEntidade() {
+        return entidade;
+    }
+
+    public void setEntidade(Entidade entidade) {
+        this.entidade = entidade;
     }
 }

@@ -34,7 +34,7 @@ public class FiltroDAO {
     **************************************************************************************************************************/
     public List<Empresa> filtraEmpresa(Filtro filtro) throws SQLException{
         String sqlFiltro = " SELECT DISTINCT "
-                                  + " e.*, im.*, en.*,  "
+                                  + " e.*, im.*, en.*, ent.*,  "
                                   + "(SELECT COUNT(*) FROM comentario "
                                   + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
                                   + "WHERE relacao.identidade = e.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdecomentarios, "
@@ -117,6 +117,16 @@ public class FiltroDAO {
                 empresa.setCnpj(resultSet.getString("cnpj"));
                 empresa.setDescricao(resultSet.getString("descricao"));
                 
+                Entidade entidade = new Entidade();
+                entidade.setIdentidade(resultSet.getInt("identidade"));
+                entidade.setIdentidade_criada(resultSet.getInt("identidade_criada"));
+                entidade.setDeletado(resultSet.getInt("deletado"));
+                entidade.setTabela(resultSet.getString("tabela"));
+                entidade.setIdresponsavel(resultSet.getInt("idresponsavel"));
+                entidade.setIdcriador(resultSet.getInt("idcriador"));
+                entidade.setData_criacao(resultSet.getDate("data_criacao"));
+                entidade.setData_modificacao(resultSet.getDate("data_modificacao"));
+                
                 Imagem imagemPerfil = new Imagem();
                 imagemPerfil.setImagemid(resultSet.getInt("idimagem"));
                 imagemPerfil.setNomeImagem(resultSet.getString("nomeimagem"));
@@ -140,6 +150,7 @@ public class FiltroDAO {
                 empresa.setQtdeComentarios(resultSet.getInt("qtdecomentarios"));
                 empresa.setQtdeComentarios(resultSet.getInt("qtdeavaliacoes"));
                 empresa.setAvaliacaoNota(Math.round(resultSet.getInt("avaliacaogeral")));
+                empresa.setEntidade(entidade);
                 
                 empresas.add(empresa);
             }

@@ -79,7 +79,7 @@ public class EmpresaDAO {
             int idEndereco = resultSet.getInt(1);
             
             ptmt = con.prepareStatement(cadastrarRelacao);
-                ptmt.setInt(1, idEntidade);
+                ptmt.setInt(1, idEmpresa);
                 ptmt.setString(2, "empresa");
                 ptmt.setInt(3, idEndereco);
                 ptmt.setString(4, "endereco");
@@ -96,7 +96,7 @@ public class EmpresaDAO {
                 int idTelefone = resultSet.getInt(1);
 
                 ptmt = con.prepareStatement(cadastrarRelacao);
-                    ptmt.setInt(1, idEntidade);
+                    ptmt.setInt(1, idEmpresa);
                     ptmt.setString(2, "empresa");
                     ptmt.setInt(3, idTelefone);
                     ptmt.setString(4, "telefone");

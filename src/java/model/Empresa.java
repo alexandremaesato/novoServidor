@@ -31,14 +31,6 @@ public class Empresa {
     private int qtdeAvaliacoes;
     private Entidade entidade;
 
-    public Entidade getEntidade() {
-        return entidade;
-    }
-
-    public void setEntidade(Entidade enteidade) {
-        this.entidade = enteidade;
-    }
-
     public int getEmpresaId() {
         return empresaId;
     }
@@ -157,6 +149,14 @@ public class Empresa {
 
     public void setQtdeAvaliacoes(int qtdeAvaliacoes) {
         this.qtdeAvaliacoes = qtdeAvaliacoes;
+    }
+    
+    public Entidade getEntidade() {
+        return entidade;
+    }
+
+    public void setEntidade(Entidade entidade) {
+        this.entidade = entidade;
     }
     
     public void mountImages(String path){

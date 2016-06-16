@@ -61,7 +61,7 @@ public class ImagemDAO {
             ptmt = con.prepareStatement(sql3);
             ptmt.setInt(1, identidade);
             ptmt.setString(2, tabela);
-            ptmt.setInt(3, idImagem);
+            ptmt.setInt(3, idEntidade);
             ptmt.setString(4, "imagem");
             ptmt.executeUpdate();
             

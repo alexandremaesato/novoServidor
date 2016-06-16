@@ -214,4 +214,30 @@ public class ProdutoResource {
     
         return result.toString();
     }
+    
+    @POST
+    @Path("/buscarProdutosPorNome")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String buscarProdutosPorNome(String json) throws Exception {
+        
+        String busca = gson.fromJson(json, String.class);
+        
+        List<Produto> produtos = new ProdutoDAO().getProdutoPorNome(busca);
+        
+        return gson.toJson(produtos);
+    }
+    
+    @POST
+    @Path("/buscarProdutosPorCategoria")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String buscarProdutosPorCategoria(String json) throws Exception {
+        
+        Integer categoria = gson.fromJson(json, Integer.class);
+        
+        List<Produto> produtos = new ProdutoDAO().getProdutoPorCategoria(categoria);
+        
+        return gson.toJson(produtos);
+    }
 }
