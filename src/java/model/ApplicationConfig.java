@@ -34,6 +34,7 @@ public class ApplicationConfig extends Application {
         resources.add(Resources.ComentarioResource.class);
         resources.add(Resources.EmpresaResource.class);
         resources.add(Resources.EnderecoResource.class);
+        resources.add(Resources.FavoritoResource.class);
         resources.add(Resources.PessoaResource.class);
         resources.add(Resources.ProdutoResource.class);
         resources.add(Resources.SecurityFilter.class);
