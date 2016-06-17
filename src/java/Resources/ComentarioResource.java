@@ -93,4 +93,23 @@ public class ComentarioResource {
         }
         return "Erro ao inserir o comentário";
     }
+    
+    @GET
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Path("/getComentariosByIdEmpresa/{id}")
+    public String getAvaliacoesByIdEmpresa(@PathParam("id") String id) {
+        try {
+            ComentarioDAO comentarioDAO = new ComentarioDAO();
+            Gson gson = new Gson();
+            Integer idi = Integer.parseInt(id);
+
+            Map<String, String> result = new HashMap<String, String>();
+            List<Comentario> lista = new ArrayList<Comentario>();
+            lista = comentarioDAO.getComentariosByIdEmpresaSemLimite(idi);
+
+            return gson.toJson(lista);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
 }

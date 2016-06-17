@@ -142,4 +142,44 @@ public class ComentarioDAO {
         }
         
     }
+
+    public List<Comentario> getComentariosByIdEmpresaSemLimite(Integer idEmpresa) throws SQLException {
+         String sql = "SELECT distinct comentario.*, pessoa.* FROM comentario "
+                + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario'  "
+                + "INNER JOIN pessoa ON fkpessoa = idpessoa "
+                + "where tabela_entidade = 'empresa' and relacao.identidade = ? "
+                + "order by idcomentario DESC ";
+         
+        List<Comentario> comentarios = new ArrayList<Comentario>();
+        try{
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+            ptmt.setInt(1, idEmpresa);
+            resultSet = ptmt.executeQuery();
+            while(resultSet.next()){
+                Comentario comentario = new Comentario();
+                Pessoa pessoa = new Pessoa();
+                comentario.setComentarioid(resultSet.getInt("idcomentario"));
+                comentario.setComentadoid(idEmpresa);
+                comentario.setComentarioDependenteid(resultSet.getInt("fkidcomentario_dependente"));
+                comentario.setDescricao(resultSet.getString("descricao"));
+                comentario.setModificado(resultSet.getInt("modificado"));
+                comentario.setPessoaid(resultSet.getInt("fkpessoa"));
+                comentario.setData_criacao(resultSet.getDate("data_criacao"));
+                comentario.setData_modificacao(resultSet.getDate("data_modificacao"));
+                comentarios.add(comentario);
+                pessoa.setNome(resultSet.getString("nome"));
+                pessoa.setSobrenome(resultSet.getString("sobrenome"));
+                comentario.setPessoa(pessoa);
+            }
+            return comentarios;
+
+            
+        } catch (SQLException ex){
+            throw new RuntimeException("Erro ao inserir comentario no banco de dados. " + ex);
+            
+        }finally{
+            ptmt.close();
+        }
+    }
 }
