@@ -80,9 +80,11 @@ public class FiltroDAO {
 //            filtragem = sePrimeiroElemento(filtragem);
 //            filtragem = filtragem+" en.estado = \""+filtro.estado+ "\" " ;
 //        }
-        if(filtro.cidade != null && !filtro.cidade.isEmpty() && filtro.cidade != "Todos"){
+        if(filtro.cidade != null && !filtro.cidade.isEmpty()){
+            if(!"Todos".equals(filtro.getCidade())){
             filtragem = sePrimeiroElemento(filtragem);
             filtragem = filtragem+(" en.cidade = \""+filtro.getCidade()+ "\" ") ;
+            }
         }
 //        if(filtro.getBairro() != null && !filtro.getBairro().isEmpty()){
 //            filtragem = sePrimeiroElemento(filtragem);
