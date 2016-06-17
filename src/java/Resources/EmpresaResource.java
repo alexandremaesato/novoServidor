@@ -316,4 +316,14 @@ public class EmpresaResource {
         return gson.toJson("Empresa cadastrada com sucesso!");
         
     }
+    
+    @GET
+    @Path("/buscarMinhasEmpresas/{id}")
+    @Produces("application/json")
+    public String buscarMinhasEmpresas(@PathParam("id") String id) throws Exception {
+        
+        List<Empresa> emps = new EmpresaDAO().buscarMinhasEmpresas(new Integer(id));
+        
+        return gson.toJson(emps);
+    }
 }

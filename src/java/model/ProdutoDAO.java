@@ -289,4 +289,74 @@ public class ProdutoDAO {
             ptmt.close();
         }
     }
+    
+    
+    public List<Produto> buscarMeusProdutos(Integer id) throws SQLException {
+        String sql = "SELECT DISTINCT produto.*, imagem.*, entidade.*, "
+                + "	(SELECT COUNT(*) FROM comentario "
+                + "		INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
+                + "		WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
+                + "(SELECT COUNT(*) FROM avaliacao WHERE produto.idproduto = avaliacao.idavaliado " 
+                + "     AND avaliacao.tipoavaliacao = 'produto') AS qtdeavaliacoes, "
+                
+                + "(SELECT avg(avaliacao) FROM avaliacao "
+                + "WHERE produto.idproduto = avaliacao.idavaliado AND avaliacao.tipoavaliacao = 'produto') AS media "
+                
+                + "FROM produto "
+                + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0  "
+                + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto'  "
+                + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem'  "
+                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada  "
+                + "WHERE entidade.idresponsavel = ? group by produto.idproduto";
+
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+            ptmt.setInt(1, id);
+                
+            resultSet = ptmt.executeQuery();
+            List<Produto> produtos = new ArrayList<>();
+            while(resultSet.next()) {
+                
+                Produto p = new Produto();
+                p.setProdutoid(resultSet.getInt("idproduto"));
+                p.setAvaliacaoGeral(resultSet.getInt("media"));
+
+                p.setCategoria(resultSet.getInt("fkcategoria"));
+                p.setPreco(resultSet.getDouble("preco"));
+
+                Imagem imagem = new Imagem();
+                imagem.setCaminho(resultSet.getString("caminho"));
+                imagem.setDescricao(resultSet.getString("descricao"));
+                imagem.setImagemid(resultSet.getInt("idimagem"));
+                imagem.setItemid(p.getProdutoid());
+                imagem.setNomeImagem(resultSet.getString("nomeimagem"));
+                imagem.setTipoImagem(resultSet.getInt("fktipo_imagem"));
+
+                Entidade entidade = new Entidade();
+                entidade.setIdentidade(resultSet.getInt("identidade"));
+                entidade.setTabela(resultSet.getString("tabela"));
+                entidade.setDeletado(resultSet.getInt("deletado"));
+                entidade.setIdentidade_criada(resultSet.getInt("identidade_criada"));
+                entidade.setData_criacao(resultSet.getDate("data_criacao"));
+                entidade.setData_modificacao(resultSet.getDate("data_modificacao"));
+                entidade.setIdcriador(resultSet.getInt("idcriador"));
+                entidade.setIdresponsavel(resultSet.getInt("idresponsavel"));
+                
+                p.setEntidade(entidade);
+                p.setImagemPerfil(imagem);
+                p.setNomeProduto(resultSet.getString("nomeproduto"));
+                p.setQtdeAvaliacoes(resultSet.getInt("qtdeavaliacoes"));
+
+//                AvaliacaoDAO avaliacaoDao = new AvaliacaoDAO();
+                //p.setAvaliacoes(avaliacaoDao.getAvaliacoesByIdProduto(idProduto));
+                produtos.add(p);
+            }
+            return produtos;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao recuperar o produto no banco de dados. "+ex);
+        } finally {
+            ptmt.close();
+        }
+    }
 }

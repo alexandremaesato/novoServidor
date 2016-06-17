@@ -240,4 +240,14 @@ public class ProdutoResource {
         
         return gson.toJson(produtos);
     }
+    
+    @GET
+    @Path("/buscarMeusProdutos/{id}")
+    @Produces("application/json")
+    public String buscarMeusProdutos(@PathParam("id") String id) throws Exception {
+        
+        List<Produto> produtos = new ProdutoDAO().buscarMeusProdutos(new Integer(id));
+        
+        return gson.toJson(produtos);
+    }
 }
