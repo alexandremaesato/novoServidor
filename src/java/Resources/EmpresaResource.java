@@ -71,11 +71,11 @@ public class EmpresaResource {
     @Produces("application/json")
     public String getEmpresa(@PathParam("id") String id) {
         try{
-        Empresa empresa;    
-        empresa = empresadao.pegarEmpresaPorId(Integer.parseInt(id));
-        empresa.mountImages(servletcontext.getRealPath("/WEB-INF/uploads/"));
-        String emps = gson.toJson(empresa);
-        return emps;
+            Empresa empresa;    
+            empresa = empresadao.pegarEmpresaPorId(Integer.parseInt(id));
+            empresa.mountImages(servletcontext.getRealPath("/WEB-INF/uploads/"));
+            String emps = gson.toJson(empresa);
+            return emps;
         }catch (Exception e){
             return e.getMessage();
         }
@@ -228,7 +228,7 @@ public class EmpresaResource {
     public static String encodeImage(byte[] imageByteArray) {
         return Base64.encode(imageByteArray);
     }
-     public static byte[] decodeImage(String imageDataString) throws Base64DecodingException, org.apache.xml.security.exceptions.Base64DecodingException {
+     public static byte[] decodeImage(String imageDataString) throws Base64DecodingException, Base64DecodingException {
         return Base64.decode(imageDataString);
     }
     
