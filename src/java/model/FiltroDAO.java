@@ -126,8 +126,8 @@ public class FiltroDAO {
                 entidade.setTabela(resultSet.getString("tabela"));
                 entidade.setIdresponsavel(resultSet.getInt("idresponsavel"));
                 entidade.setIdcriador(resultSet.getInt("idcriador"));
-                entidade.setData_criacao(resultSet.getDate("data_criacao"));
-                entidade.setData_modificacao(resultSet.getDate("data_modificacao"));
+                //entidade.setData_criacao(resultSet.getDate("data_criacao"));
+                //entidade.setData_modificacao(resultSet.getDate("data_modificacao"));
                 
                 Imagem imagemPerfil = new Imagem();
                 imagemPerfil.setImagemid(resultSet.getInt("idimagem"));

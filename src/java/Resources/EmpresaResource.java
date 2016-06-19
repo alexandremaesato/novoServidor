@@ -5,7 +5,6 @@
  */
 package Resources;
 
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
@@ -19,7 +18,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
@@ -39,9 +42,10 @@ import model.EmpresaDAO;
 import model.Imagem;
 import model.ImagemDAO;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import model.Favorito;
+import model.FavoritoDAO;
 import model.Filtro;
 import model.FiltroDAO;
-
 
 /**
  * REST Web Service
@@ -65,18 +69,25 @@ public class EmpresaResource {
      */
     public EmpresaResource() {
     }
-    
+
     @GET
-    @Path("/getEmpresa/{id}")
+    @Path("/getEmpresa/{idEmpresa}/{idPessoa}")
     @Produces("application/json")
-    public String getEmpresa(@PathParam("id") String id) {
-        try{
-        Empresa empresa;    
-        empresa = empresadao.pegarEmpresaPorId(Integer.parseInt(id));
-        empresa.mountImages(servletcontext.getRealPath("/WEB-INF/uploads/"));
-        String emps = gson.toJson(empresa);
-        return emps;
-        }catch (Exception e){
+    public String getEmpresa(@PathParam("idEmpresa") String idEmpresa, @PathParam("idPessoa") String idPessoa) {
+        try {
+            Map<String,String> result = new HashMap<>();
+            List<Favorito> favoritos = new ArrayList<>();
+            FavoritoDAO favoritoDao = new FavoritoDAO();
+            favoritos = favoritoDao.getAllFavoritosByIdPessoa(Integer.parseInt(idPessoa));
+            Empresa empresa = empresadao.pegarEmpresaPorId(Integer.parseInt(idEmpresa));
+            empresa.mountImages(servletcontext.getRealPath("/WEB-INF/uploads/"));
+            //String emps = gson.toJson(empresa);
+            result.put("empresa", gson.toJson(empresa));
+            result.put("favoritos", gson.toJson(favoritos));
+
+                    
+            return result.toString();
+        } catch (Exception e) {
             return e.getMessage();
         }
     }
@@ -98,46 +109,45 @@ public class EmpresaResource {
     public String buscarEmpresas(String value) throws SQLException, UnsupportedEncodingException {
         value = URLDecoder.decode(value, "UTF-8");
         value = value.substring(0, value.length() - 1);
-        String[] keyValuePairs = value.split("=", 2);   
-            
+        String[] keyValuePairs = value.split("=", 2);
+
         JsonObject json = new JsonObject();
         /*
             
         value = value.substring(1, value.length() - 1);
         String[] keyValuePairs = value.split(",", 2);   
-        */
+         */
         Gson gson = new Gson();
         Filtro filtro = gson.fromJson(keyValuePairs[1], Filtro.class);
-        
+
         FiltroDAO filtroDao = new FiltroDAO();
-        
-        List<Empresa>empresasFiltradas = filtroDao.filtraEmpresa(filtro);
-        
-        
+
+        List<Empresa> empresasFiltradas = filtroDao.filtraEmpresa(filtro);
+
         List<Empresa> empresas = empresadao.pegarEmpresas();
         //Pegar ultima empresa apresentada
         //Pegar qual ordenacao
         //Pegar Parametros da filtragem (Culinaria, Endereco, preco max e min)
         String teste = "testando";
         json.add("Empresas", gson.toJsonTree(empresasFiltradas));
-        json.add("Teste", gson.toJsonTree(teste));
+        json.add("Favoritos", gson.toJsonTree(teste));
+
         //String emps = gson.toJsonTree(empresas);
         //emps = emps+gson.toJson(teste);
-
         return json.toString();
     }
-    
+
     @POST
     @Path("/buscarEmpresasJson")
     @Consumes("application/json")
     @Produces("application/json")
     public String buscarEmpresasJson(String json) throws SQLException {
-        
+
         Filtro filtro = gson.fromJson(json, Filtro.class);
-       
+
         FiltroDAO filtroDao = new FiltroDAO();
         List<Empresa> empresasFiltradas = filtroDao.filtraEmpresa(filtro);
-        
+
         return gson.toJson(empresasFiltradas);
     }
 
@@ -146,7 +156,7 @@ public class EmpresaResource {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces("application/json")
     public String cadastrarEmpresa(@HeaderParam("Authorization") List<String> autorizacao, String val) throws SQLException, IOException {
-        
+
         // Pega informacoes do usuario no header e busca id do usuario
         String authToken = autorizacao.get(0);
         authToken = authToken.replaceFirst("Basic", "");
@@ -158,30 +168,30 @@ public class EmpresaResource {
         String login = tokenizer.nextToken();
         String senha = tokenizer.nextToken();
         int pessoaid = autdao.getPessoaId(login, senha);
-      
+
         val = URLDecoder.decode(val, "UTF-8");
         val = val.substring(0, val.length() - 1);
         String[] keyValuePairs = val.split("=", 2);
         Empresa emp;
         emp = gson.fromJson(keyValuePairs[1], Empresa.class);
-        
+
         Imagem img = emp.getImagemPerfil();
         if (img.hasImagem()) {
             byte[] imagem = parseBase64Binary(img.getImg());
             String img_name = "imgPerfil-" + System.currentTimeMillis() + ".jpg";
             String path = servletcontext.getRealPath("/");
-            if( path != null ){
+            if (path != null) {
                 int pos = path.indexOf("build");
                 path = path.substring(0, pos);
                 new File(path + "web/uploads").mkdirs();
                 path = path + "web/uploads/";
             }
-            
+
             try (FileOutputStream fos = new FileOutputStream(path + img_name)) {
-                    fos.write(imagem);
-                    FileDescriptor fd = fos.getFD();
-                    fos.flush();
-                    fd.sync();
+                fos.write(imagem);
+                FileDescriptor fd = fos.getFD();
+                fos.flush();
+                fd.sync();
             } catch (Exception e) {
                 throw new RuntimeException("Erro ao gravar imagem. " + e);
             }
@@ -193,83 +203,83 @@ public class EmpresaResource {
             img.setItemid(idEntidade);
             imgdao.inserirImagem(img, "empresa", emp.getEmpresaId());
         }
-        
+
         return gson.toJson("Cadastrado com Sucesso!");
     }
-    
+
     @GET
     @Path("/carregarEmpresas/{nota}")
     @Produces("application/json")
-    public String carregarEmpresas(@PathParam("nota") String nota) throws SQLException, UnsupportedEncodingException, IOException{
-        
+    public String carregarEmpresas(@PathParam("nota") String nota) throws SQLException, UnsupportedEncodingException, IOException {
+
         int notaAvaliacao = Integer.parseInt(nota);
         List<Empresa> empresas = empresadao.carregarEmpresas(notaAvaliacao);
-        
+
         return gson.toJson(empresas);
     }
-    
+
     @POST
     @Path("/setSouDono/{identidade_criada}/{idreponsavel}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces("application/json")
-    public String setSouDono(@PathParam("identidade_criada")String id1, 
-            @PathParam("idreponsavel")String id2) throws UnsupportedEncodingException, SQLException{
-       
+    public String setSouDono(@PathParam("identidade_criada") String id1,
+            @PathParam("idreponsavel") String id2) throws UnsupportedEncodingException, SQLException {
+
         int identidade_criada = Integer.parseInt(id1);
         int idreponsavel = Integer.parseInt(id2);
-        
+
         EmpresaDAO empresaDao = new EmpresaDAO();
         empresaDao.setSouDono(idreponsavel, identidade_criada);
-        
-        
+
         return "";
     }
 
     public static String encodeImage(byte[] imageByteArray) {
         return Base64.encode(imageByteArray);
     }
-     public static byte[] decodeImage(String imageDataString) throws Base64DecodingException, org.apache.xml.security.exceptions.Base64DecodingException {
+
+    public static byte[] decodeImage(String imageDataString) throws Base64DecodingException, org.apache.xml.security.exceptions.Base64DecodingException {
         return Base64.decode(imageDataString);
     }
-    
-    public String getImageBase64(String nome){
+
+    public String getImageBase64(String nome) {
         File file = null;
-        try{
+        try {
             String path = servletcontext.getRealPath("/WEB-INF/uploads/");
-            if( path != null ){
+            if (path != null) {
                 String directoryPath = servletcontext.getRealPath("/WEB-INF/");
-                path = directoryPath+"/uploads/";
-                file = new File(path+nome);
-                
-            // Reading a Image file from file system
-            FileInputStream imageInFile = new FileInputStream(file);
-            byte imageData[] = new byte[(int) file.length()];
-            imageInFile.read(imageData);
-            // Converting Image byte array into Base64 String
-            String imageDataString = encodeImage(imageData);
-            // Converting a Base64 String into Image byte array
-            byte[] imageByteArray = decodeImage(imageDataString);
-            // Write a image byte array into file system
-            //FileOutputStream imageOutFile = new FileOutputStream(path+"/teste_1.jpg");
-            //imageOutFile.write(imageByteArray);
-            imageInFile.close();
-            //imageOutFile.close();
-            
-            return imageDataString;
+                path = directoryPath + "/uploads/";
+                file = new File(path + nome);
+
+                // Reading a Image file from file system
+                FileInputStream imageInFile = new FileInputStream(file);
+                byte imageData[] = new byte[(int) file.length()];
+                imageInFile.read(imageData);
+                // Converting Image byte array into Base64 String
+                String imageDataString = encodeImage(imageData);
+                // Converting a Base64 String into Image byte array
+                byte[] imageByteArray = decodeImage(imageDataString);
+                // Write a image byte array into file system
+                //FileOutputStream imageOutFile = new FileOutputStream(path+"/teste_1.jpg");
+                //imageOutFile.write(imageByteArray);
+                imageInFile.close();
+                //imageOutFile.close();
+
+                return imageDataString;
             }
             return null;
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
-        }  
-            
+        }
+
     }
-    
+
     @POST
     @Path("/cadastrarEmpresaWeb")
     @Consumes("application/json")
     @Produces("application/json")
     public String cadastrarEmpresaWeb(@HeaderParam("Authorization") List<String> autorizacao, String json) throws SQLException, IOException, Base64DecodingException {
-        
+
         // Pega informacoes do usuario no header e busca id do usuario
         String authToken = autorizacao.get(0);
         authToken = authToken.replaceFirst("Basic", "");
@@ -281,26 +291,26 @@ public class EmpresaResource {
         String login = tokenizer.nextToken();
         String senha = tokenizer.nextToken();
         int pessoaid = autdao.getPessoaId(login, senha);
-        
+
         Empresa emp = gson.fromJson(json, Empresa.class);
-                
+
         Imagem img = emp.getImagemPerfil();
         if (img.hasImagem()) {
             byte[] imagem = parseBase64Binary(img.getImg());
             String img_name = "imgPerfil-" + System.currentTimeMillis() + ".jpg";
             String path = servletcontext.getRealPath("/");
-            if( path != null ){
+            if (path != null) {
                 int pos = path.indexOf("build");
                 path = path.substring(0, pos);
                 new File(path + "web/uploads").mkdirs();
                 path = path + "web/uploads/";
             }
-            
+
             try (FileOutputStream fos = new FileOutputStream(path + img_name)) {
-                    fos.write(imagem);
-                    FileDescriptor fd = fos.getFD();
-                    fos.flush();
-                    fd.sync();
+                fos.write(imagem);
+                FileDescriptor fd = fos.getFD();
+                fos.flush();
+                fd.sync();
             } catch (Exception e) {
                 throw new RuntimeException("Erro ao gravar imagem. " + e);
             }
@@ -312,18 +322,18 @@ public class EmpresaResource {
             img.setItemid(idEntidade);
             imgdao.inserirImagem(img, "empresa", idEntidade);
         }
-        
+
         return gson.toJson("Empresa cadastrada com sucesso!");
-        
+
     }
-    
+
     @GET
     @Path("/buscarMinhasEmpresas/{id}")
     @Produces("application/json")
     public String buscarMinhasEmpresas(@PathParam("id") String id) throws Exception {
-        
+
         List<Empresa> emps = new EmpresaDAO().buscarMinhasEmpresas(new Integer(id));
-        
+
         return gson.toJson(emps);
     }
 }
