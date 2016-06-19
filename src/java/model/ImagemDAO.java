@@ -43,7 +43,7 @@ public class ImagemDAO {
             resultSet.next();
             int idImagem = resultSet.getInt(1);
             
-            ptmt = con.prepareStatement(sql2, Statement.RETURN_GENERATED_KEYS);
+            ptmt = con.prepareStatement(sql2);
             ptmt.setInt(1, idImagem);
             ptmt.setInt(2, 0);
             ptmt.setString(3, "imagem");
@@ -54,14 +54,11 @@ public class ImagemDAO {
             ptmt.setString(6, dateFormat.format(date));
             ptmt.setInt(7, imagem.getPessoaid());
             ptmt.executeUpdate();
-            resultSet = ptmt.getGeneratedKeys();
-            resultSet.next();
-            int idEntidade = resultSet.getInt(1);
             
             ptmt = con.prepareStatement(sql3);
             ptmt.setInt(1, identidade);
             ptmt.setString(2, tabela);
-            ptmt.setInt(3, idEntidade);
+            ptmt.setInt(3, idImagem);
             ptmt.setString(4, "imagem");
             ptmt.executeUpdate();
             

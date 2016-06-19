@@ -54,7 +54,7 @@ public class ComentarioResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/getComentarioDetalhes/{idEmpresa}")
-    public String getComentarioDetalhes(@PathParam("idEmpresa")String idEmpresa) throws SQLException {
+    public String getComentarioDetalhes(@PathParam("idEmpresa") String idEmpresa) throws SQLException {
         List<Pessoa> pessoas = new ArrayList<>();
         List<Comentario>comentarios;
         Gson gson = new Gson();
@@ -106,6 +106,37 @@ public class ComentarioResource {
             Map<String, String> result = new HashMap<String, String>();
             List<Comentario> lista = new ArrayList<Comentario>();
             lista = comentarioDAO.getComentariosByIdEmpresaSemLimite(idi);
+
+            return gson.toJson(lista);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+    
+    @POST
+    @Consumes("application/json")
+    @Produces("application/json")
+    @Path("/setComentarioJson")
+    public String setComentarioJson(String content) throws Exception { 
+        
+        Gson gson = new Gson();
+        Comentario comentario = gson.fromJson(content, Comentario.class);
+        ComentarioDAO comentarioDAO = new ComentarioDAO();
+        if( comentarioDAO.inserirComentario(comentario)){
+            return "Comentario Inserido com sucesso";
+        }
+        return "Erro ao inserir o comentário";
+    }
+    
+    @GET
+    @Produces("application/json")
+    @Path("/getComentariosByIdEmpresaJson/{id}")
+    public String getComentariosByIdEmpresaJson(@PathParam("id") String id) {
+        try {
+            ComentarioDAO comentarioDAO = new ComentarioDAO();
+            Gson gson = new Gson();
+            
+            List<Comentario> lista = comentarioDAO.getComentariosByIdEmpresaSemLimite(new Integer(id));
 
             return gson.toJson(lista);
         } catch (Exception e) {

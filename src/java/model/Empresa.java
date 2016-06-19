@@ -30,7 +30,7 @@ public class Empresa {
     private int qtdeComentarios;
     private int qtdeAvaliacoes;
     private Entidade entidade;
-
+    
     public int getEmpresaId() {
         return empresaId;
     }

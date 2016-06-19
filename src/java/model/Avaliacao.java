@@ -21,6 +21,7 @@ public class Avaliacao {
     private String tipoAvalicao;
     private Date data_criacao;
     private Date data_modificacao;
+    private Pessoa pessoa;
 
     public Date getData_criacao() {
         return data_criacao;
@@ -84,6 +85,14 @@ public class Avaliacao {
 
     public void setTipoAvalicao(String tipoAvalicao) {
         this.tipoAvalicao = tipoAvalicao;
+    }
+    
+    public Pessoa getPessoa() {
+        return pessoa;
+    }
+
+    public void setPessoa(Pessoa pessoa) {
+        this.pessoa = pessoa;
     }
     
     public boolean hasAvaliacao(){
