@@ -10,11 +10,23 @@ package model;
  * @author Alexandre
  */
 public class Favorito {
+    private int idFavorito;
     private int idPessoa;
     private int idFavoritado;
     private String tipoFavoritado;
     private boolean check;
 
+    public int getIdFavorito() {
+        return idFavorito;
+    }
+
+    public boolean hasId(){
+        return (this.idFavorito > 0 ? true : false);
+    }
+    public void setIdFavorito(int idFavorito) {
+        this.idFavorito = idFavorito;
+    }
+    
     public boolean isCheck() {
         return check;
     }

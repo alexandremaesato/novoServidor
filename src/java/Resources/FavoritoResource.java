@@ -61,7 +61,7 @@ public class FavoritoResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Path("/setFavorito")
-    public String setFavorito(String value) throws UnsupportedEncodingException {
+    public String setFavorito(String value) throws UnsupportedEncodingException, SQLException {
         value = URLDecoder.decode(value, "UTF-8");
         value = value.substring(0, value.length() - 1);
         String[] keyValuePairs = value.split("=", 2);
@@ -69,24 +69,34 @@ public class FavoritoResource {
 
         Favorito favorito = gson.fromJson(keyValuePairs[1], Favorito.class);
         FavoritoDAO favoritoDao = new FavoritoDAO();
-
-        if (favorito.isCheck()) {
-            try {
-                favoritoDao.setFavorito(favorito);
-                return "Favoritado";
-            } catch (SQLException ex) {
-                Logger.getLogger(FavoritoResource.class.getName()).log(Level.SEVERE, null, ex);
-                return "Houve algum problema para favoritar";
-            }
+        
+        if(favoritoDao.hasFavorito(favorito)){
+            favoritoDao.updateFavorito(favorito);            
         }else{
-            try {
-                favoritoDao.deleteFavorito(favorito);
-                return "Retirado o Favorito";
-            } catch (SQLException ex) {
-                Logger.getLogger(FavoritoResource.class.getName()).log(Level.SEVERE, null, ex);
-                return "Houve algum problema retirar o favorito";
-            }
+            favoritoDao.setFavorito(favorito);
         }
+        return "Alterado com sucesso";
+//        if (favorito.isCheck()) {
+//            try {
+//                if(!favorito.hasId()){
+//                    favoritoDao.setFavorito(favorito);
+//                }else{
+//                    favoritoDao.updateFavorito(favorito);
+//                }
+//                return "Favoritado";
+//            } catch (SQLException ex) {
+//                Logger.getLogger(FavoritoResource.class.getName()).log(Level.SEVERE, null, ex);
+//                return "Houve algum problema para favoritar";
+//            }
+//        }else{
+//            try {
+//                favoritoDao.updateFavorito(favorito);
+//                return "Retirado o Favorito";
+//            } catch (SQLException ex) {
+//                Logger.getLogger(FavoritoResource.class.getName()).log(Level.SEVERE, null, ex);
+//                return "Houve algum problema retirar o favorito";
+//            }
+//        }
 
     }
 }
