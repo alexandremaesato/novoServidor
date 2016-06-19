@@ -106,7 +106,7 @@ public class ComentarioDAO {
         String sql = "SELECT distinct comentario.*, pessoa.* FROM comentario "
                 + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario'  "
                 + "INNER JOIN pessoa ON fkpessoa = idpessoa "
-                + "where tabela_entidade = 'empresa' and relacao.identidade = ? "
+                + "where tabela_entidade = 'empresa' and relacao.identidade = ? AND fkidcomentario_dependente = 0 "
                 + "order by idcomentario DESC "
                 + "LIMIT 3";
         List<Comentario> comentarios = new ArrayList<Comentario>();
@@ -135,7 +135,7 @@ public class ComentarioDAO {
 
             
         } catch (SQLException ex){
-            throw new RuntimeException("Erro ao inserir comentario no banco de dados. " + ex);
+            throw new RuntimeException("Erro ao buscar comentario no banco de dados. " + ex);
             
         }finally{
             ptmt.close();
@@ -147,7 +147,7 @@ public class ComentarioDAO {
          String sql = "SELECT distinct comentario.*, pessoa.* FROM comentario "
                 + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario'  "
                 + "INNER JOIN pessoa ON fkpessoa = idpessoa "
-                + "where tabela_entidade = 'empresa' and relacao.identidade = ? "
+                + "where tabela_entidade = 'empresa' and relacao.identidade = ? AND fkidcomentario_dependente"
                 + "order by idcomentario DESC ";
          
         List<Comentario> comentarios = new ArrayList<Comentario>();
@@ -176,7 +176,7 @@ public class ComentarioDAO {
 
             
         } catch (SQLException ex){
-            throw new RuntimeException("Erro ao inserir comentario no banco de dados. " + ex);
+            throw new RuntimeException("Erro ao buscar comentario no banco de dados. " + ex);
             
         }finally{
             ptmt.close();

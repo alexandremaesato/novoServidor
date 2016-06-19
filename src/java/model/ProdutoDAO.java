@@ -292,7 +292,7 @@ public class ProdutoDAO {
     
     
     public List<Produto> buscarMeusProdutos(Integer id) throws SQLException {
-        String sql = "SELECT DISTINCT produto.*, imagem.*, entidade.*, "
+        String sql = "SELECT DISTINCT produto.*, imagem.*, entidade.*, empresa.*, "
                 + "	(SELECT COUNT(*) FROM comentario "
                 + "		INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
                 + "		WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
@@ -304,6 +304,8 @@ public class ProdutoDAO {
                 
                 + "FROM produto "
                 + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0  "
+                + "INNER JOIN relacao re ON produto.idproduto = re.idrelacionada AND re.tabela_relacionada = 'produto'  "
+                + "INNER JOIN empresa ON empresa.idempresa = re.identidade "
                 + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto'  "
                 + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem'  "
                 + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada  "
@@ -343,6 +345,11 @@ public class ProdutoDAO {
                 entidade.setIdcriador(resultSet.getInt("idcriador"));
                 entidade.setIdresponsavel(resultSet.getInt("idresponsavel"));
                 
+                Empresa empresa = new Empresa();
+                empresa.setEmpresaId(resultSet.getInt("idempresa"));
+                empresa.setNomeEmpresa(resultSet.getString("nomeempresa"));
+                
+                p.setEmpresa(empresa);
                 p.setEntidade(entidade);
                 p.setImagemPerfil(imagem);
                 p.setNomeProduto(resultSet.getString("nomeproduto"));

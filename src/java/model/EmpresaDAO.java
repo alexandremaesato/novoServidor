@@ -230,16 +230,18 @@ public class EmpresaDAO {
                 + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
                 + "WHERE imagem.fktipo_imagem IN (2,3) AND relacao.identidade = ?;";
 
-        String buscarComentarios = "SELECT DISTINCT comentario.* FROM comentario "
+        String buscarComentarios = "SELECT DISTINCT comentario.*, pessoa.* FROM comentario "
                 + "INNER JOIN relacao ON comentario.idcomentario = relacao.idrelacionada AND relacao.tabela_relacionada = 'comentario' "
+                + "INNER JOIN pessoa ON comentario.fkpessoa = pessoa.idpessoa "
                 + "WHERE relacao.identidade = ?;";
 
         String buscarTelefones = "SELECT DISTINCT telefone.* FROM telefone "
                 + "INNER JOIN relacao ON telefone.idtelefone = relacao.idrelacionada AND relacao.tabela_relacionada = 'telefone' "
                 + "WHERE relacao.identidade = ?;";
 
-        String buscarAvaliacao = "SELECT DISTINCT avaliacao.* FROM avaliacao "
+        String buscarAvaliacao = "SELECT DISTINCT avaliacao.*, pessoa.* FROM avaliacao "
                 + "INNER JOIN relacao ON avaliacao.idavaliacao = relacao.idrelacionada AND relacao.tabela_relacionada = 'avaliacao' "
+                + "INNER JOIN pessoa ON avaliacao.idpessoa = pessoa.idpessoa "
                 + "WHERE relacao.identidade = ?;";
 
         String buscarEndereco = "SELECT DISTINCT endereco.* FROM endereco "
@@ -307,11 +309,18 @@ public class EmpresaDAO {
             List<Comentario> comentarios = new ArrayList<Comentario>();
             while(resultSet.next()){
                 Comentario comentario = new Comentario();
-                comentario.setComentadoid(resultSet.getInt("idcomentario"));
+                comentario.setComentarioid(resultSet.getInt("idcomentario"));
+                comentario.setComentadoid(resultSet.getInt("fkidcomentario_dependente"));
                 comentario.setDescricao(resultSet.getString("descricao"));
                 comentario.setComentarioDependenteid(resultSet.getInt("fkidcomentario_dependente"));
                 comentario.setPessoaid(resultSet.getInt("fkpessoa"));
                 comentario.setModificado(resultSet.getInt("modificado"));
+                comentario.setData_modificacao(resultSet.getDate("data_modificacao"));
+                    Pessoa pcoment = new Pessoa();
+                    pcoment.setPessoaid(resultSet.getInt("idpessoa"));
+                    pcoment.setNome(resultSet.getString("nome"));
+                    pcoment.setSobrenome(resultSet.getString("sobrenome"));
+                comentario.setPessoa(pcoment);
                 comentarios.add(comentario);
             }
             empresa.setComentarios(comentarios);
@@ -337,6 +346,12 @@ public class EmpresaDAO {
                 avaliacao.setAvaliadoid(resultSet.getInt("idavaliado"));
                 avaliacao.setPessoaid(resultSet.getInt("idpessoa"));
                 avaliacao.setTipoAvalicao(resultSet.getString("tipoavaliacao"));
+                avaliacao.setData_modificacao(resultSet.getDate("data_modificacao"));
+                    Pessoa paval = new Pessoa();
+                    paval.setPessoaid(resultSet.getInt("idpessoa"));
+                    paval.setNome(resultSet.getString("nome"));
+                    paval.setSobrenome(resultSet.getString("sobrenome"));
+                avaliacao.setPessoa(paval);
                 avaliacoes.add(avaliacao);
             }
             empresa.setAvaliacoes(avaliacoes);
