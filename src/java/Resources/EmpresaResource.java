@@ -83,9 +83,7 @@ public class EmpresaResource {
             empresa.mountImages(servletcontext.getRealPath("/WEB-INF/uploads/"));
             //String emps = gson.toJson(empresa);
             result.put("empresa", gson.toJson(empresa));
-            result.put("favoritos", gson.toJson(favoritos));
-
-                    
+            result.put("favoritos", gson.toJson(favoritos));                    
             return result.toString();
         } catch (Exception e) {
             return e.getMessage();
