@@ -147,7 +147,7 @@ public class ComentarioDAO {
          String sql = "SELECT distinct comentario.*, pessoa.* FROM comentario "
                 + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario'  "
                 + "INNER JOIN pessoa ON fkpessoa = idpessoa "
-                + "where tabela_entidade = 'empresa' and relacao.identidade = ? AND fkidcomentario_dependente"
+                + "where tabela_entidade = 'empresa' and relacao.identidade = ? AND fkidcomentario_dependente = 0 "
                 + "order by idcomentario DESC ";
          
         List<Comentario> comentarios = new ArrayList<Comentario>();
