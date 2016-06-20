@@ -5,6 +5,8 @@
  */
 package model;
 
+import java.nio.charset.Charset;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -146,6 +148,61 @@ public class ProdutoDAO {
             }
             return null;
         } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao recuperar o produto no banco de dados. "+ex);
+        } finally {
+            ptmt.close();
+        }
+    }
+    
+    public List<Produto> getProdutosFavoritadosById(int idPessoa) throws SQLException {
+        String sql = "SELECT DISTINCT produto.*, imagem.*,  "
+                + "(SELECT COUNT(*) FROM comentario  "
+                + "        INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario'  "
+                + "        WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios,  "
+                + "(SELECT COUNT(*) FROM avaliacao WHERE produto.idproduto = avaliacao.idavaliado   "
+                + "   AND avaliacao.tipoavaliacao = 'produto') AS qtdeavaliacoes,  "
+                + " "
+                + "(SELECT avg(avaliacao) FROM avaliacao  "
+                + "        WHERE produto.idproduto = avaliacao.idavaliado AND avaliacao.tipoavaliacao = 'produto') AS media  "
+                + " "
+                + "FROM produto  "
+                + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0   "
+                + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto'   "
+                + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem'   "
+                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada   "
+                + "WHERE idproduto IN ( SELECT idfavoritado FROM favoritos WHERE idpessoa = ?  and tipofavoritado = 'produto')";
+        List<Produto> produtos = new ArrayList<>();
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+            ptmt.setInt(1, idPessoa);
+            resultSet = ptmt.executeQuery();
+            while (resultSet.next()){
+                Produto p = new Produto();
+                p.setProdutoid(resultSet.getInt("idproduto"));
+                p.setAvaliacaoGeral(resultSet.getInt("media"));
+
+                p.setCategoria(resultSet.getInt("fkcategoria"));
+                p.setPreco(resultSet.getDouble("preco"));
+
+                Imagem imagem = new Imagem();
+                imagem.setCaminho(resultSet.getString("caminho"));
+                imagem.setDescricao(resultSet.getString("descricao"));
+                imagem.setImagemid(resultSet.getInt("idimagem"));
+                imagem.setItemid(resultSet.getInt("idproduto"));
+                imagem.setNomeImagem(resultSet.getString("nomeimagem"));
+                imagem.setTipoImagem(resultSet.getInt("fktipo_imagem"));
+
+                p.setImagemPerfil(imagem);
+
+                p.setNomeProduto(resultSet.getString("nomeproduto"));
+                p.setQtdeAvaliacoes(resultSet.getInt("qtdeavaliacoes"));
+
+                produtos.add(p);
+            }
+            return produtos;
+            
+        } catch (Exception ex) {
             throw new RuntimeException("Erro ao recuperar o produto no banco de dados. "+ex);
         } finally {
             ptmt.close();

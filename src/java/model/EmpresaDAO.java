@@ -5,6 +5,8 @@
  */
 package model;
 
+
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -656,5 +658,84 @@ public class EmpresaDAO {
         } finally {
             ptmt.close();
         }
+    }
+    
+    public List<Empresa> getEmpresasFavoritadasByIdPessoa(int idPessoa) throws SQLException{
+        String sql = "SELECT DISTINCT "
+                + "empresa.*, imagem.*, endereco.*, entidade.*, "
+                + "(SELECT COUNT(*) FROM comentario "
+                + "  INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
+                + "  WHERE relacao.identidade = empresa.idempresa AND relacao.tabela_entidade = 'empresa') AS qtdecomentarios, "
+                + "(SELECT COUNT(*) FROM avaliacao "
+                + " WHERE avaliacao.idavaliado = empresa.idempresa) AS qtdeavaliacoes, "
+                + "(SELECT AVG(avaliacao) FROM avaliacao "
+                + "  WHERE avaliacao.idavaliado = empresa.idempresa) AS avaliacaogeral "
+                + "FROM empresa "
+                + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
+                + "LEFT JOIN relacao ri ON ri.identidade = empresa.idempresa AND ri.tabela_relacionada = 'imagem' "
+                + "LEFT JOIN relacao ren ON ren.identidade = empresa.idempresa AND ren.tabela_relacionada = 'endereco' "
+                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada AND imagem.fktipo_imagem = 1 "
+                + "LEFT JOIN endereco  ON endereco.idendereco = ren.idrelacionada "
+                + "WHERE idempresa in ( SELECT idfavoritado FROM favoritos WHERE idpessoa = ?  and tipofavoritado = 'empresa') "
+                + "GROUP BY empresa.idempresa; ";
+        
+        try{
+            
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+            ptmt.setInt(1, idPessoa);
+            resultSet = ptmt.executeQuery();
+            List<Empresa> empresas = new ArrayList<Empresa>();    
+            while (resultSet.next()) { 
+                Empresa empresa = new Empresa();
+                empresa.setEmpresaId(resultSet.getInt("idempresa"));
+                empresa.setNomeEmpresa(resultSet.getString("nomeempresa"));
+                empresa.setCnpj(resultSet.getString("cnpj"));
+                empresa.setDescricao(resultSet.getString("descricao"));
+                
+                Imagem imagemPerfil = new Imagem();
+                imagemPerfil.setImagemid(resultSet.getInt("idimagem"));
+                imagemPerfil.setNomeImagem(resultSet.getString("nomeimagem"));
+                imagemPerfil.setCaminho(resultSet.getString("caminho"));
+                imagemPerfil.setDescricao(resultSet.getString("descricao"));
+                imagemPerfil.setTipoImagem(resultSet.getInt("fktipo_imagem"));
+                
+                Endereco endereco = new Endereco();
+                endereco.setEnderecoid(resultSet.getInt("idendereco"));
+                endereco.setRua(resultSet.getString("rua"));
+                endereco.setBairro(resultSet.getString("bairro"));
+                endereco.setCep(resultSet.getString("cep"));
+                endereco.setNumero(resultSet.getString("numero"));
+                endereco.setComplemento(resultSet.getString("complemento"));
+                endereco.setCidade(resultSet.getString("cidade"));
+                endereco.setEstado(resultSet.getString("estado"));
+                endereco.setPais(resultSet.getString("pais"));
+                
+                empresa.setImagemPerfil(imagemPerfil);
+                empresa.setEndereco(endereco);
+                empresa.setQtdeComentarios(resultSet.getInt("qtdecomentarios"));
+                empresa.setQtdeComentarios(resultSet.getInt("qtdeavaliacoes"));
+                empresa.setAvaliacaoNota(Math.round(resultSet.getInt("avaliacaogeral")));
+                
+                Entidade entidade = new Entidade();
+                entidade.setIdentidade(resultSet.getInt("identidade"));
+                entidade.setIdentidade_criada(resultSet.getInt("identidade_criada"));
+                entidade.setDeletado(resultSet.getInt("deletado"));
+                entidade.setTabela(resultSet.getString("tabela"));
+                entidade.setIdresponsavel(resultSet.getInt("idresponsavel"));
+                entidade.setIdcriador(resultSet.getInt("idcriador"));
+                entidade.setData_criacao(resultSet.getDate("data_criacao"));
+                entidade.setData_modificacao(resultSet.getDate("data_modificacao"));
+                empresa.setEntidade(entidade);
+                
+                empresas.add(empresa);
+            }
+            return empresas;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao busca empresa no banco de dados. "+ex);
+        } finally {
+            ptmt.close();
+        }
+        
     }
 }

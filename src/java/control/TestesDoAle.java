@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -87,6 +88,14 @@ public class TestesDoAle {
 //    newStr = URLDecoder.decode(URLEncoder.encode(oldStr, "Windows-1252"),"UTF-8");
 //    //newStr = URLDecoder.decode(URLEncoder.encode(oldStr, "UTF-8"),"iso8859-1");
 //    System.out.println(newStr);
+
+    List<String> num = new ArrayList<>();
+    num.add("1");
+    num.add("1");
+    num.add("1");
+    num.add("1");
+    
+    System.out.println(num);
     }
     
     
