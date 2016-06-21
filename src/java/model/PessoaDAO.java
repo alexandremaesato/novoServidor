@@ -40,7 +40,7 @@ public class PessoaDAO {
                 pessoa.setNome(resultSet.getString("nome"));
                 pessoa.setSobrenome(resultSet.getString("sobrenome"));
                 pessoa.setPessoaid(resultSet.getInt("idpessoa"));
-                pessoa.setDataNascimento(resultSet.getDate("data_nascimento"));
+                //pessoa.setDataNascimento(resultSet.getDate("data_nascimento"));
                 
                 imagem.setCaminho(resultSet.getString("caminho"));
                 imagem.setImagemid(resultSet.getInt("idimagem"));

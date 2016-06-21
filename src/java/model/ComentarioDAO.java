@@ -151,7 +151,7 @@ public class ComentarioDAO {
                         + "INNER JOIN pessoa ON fkpessoa = idpessoa "
                         + "WHERE tabela_entidade = 'empresa' AND relacao.identidade = ? AND fkidcomentario_dependente = 0 "
                         + "ORDER BY idcomentario DESC";
-         
+
         List<Comentario> comentarios = new ArrayList<Comentario>();
         try{
             con = ConnectionFactory.getConnection();

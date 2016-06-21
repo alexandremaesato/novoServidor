@@ -9,6 +9,10 @@ import com.google.gson.Gson;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.Context;
@@ -19,9 +23,14 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
+import model.Empresa;
+import model.EmpresaDAO;
 import model.Favorito;
 import model.FavoritoDAO;
+import model.Produto;
+import model.ProdutoDAO;
 
 /**
  * REST Web Service
@@ -33,11 +42,17 @@ public class FavoritoResource {
 
     @Context
     private UriInfo context;
+    
+    FavoritoDAO favoritoDAO = new FavoritoDAO();
+    Favorito favorito = new Favorito();
+    List<Favorito> favoritos = new ArrayList<Favorito>();
+    Gson gson = new Gson();
 
     /**
      * Creates a new instance of FavoritoResource
      */
     public FavoritoResource() {
+        
     }
 
     /**
@@ -46,10 +61,44 @@ public class FavoritoResource {
      * @return an instance of java.lang.String
      */
     @GET
-    @Produces(MediaType.APPLICATION_XML)
-    public String getXml() {
-        //TODO return proper representation object
-        throw new UnsupportedOperationException();
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Path("/getFavoritosByIdPessoa/{idPessoa}")
+    public String getFavoritosByIdPessoa(@PathParam("idPessoa") String idPessoa) throws SQLException {
+        Map<String,String> result = new HashMap<String,String>();
+        favoritos = favoritoDAO.getAllFavoritosByIdPessoa(Integer.parseInt(idPessoa));
+        
+        ProdutoDAO produtoDAO = new ProdutoDAO();
+        List<Produto> produtos = new ArrayList<>();
+        
+        List<String> idsProduto = new ArrayList<String>();
+        ArrayList<String> idsEmpresa = new ArrayList<String>();
+        String produtoIds = "";
+        String empresaIds = "";
+//        for(int i=0; i<favoritos.size(); i++){
+//            favorito = favoritos.get(i);
+//            if( "produto".equals(favorito.getTipoFavoritado())){
+//                //idsProduto.add( String.valueOf(favorito.getIdFavoritado()) );
+//                produtoIds += String.valueOf(favorito.getIdFavoritado())+ ",";
+//            }else{
+//                //idsEmpresa.add( String.valueOf(favorito.getIdFavoritado()) );
+//                empresaIds += String.valueOf(favorito.getIdFavoritado())+ ",";
+//            }
+//        }
+//         produtoIds = produtoIds.substring(0, produtoIds.length() - 1);
+////         empresaIds = empresaIds.substring(0, empresaIds.length() - 1);
+        
+        
+        EmpresaDAO empresaDAO = new EmpresaDAO();
+        List<Empresa> empresas = new ArrayList<>();
+        empresas = empresaDAO.getEmpresasFavoritadasByIdPessoa(Integer.parseInt(idPessoa));
+        produtos = produtoDAO.getProdutosFavoritadosById(Integer.parseInt(idPessoa));
+        result.put("favoritos", gson.toJson(favoritos));
+        result.put("produtos", gson.toJson(produtos));
+        result.put("empresas", gson.toJson(empresas));
+        
+        
+        return result.toString();
     }
 
     /**
@@ -99,4 +148,7 @@ public class FavoritoResource {
 //        }
 
     }
+    
 }
+
+    
