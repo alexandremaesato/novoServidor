@@ -198,7 +198,7 @@ public class EmpresaResource {
             img.setCaminho("/uploads/");
             img.setPessoaid(pessoaid);
             img.setItemid(idEntidade);
-            imgdao.inserirImagem(img, "empresa", emp.getEmpresaId());
+            imgdao.inserirImagem(img, "empresa", idEntidade);
         }
 
         return gson.toJson("Cadastrado com Sucesso!");
