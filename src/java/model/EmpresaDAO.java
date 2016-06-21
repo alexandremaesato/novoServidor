@@ -103,7 +103,7 @@ public class EmpresaDAO {
                 ptmt.executeUpdate();
             }
             
-            return idEntidade;
+            return idEmpresa;
         } catch (SQLException ex) {
             throw new RuntimeException("Erro ao inserir empresa no banco de dados. "+ex);
         } finally {
@@ -161,7 +161,7 @@ public class EmpresaDAO {
                                   + "WHERE avaliacao.idavaliado = empresa.idempresa) AS avaliacaogeral "
                 
                                + "FROM empresa "
-                               + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
+                               + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 AND entidade.tabela = 'empresa' "
                                + "LEFT JOIN relacao ri ON ri.identidade = empresa.idempresa AND ri.tabela_relacionada = 'imagem' "
                                + "LEFT JOIN relacao ren ON ren.identidade = empresa.idempresa AND ren.tabela_relacionada = 'endereco' "
                                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada AND imagem.fktipo_imagem = 1 "
@@ -219,7 +219,7 @@ public class EmpresaDAO {
     public Empresa pegarEmpresaPorId(int id) throws SQLException{
 
         String buscarEmpresa = "SELECT * FROM empresa "
-                + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
+                + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 AND entidade.tabela = 'empresa' "
                 + "WHERE idempresa = ?;";
 
         String buscarImagemPerfil = "SELECT DISTINCT imagem.* FROM imagem "
@@ -230,10 +230,12 @@ public class EmpresaDAO {
                 + "INNER JOIN relacao ON imagem.idimagem = relacao.idrelacionada AND relacao.tabela_relacionada = 'imagem' "
                 + "WHERE imagem.fktipo_imagem IN (2,3) AND relacao.identidade = ?;";
 
-        String buscarComentarios = "SELECT DISTINCT comentario.*, pessoa.* FROM comentario "
-                + "INNER JOIN relacao ON comentario.idcomentario = relacao.idrelacionada AND relacao.tabela_relacionada = 'comentario' "
-                + "INNER JOIN pessoa ON comentario.fkpessoa = pessoa.idpessoa "
-                + "WHERE relacao.identidade = ?;";
+        String buscarComentarios = "SELECT DISTINCT comentario.*, pessoa.*, "
+                                        + "(SELECT COUNT(*) FROM comentario cd WHERE cd.fkidcomentario_dependente = comentario.idcomentario) AS cont_dependentes "
+                                        + "FROM comentario "
+                                        + "INNER JOIN relacao ON comentario.idcomentario = relacao.idrelacionada AND relacao.tabela_relacionada = 'comentario' "
+                                        + "INNER JOIN pessoa ON comentario.fkpessoa = pessoa.idpessoa "
+                                        + "WHERE relacao.identidade = ? AND fkidcomentario_dependente = 0";
 
         String buscarTelefones = "SELECT DISTINCT telefone.* FROM telefone "
                 + "INNER JOIN relacao ON telefone.idtelefone = relacao.idrelacionada AND relacao.tabela_relacionada = 'telefone' "
@@ -316,6 +318,7 @@ public class EmpresaDAO {
                 comentario.setPessoaid(resultSet.getInt("fkpessoa"));
                 comentario.setModificado(resultSet.getInt("modificado"));
                 comentario.setData_modificacao(resultSet.getDate("data_modificacao"));
+                comentario.setCont_comentarios_dependentes(resultSet.getInt("cont_dependentes"));
                     Pessoa pcoment = new Pessoa();
                     pcoment.setPessoaid(resultSet.getInt("idpessoa"));
                     pcoment.setNome(resultSet.getString("nome"));
@@ -419,7 +422,7 @@ public class EmpresaDAO {
                 + "        inner join avaliacao aval on aval.idavaliado = idrelacionada and tabela_relacionada = aval.tipoavaliacao "
                 + "        where tabela_entidade ='empresa' and identidade = ?  and idrelacionada = produto.idproduto) as media "
                 + "FROM produto "
-                + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0  "
+                + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 AND entidade.tabela = 'produto' "
                 + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto'  "
                 + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem'  "
                 + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada  "
@@ -491,7 +494,7 @@ public class EmpresaDAO {
                 + "(SELECT AVG(avaliacao) FROM avaliacao "
                 + " WHERE avaliacao.idavaliado = empresa.idempresa) AS avaliacaogeral "
                 + "FROM empresa "
-                + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
+                + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 entidade.tabela = 'empresa' "
                 + "LEFT JOIN relacao ri ON ri.identidade = empresa.idempresa AND ri.tabela_relacionada = 'imagem' "
                 + "LEFT JOIN relacao ren ON ren.identidade = empresa.idempresa AND ren.tabela_relacionada = 'endereco' "
                 + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada AND imagem.fktipo_imagem = 1 "
@@ -591,7 +594,7 @@ public class EmpresaDAO {
                                   + "WHERE avaliacao.idavaliado = empresa.idempresa) AS avaliacaogeral "
                 
                                + "FROM empresa "
-                               + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
+                               + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 AND entidade.tabela = 'empresa' "
                                + "LEFT JOIN relacao ri ON ri.identidade = empresa.idempresa AND ri.tabela_relacionada = 'imagem' "
                                + "LEFT JOIN relacao ren ON ren.identidade = empresa.idempresa AND ren.tabela_relacionada = 'endereco' "
                                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada AND imagem.fktipo_imagem = 1 "
@@ -655,6 +658,75 @@ public class EmpresaDAO {
             throw new RuntimeException("Erro ao busca empresa no banco de dados. "+ex);
         } finally {
             ptmt.close();
+        }
+    }
+    
+    public void atualizarEmpresaWeb(Empresa emp) throws Exception {
+        String alteraEmpresa = "UPDATE empresa SET nomeempresa = ?, cnpj = ?, descricao = ? WHERE idempresa = ?";
+        String alteraEndereco = "UPDATE endereco SET rua = ?, bairro = ?, cep = ?, numero = ?, complemento = ?, cidade = ?, estado = ?, pais = ?  WHERE idendereco = ?";
+        String alteraTelefone = "UPDATE telefone SET numero = ?, tipo_telefone = ? WHERE idtelefone = ?";
+        
+        try {
+            con = ConnectionFactory.getConnection();
+            con.setAutoCommit(false);
+            ptmt = con.prepareStatement(alteraEmpresa);
+            ptmt.setString(1, emp.getNomeEmpresa());
+            ptmt.setString(2, emp.getCnpj());
+            ptmt.setString(3, emp.getDescricao());
+            ptmt.setInt(4, emp.getEmpresaId());
+            ptmt.executeUpdate();
+            
+            ptmt = con.prepareStatement(alteraEndereco);
+            ptmt.setString(1, emp.getEndereco().getRua());
+            ptmt.setString(2, emp.getEndereco().getBairro());
+            ptmt.setString(3, emp.getEndereco().getCep());
+            ptmt.setString(4, emp.getEndereco().getNumero());
+            ptmt.setString(5, emp.getEndereco().getComplemento());
+            ptmt.setString(6, emp.getEndereco().getCidade());
+            ptmt.setString(7, emp.getEndereco().getEstado());
+            ptmt.setString(8, emp.getEndereco().getPais());
+            ptmt.setInt(9, emp.getEndereco().getEnderecoid());
+            ptmt.executeUpdate();
+            
+            ptmt = con.prepareStatement(alteraTelefone);
+            ptmt.setString(1, emp.getTelefones().get(0).getNumero());
+            ptmt.setString(2, emp.getTelefones().get(0).getTipoTelefone());
+            ptmt.setInt(3, emp.getTelefones().get(0).getTelefoneid());
+            ptmt.executeUpdate();
+            
+        } catch (SQLException e) {
+            con.rollback();
+            e.printStackTrace();
+        } finally {
+            ptmt.close();
+        }
+    }
+    
+    public void excluirEmpresa(Integer id) throws Exception {
+        
+        String alteraEmpresa = "UPDATE entidade SET deletado = 1 WHERE identidade_criada = ? AND tabela = 'empresa'";
+        
+        try {
+            con = ConnectionFactory.getConnection();
+            con.setAutoCommit(false);
+            ptmt = con.prepareStatement(alteraEmpresa);
+            ptmt.setInt(1, id);
+            ptmt.executeUpdate();
+            
+            ptmt = con.prepareStatement("select idproduto from produto p inner join relacao r on r.idrelacionada = p.idproduto and tabela_relacionada = 'produto' where r.identidade = ?");
+            ptmt.setInt(1, id);
+            resultSet = ptmt.executeQuery();
+            
+            while(resultSet.next()) {
+                ptmt = con.prepareStatement("update entidade set deletado = 1 where identidade_criada = ? and tabela = 'produto'");
+                ptmt.setInt(1, resultSet.getInt("idproduto"));
+                ptmt.executeUpdate();
+            }
+            
+            con.commit();
+        } catch(Exception e) {
+            con.rollback();
+            e.printStackTrace();
         }
     }
 }

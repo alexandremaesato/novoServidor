@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -236,7 +235,7 @@ public class EmpresaResource {
         return Base64.encode(imageByteArray);
     }
 
-    public static byte[] decodeImage(String imageDataString) throws Base64DecodingException, org.apache.xml.security.exceptions.Base64DecodingException {
+    public static byte[] decodeImage(String imageDataString) throws Base64DecodingException, Base64DecodingException {
         return Base64.decode(imageDataString);
     }
 
@@ -313,15 +312,61 @@ public class EmpresaResource {
                 throw new RuntimeException("Erro ao gravar imagem. " + e);
             }
 
-            int idEntidade = empresadao.cadastrarEmpresa(emp, pessoaid);
+            int idEmpresa = empresadao.cadastrarEmpresa(emp, pessoaid);
             img.setNomeImagem(img_name);
             img.setCaminho("/uploads/");
             img.setPessoaid(pessoaid);
-            img.setItemid(idEntidade);
-            imgdao.inserirImagem(img, "empresa", idEntidade);
+            img.setItemid(idEmpresa);
+            imgdao.inserirImagem(img, "empresa", idEmpresa);
         }
 
         return gson.toJson("Empresa cadastrada com sucesso!");
+
+    }
+    
+    @POST
+    @Path("/atualizarEmpresaWeb")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String atualizarEmpresaWeb(String json) throws SQLException, IOException, Base64DecodingException {
+
+        Empresa emp = gson.fromJson(json, Empresa.class);
+
+        Imagem img = emp.getImagemPerfil();
+        if (img.hasImagem()) {
+            byte[] imagem = parseBase64Binary(img.getImg());
+            String img_name = "imgPerfil-" + System.currentTimeMillis() + ".jpg";
+            String path = servletcontext.getRealPath("/");
+            if (path != null) {
+                int pos = path.indexOf("build");
+                path = path.substring(0, pos);
+                new File(path + "web/uploads").mkdirs();
+                path = path + "web/uploads/";
+            }
+
+            try (FileOutputStream fos = new FileOutputStream(path + img_name)) {
+                fos.write(imagem);
+                FileDescriptor fd = fos.getFD();
+                fos.flush();
+                fd.sync();
+                
+                img.setNomeImagem(img_name);
+                imgdao.atualizarImagemWeb(img);
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        try {
+            empresadao.atualizarEmpresaWeb(emp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Empresa empresa = empresadao.pegarEmpresaPorId(emp.getEmpresaId());
+        
+        return gson.toJson(empresa);
 
     }
 
@@ -333,5 +378,30 @@ public class EmpresaResource {
         List<Empresa> emps = new EmpresaDAO().buscarMinhasEmpresas(new Integer(id));
 
         return gson.toJson(emps);
+    }
+    
+    @GET
+    @Path("/pegarEmpresaPorId/{idEmpresa}")
+    @Produces("application/json")
+    public String pegarEmpresaPorId(@PathParam("idEmpresa") String idEmpresa) {
+        try {
+            Empresa empresa = empresadao.pegarEmpresaPorId(new Integer(idEmpresa));
+            return gson.toJson(empresa);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Servidor indisponível";
+        }
+    }
+    
+    @POST
+    @Path("/excluirEmpresaWeb")
+    @Consumes("application/json")
+    public void excluirEmpresaWeb(String json) {
+        try {
+            Integer idEmpresa = gson.fromJson(json, Integer.class);
+            empresadao.excluirEmpresa(idEmpresa);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

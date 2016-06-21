@@ -45,7 +45,7 @@ public class FiltroDAO {
                                   + "WHERE avaliacao.idavaliado = e.idempresa) AS avaliacaogeral "
                                   + "FROM empresa e "
                 
-                               + "INNER JOIN entidade ent   ON e.idempresa = ent.identidade_criada AND ent.deletado = 0 "
+                               + "INNER JOIN entidade ent   ON e.idempresa = ent.identidade_criada AND ent.deletado = 0 AND ent.tabela = 'empresa' "
                                + "LEFT JOIN relacao rp      ON e.idempresa = rp.identidade AND rp.tabela_relacionada = 'produto'"
                                + "LEFT JOIN produto p       ON p.idproduto  = rp.idrelacionada "
                                + "LEFT JOIN categoria c    ON p.fkcategoria = c.idcategoria "

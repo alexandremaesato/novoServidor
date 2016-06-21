@@ -250,4 +250,73 @@ public class ProdutoResource {
         
         return gson.toJson(produtos);
     }
+    
+    @GET
+    @Path("/pegarProdutoPorId/{id}")
+    @Produces("application/json")
+    public String pegarProdutoPorId(@PathParam("id") String id) {
+        
+        try {
+            Produto produto = new ProdutoDAO().buscarProdutoPorId(new Integer(id));
+            return gson.toJson(produto);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return gson.toJson(e.getMessage());
+        }
+    }
+    
+    @POST
+    @Path("/editarProdutoWeb")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String editarProdutoWeb(String json) throws SQLException, IOException, Exception {
+
+        Produto prod = gson.fromJson(json, Produto.class);
+        
+        try {
+            pDao.editarProduto(prod);
+            if (prod.getImagemPerfil() != null) {
+                Imagem img = prod.getImagemPerfil();
+                byte[] imagem = parseBase64Binary(img.getImg());
+                String img_name = "imgPerfil-" + System.currentTimeMillis() + ".jpg";
+                String path = servletcontext.getRealPath("/").replace("\\", "/");
+                if( path != null ){
+                    new File(path + "uploads").mkdirs();
+                    path = path + "uploads/";
+                }
+                
+                try (FileOutputStream fos = new FileOutputStream(path + img_name)) {
+                        fos.write(imagem);
+                        FileDescriptor fd = fos.getFD();
+                        fos.flush();
+                        fd.sync();
+                } catch (Exception e) {
+                    throw new RuntimeException("Erro ao gravar imagem. " + e);
+                }
+    
+                img.setNomeImagem(img_name);
+                imgdao.atualizarImagemWeb(img);
+            }
+            
+            Produto produto = pDao.buscarProdutoPorId(prod.getProdutoid());
+            return gson.toJson(produto);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return gson.toJson("Erro ao editar. Tente novamente mais tarde!");
+        }
+    }
+    
+    @GET
+    @Path("/excluirProdutoWeb/{id}")
+    @Consumes("application/json")
+    public void excluirProdutoWeb(@PathParam("id") String id) {
+        
+        try {
+            new ProdutoDAO().excluirProduto(new Integer(id));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
 }

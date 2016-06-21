@@ -126,4 +126,32 @@ public class AvaliacaoResource {
             return e.getMessage();
         }
     }
+    
+    @GET
+    @Produces("application/json")
+    @Path("/atualizarAvaliacoes/{id}")
+    public String atualizarAvaliacoes(@PathParam("id") String id) {
+        try {
+            
+            List<Avaliacao> avaliacoes = new AvaliacaoDAO().pegarAvaliacoesPorIdEmpresa(new Integer(id));
+            
+            return new Gson().toJson(avaliacoes);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+    
+    @GET
+    @Produces("application/json")
+    @Path("/atualizarAvaliacoesProduto/{id}")
+    public String atualizarAvaliacoesProduto(@PathParam("id") String id) {
+        try {
+            
+            List<Avaliacao> avaliacoes = new AvaliacaoDAO().pegarAvaliacoesPorIdProduto(new Integer(id));
+            
+            return new Gson().toJson(avaliacoes);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
 }

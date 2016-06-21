@@ -71,4 +71,30 @@ public class ImagemDAO {
             ptmt.close();
         }
     }
+    
+    public void atualizarImagemWeb(Imagem imagem) throws Exception {
+        String sql1 = "UPDATE imagem set nomeimagem = ? WHERE idimagem = ?";
+        String sql2 = "UPDATE entidade set data_modificacao = ? WHERE identidade_criada = ? AND tabela = 'imagem'";
+        
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql1);
+            con.setAutoCommit(false);
+            ptmt.setString(1, imagem.getNomeImagem());
+            ptmt.setInt(2, imagem.getImagemid());
+            ptmt.executeUpdate();
+            
+            ptmt = con.prepareStatement(sql2);
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                Date date = new Date();
+            ptmt.setString(1, dateFormat.format(date));
+            ptmt.setInt(2, imagem.getImagemid());
+            ptmt.executeUpdate();
+            
+            con.commit();
+        } catch (Exception e) {
+            con.rollback();
+            e.printStackTrace();
+        }
+    }
 }

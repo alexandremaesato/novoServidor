@@ -328,6 +328,82 @@ public class AvaliacaoDAO {
         }
     }
     
-
+    public List<Avaliacao> pegarAvaliacoesPorIdEmpresa(int id) throws SQLException{
+        String sql = "SELECT DISTINCT * FROM avaliacao "
+                        + "INNER JOIN pessoa ON pessoa.idpessoa = avaliacao.idpessoa "
+                        + "WHERE idavaliado = ? AND tipoavaliacao = 'empresa' "
+                        + "ORDER BY data_modificacao DESC";
+        
+        List<Avaliacao> avaliacoes = new ArrayList<>();
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+            ptmt.setInt(1, id);
+            resultSet = ptmt.executeQuery();
+            while (resultSet.next()) {
+                Avaliacao avaliacao = new Avaliacao();
+                avaliacao.setAvaliacaoid(resultSet.getInt("idavaliacao"));
+                avaliacao.setAvaliadoid(resultSet.getInt("idavaliado"));
+                avaliacao.setDescricao(resultSet.getString("descricao"));
+                avaliacao.setNota(resultSet.getInt("avaliacao"));
+                avaliacao.setTipoAvalicao(resultSet.getString("tipoavaliacao"));
+                avaliacao.setData_criacao(resultSet.getDate("data_criacao"));
+                avaliacao.setData_modificacao(resultSet.getDate("data_modificacao"));
+                
+                Pessoa pessoa = new Pessoa();
+                    pessoa.setPessoaid(resultSet.getInt("idpessoa"));
+                    pessoa.setNome(resultSet.getString("nome"));
+                    pessoa.setSobrenome(resultSet.getString("sobrenome"));
+                avaliacao.setPessoa(pessoa);
+                avaliacoes.add(avaliacao);
+            }
+            return avaliacoes;
+            
+        } catch (SQLException ex) {
+            throw new RuntimeException("Erro ao buscar a avaliação no banco de dados. " + ex);
+        } finally {
+            ptmt.close();
+        }
+    }
+    
+    public List<Avaliacao> pegarAvaliacoesPorIdProduto(int id) throws Exception {
+        String sql = "SELECT DISTINCT * FROM avaliacao "
+                        + "INNER JOIN pessoa ON pessoa.idpessoa = avaliacao.idpessoa "
+                        + "WHERE idavaliado = ? AND tipoavaliacao = 'produto' "
+                        + "ORDER BY data_modificacao DESC";
+        
+        List<Avaliacao> avaliacoes = new ArrayList<>();
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+            ptmt.setInt(1, id);
+            resultSet = ptmt.executeQuery();
+            while (resultSet.next()) {
+                Avaliacao avaliacao = new Avaliacao();
+                avaliacao.setAvaliacaoid(resultSet.getInt("idavaliacao"));
+                avaliacao.setAvaliadoid(resultSet.getInt("idavaliado"));
+                avaliacao.setDescricao(resultSet.getString("descricao"));
+                avaliacao.setNota(resultSet.getInt("avaliacao"));
+                avaliacao.setTipoAvalicao(resultSet.getString("tipoavaliacao"));
+                avaliacao.setData_criacao(resultSet.getDate("data_criacao"));
+                avaliacao.setData_modificacao(resultSet.getDate("data_modificacao"));
+                
+                Pessoa pessoa = new Pessoa();
+                    pessoa.setPessoaid(resultSet.getInt("idpessoa"));
+                    pessoa.setNome(resultSet.getString("nome"));
+                    pessoa.setSobrenome(resultSet.getString("sobrenome"));
+                avaliacao.setPessoa(pessoa);
+                avaliacoes.add(avaliacao);
+            }
+            
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            ptmt.close();
+        }
+        return avaliacoes;
+    }
+    
 }
 

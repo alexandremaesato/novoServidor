@@ -126,10 +126,10 @@ public class ComentarioDAO {
                 comentario.setPessoaid(resultSet.getInt("fkpessoa"));
                 comentario.setData_criacao(resultSet.getDate("data_criacao"));
                 comentario.setData_modificacao(resultSet.getDate("data_modificacao"));
-                comentarios.add(comentario);
-                pessoa.setNome(resultSet.getString("nome"));
-                pessoa.setSobrenome(resultSet.getString("sobrenome"));
+                    pessoa.setNome(resultSet.getString("nome"));
+                    pessoa.setSobrenome(resultSet.getString("sobrenome"));
                 comentario.setPessoa(pessoa);
+                comentarios.add(comentario);
             }
             return comentarios;
 
@@ -144,11 +144,13 @@ public class ComentarioDAO {
     }
 
     public List<Comentario> getComentariosByIdEmpresaSemLimite(Integer idEmpresa) throws SQLException {
-         String sql = "SELECT distinct comentario.*, pessoa.* FROM comentario "
-                + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario'  "
-                + "INNER JOIN pessoa ON fkpessoa = idpessoa "
-                + "where tabela_entidade = 'empresa' and relacao.identidade = ? AND fkidcomentario_dependente"
-                + "order by idcomentario DESC ";
+         String sql = "SELECT DISTINCT comentario.*, pessoa.*, "
+                        + "(SELECT COUNT(*) FROM comentario cd WHERE cd.fkidcomentario_dependente = comentario.idcomentario) AS cont_dependentes "
+                        + "FROM comentario "
+                        + "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
+                        + "INNER JOIN pessoa ON fkpessoa = idpessoa "
+                        + "WHERE tabela_entidade = 'empresa' AND relacao.identidade = ? AND fkidcomentario_dependente = 0 "
+                        + "ORDER BY idcomentario DESC";
          
         List<Comentario> comentarios = new ArrayList<Comentario>();
         try{
@@ -167,10 +169,12 @@ public class ComentarioDAO {
                 comentario.setPessoaid(resultSet.getInt("fkpessoa"));
                 comentario.setData_criacao(resultSet.getDate("data_criacao"));
                 comentario.setData_modificacao(resultSet.getDate("data_modificacao"));
-                comentarios.add(comentario);
-                pessoa.setNome(resultSet.getString("nome"));
-                pessoa.setSobrenome(resultSet.getString("sobrenome"));
+                comentario.setCont_comentarios_dependentes(resultSet.getInt("cont_dependentes"));
+                    pessoa.setPessoaid(resultSet.getInt("idpessoa"));
+                    pessoa.setNome(resultSet.getString("nome"));
+                    pessoa.setSobrenome(resultSet.getString("sobrenome"));
                 comentario.setPessoa(pessoa);
+                comentarios.add(comentario);
             }
             return comentarios;
 
@@ -178,6 +182,66 @@ public class ComentarioDAO {
         } catch (SQLException ex){
             throw new RuntimeException("Erro ao buscar comentario no banco de dados. " + ex);
             
+        }finally{
+            ptmt.close();
+        }
+    }
+    
+    public List<Comentario> pegarComentariosDependentes(Integer idComentario) throws Exception {
+        
+        String sql = "SELECT distinct comentario.*, pessoa.* FROM comentario "
+                        + "INNER JOIN pessoa ON fkpessoa = idpessoa "
+                        + "where fkidcomentario_dependente = ?";
+        
+        List<Comentario> comentarios = new ArrayList<Comentario>();
+        try{
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+            ptmt.setInt(1, idComentario);
+            resultSet = ptmt.executeQuery();
+            while(resultSet.next()){
+                Comentario comentario = new Comentario();
+                Pessoa pessoa = new Pessoa();
+                comentario.setComentarioid(resultSet.getInt("idcomentario"));
+                comentario.setComentarioDependenteid(resultSet.getInt("fkidcomentario_dependente"));
+                comentario.setDescricao(resultSet.getString("descricao"));
+                comentario.setData_criacao(resultSet.getDate("data_criacao"));
+                comentario.setData_modificacao(resultSet.getDate("data_modificacao"));
+                    pessoa.setPessoaid(resultSet.getInt("idpessoa"));
+                    pessoa.setNome(resultSet.getString("nome"));
+                    pessoa.setSobrenome(resultSet.getString("sobrenome"));
+                comentario.setPessoa(pessoa);
+                comentarios.add(comentario);
+            }
+            return comentarios;
+
+            
+        } catch (SQLException ex){
+            throw new RuntimeException("Erro ao buscar comentario no banco de dados. " + ex);
+            
+        }finally{
+            ptmt.close();
+        }
+    }
+    
+    public void excluirComentario(Integer idComentario) throws Exception {
+        
+        String sql  = "DELETE FROM comentario WHERE idcomentario = ?";
+        String sql2 = "DELETE FROM comentario WHERE fkidcomentario_dependente = ?";
+        
+        try{
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(sql);
+            ptmt.setInt(1, idComentario);
+            ptmt.execute();
+            
+            ptmt = con.prepareStatement(sql2);
+            ptmt.setInt(1, idComentario);
+            ptmt.execute();
+            
+        } catch (SQLException ex){
+            con.rollback();
+            throw new RuntimeException("Erro ao excluir comentario no banco de dados. " + ex);
         }finally{
             ptmt.close();
         }

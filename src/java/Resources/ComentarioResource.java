@@ -132,15 +132,60 @@ public class ComentarioResource {
     @Produces("application/json")
     @Path("/getComentariosByIdEmpresaJson/{id}")
     public String getComentariosByIdEmpresaJson(@PathParam("id") String id) {
+        Gson gson = new Gson();
         try {
             ComentarioDAO comentarioDAO = new ComentarioDAO();
-            Gson gson = new Gson();
             
             List<Comentario> lista = comentarioDAO.getComentariosByIdEmpresaSemLimite(new Integer(id));
 
             return gson.toJson(lista);
         } catch (Exception e) {
-            return e.getMessage();
+            e.printStackTrace();
+            return gson.toJson("Servidor indisponivel");
+        }
+    }
+    
+    @GET
+    @Produces("application/json")
+    @Path("/pegarComentariosDependentes/{id}")
+    public String pegarComentariosDependentes(@PathParam("id") String idcomentario) throws Exception {
+        
+        try {
+            List<Comentario> comentarios = new ComentarioDAO().pegarComentariosDependentes(new Integer(idcomentario));
+            return new Gson().toJson(comentarios);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Servidor indisponível";
+        }
+    }
+    
+    @GET
+    @Produces("application/json")
+    @Path("/excluirComentario/{idempresa}/{idcomentario}")
+    public String excluirComentario(@PathParam("idempresa") String idempresa, @PathParam("idcomentario") String idcomentario) throws Exception {
+        
+        try {
+            ComentarioDAO cDao = new ComentarioDAO();
+            cDao.excluirComentario(new Integer(idcomentario));
+            List<Comentario> comentarios = new ComentarioDAO().getComentariosByIdEmpresaSemLimite(new Integer(idempresa));
+            return new Gson().toJson(comentarios);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Servidor indisponível";
+        }
+    }
+    
+    @GET
+    @Produces("application/json")
+    @Path("/atualizarComentarios/{idempresa}")
+    public String excluirComentario(@PathParam("idempresa") String idempresa) throws Exception {
+        
+        try {
+            List<Comentario> comentarios = new ComentarioDAO().getComentariosByIdEmpresaSemLimite(new Integer(idempresa));
+            return new Gson().toJson(comentarios);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Servidor indisponível";
         }
     }
 }

@@ -23,7 +23,7 @@ public class PessoaDAO {
     
     public Pessoa getPessoaById(int idPessoa) throws SQLException{
         String sql = "SELECT distinct * FROM pessoa " +
-                     "inner join relacao on pessoa.idpessoa = identidade and tabela_relacionada = 'imagem' " +
+                     "left join relacao on pessoa.idpessoa = identidade and tabela_entidade = 'pessoa' " +
                      "left join imagem on imagem.idimagem = idrelacionada " +
                      "where idpessoa = ? " +
                      "order by idrelacionada DESC " +
@@ -84,6 +84,41 @@ public class PessoaDAO {
             ptmt.close();
         }
         
+    }
+    
+    public Pessoa pegarPessoaPorId(Integer id) throws Exception {
+        String pessoa = "select * from pessoa "
+                            + "inner join autenticacao on pessoa.fkautenticacao = autenticacao.idautenticacao "
+                            + "left join relacao on pessoa.idpessoa = identidade and tabela_entidade = 'pessoa' "
+                            + "left join imagem on idimagem = idrelacionada "
+                            + "where idpessoa = ?";
+        
+        try {
+            con = ConnectionFactory.getConnection();
+            ptmt = con.prepareStatement(pessoa);
+            ptmt.setInt(1, id);
+            resultSet = ptmt.executeQuery();
+            
+            Pessoa p = null;
+            if(resultSet.next()) {
+                p = new Pessoa();
+                p.setNome(resultSet.getString("nome"));
+                p.setSobrenome(resultSet.getString("sobrenome"));
+                p.setCpf(resultSet.getString("cpf"));
+                p.setDataNascimento(resultSet.getDate("data_nascimento"));
+                p.setLogin(resultSet.getString("login"));
+                p.setPessoaid(id);
+                
+                    Imagem imagem = new Imagem();
+                    imagem.setImagemid(resultSet.getInt("idimagem"));
+                    imagem.setCaminho(resultSet.getString("caminho"));
+                    imagem.setNomeImagem(resultSet.getString("nomeimagem"));
+                p.setImagemPerfil(imagem);
+            }
+            return p;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao buscar pessoa no banco de dados: " + e);
+        }
     }
 
 }

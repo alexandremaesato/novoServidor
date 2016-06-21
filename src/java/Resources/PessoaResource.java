@@ -116,4 +116,18 @@ public class PessoaResource {
         }
         return gson.toJson("Salvo!");
     }
+    
+    @GET
+    @Path("/buscarPerfilUsuario/{id}")
+    @Produces("application/json")
+    public String buscarPerfilUsuario(@PathParam("id") String id) {
+        
+        try {
+            Pessoa pessoa = new PessoaDAO().pegarPessoaPorId(new Integer(id));
+            return new Gson().toJson(pessoa);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Gson().toJson("Erro no servidor: " + e.getMessage());
+        }
+    }
 }

@@ -23,6 +23,7 @@ public class Comentario {
     private Date data_criacao;
     private Date data_modificacao;
     private Pessoa pessoa;
+    private int cont_comentarios_dependentes;
 
     public Pessoa getPessoa() {
         return pessoa;
@@ -105,4 +106,11 @@ public class Comentario {
         this.tipoComentado = tipoComentado;
     }
     
+    public int getCont_comentarios_dependentes() {
+        return cont_comentarios_dependentes;
+    }
+
+    public void setCont_comentarios_dependentes(int cont_comentarios_dependentes) {
+        this.cont_comentarios_dependentes = cont_comentarios_dependentes;
+    }
 }
