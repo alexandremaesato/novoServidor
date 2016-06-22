@@ -23,7 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 import javax.xml.bind.DatatypeConverter;
-import model.AutenticacaoDao;
+import DAO.AutenticacaoDao;
 import model.TokenInfo;
 import utilitarios.Criptografia;
 

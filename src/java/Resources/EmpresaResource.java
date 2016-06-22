@@ -35,7 +35,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
-import model.AutenticacaoDao;
+import DAO.AutenticacaoDao;
 import model.Empresa;
 import DAO.EmpresaDAO;
 import model.Imagem;

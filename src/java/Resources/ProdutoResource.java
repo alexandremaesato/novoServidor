@@ -31,7 +31,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
-import model.AutenticacaoDao;
+import DAO.AutenticacaoDao;
 import model.Avaliacao;
 import DAO.AvaliacaoDAO;
 import model.Entidade;
