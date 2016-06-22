@@ -26,11 +26,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import model.Empresa;
-import model.EmpresaDAO;
+import DAO.EmpresaDAO;
 import model.Favorito;
-import model.FavoritoDAO;
+import DAO.FavoritoDAO;
 import model.Produto;
-import model.ProdutoDAO;
+import DAO.ProdutoDAO;
 
 /**
  * REST Web Service

@@ -114,4 +114,12 @@ public class Filtro {
     public void setOrdenacao(String ordenacao) {
         this.ordenacao = ordenacao;
     }
+    
+    public boolean hasCidades(){
+        if(this.cidade != null){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }

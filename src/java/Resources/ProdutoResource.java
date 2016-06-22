@@ -33,13 +33,13 @@ import javax.xml.bind.DatatypeConverter;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import model.AutenticacaoDao;
 import model.Avaliacao;
-import model.AvaliacaoDAO;
+import DAO.AvaliacaoDAO;
 import model.Entidade;
 import model.Imagem;
-import model.ImagemDAO;
+import DAO.ImagemDAO;
 import model.Pessoa;
 import model.Produto;
-import model.ProdutoDAO;
+import DAO.ProdutoDAO;
 
 /**
  * REST Web Service

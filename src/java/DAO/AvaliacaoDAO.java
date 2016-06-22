@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package DAO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,6 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import model.Avaliacao;
+import model.Pessoa;
 
 /**
  *

@@ -35,7 +35,7 @@ import javax.xml.bind.DatatypeConverter;
 
 import jdk.nashorn.internal.parser.JSONParser;
 import model.AutenticacaoDao;
-import model.ConnectionFactory;
+import DAO.ConnectionFactory;
 import model.Empresa;
 import model.Pessoa;
 //import org.apache.xml.security.exceptions.Base64DecodingException;

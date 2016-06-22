@@ -25,9 +25,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import model.Imagem;
-import model.ImagemDAO;
+import DAO.ImagemDAO;
 import model.Pessoa;
-import model.PessoaDAO;
+import DAO.PessoaDAO;
 
 /**
  * REST Web Service

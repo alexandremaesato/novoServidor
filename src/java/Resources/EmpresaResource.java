@@ -37,14 +37,14 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
 import model.AutenticacaoDao;
 import model.Empresa;
-import model.EmpresaDAO;
+import DAO.EmpresaDAO;
 import model.Imagem;
-import model.ImagemDAO;
+import DAO.ImagemDAO;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import model.Favorito;
-import model.FavoritoDAO;
+import DAO.FavoritoDAO;
 import model.Filtro;
-import model.FiltroDAO;
+import DAO.FiltroDAO;
 
 /**
  * REST Web Service
