@@ -130,4 +130,38 @@ public class PessoaResource {
             return new Gson().toJson("Erro no servidor: " + e.getMessage());
         }
     }
+    
+    @POST
+    @Path("/atualizarPessoa")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public void atualizarPessoa(String json) {
+        
+        try {
+            Pessoa p = new Gson().fromJson(json, Pessoa.class);
+            new PessoaDAO().atualizarPessoa(p);
+                        
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @POST
+    @Path("/atualizarSenha")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String atualizarSenha(String json) {
+        
+        try {
+            Pessoa p = new Gson().fromJson(json, Pessoa.class);
+            new PessoaDAO().atualizarSenha(p);
+            
+            Pessoa pessoa = new PessoaDAO().pegarPessoaPorId(p.getPessoaid());
+            return new Gson().toJson(pessoa);
+                        
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Gson().toJson("Erro no servidor: " + e.getMessage());
+        }
+    }
 }
