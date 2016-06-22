@@ -441,14 +441,14 @@ public class ProdutoDAO {
     public Produto buscarProdutoPorId(Integer id) throws Exception {
         
         String produto = "SELECT DISTINCT produto.*, imagem.*, empresa.*, entidade.* "
-                            + "FROM produto "
-                            + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 AND entidade.tabela = 'produto' "
-                            + "INNER JOIN relacao re ON produto.idproduto = re.idrelacionada AND re.tabela_relacionada = 'produto' "
-                            + "INNER JOIN empresa ON empresa.idempresa = re.identidade "
-                            + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto' "
-                            + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem' "
-                            + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada "
-                            + "WHERE idproduto = ?";
+                                + "FROM produto "
+                                + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 AND entidade.tabela = 'produto' "
+                                + "INNER JOIN relacao re ON produto.idproduto = re.idrelacionada AND re.tabela_relacionada = 'produto' "
+                                + "INNER JOIN empresa ON empresa.idempresa = re.identidade AND re.tabela_entidade = 'empresa' "
+                                + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto' "
+                                + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_entidade = 'produto' "
+                                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada AND ri.tabela_relacionada = 'imagem' "
+                                + "WHERE idproduto = ? GROUP BY idproduto";
         
         try {
             con = ConnectionFactory.getConnection();

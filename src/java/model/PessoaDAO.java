@@ -9,7 +9,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -121,4 +124,66 @@ public class PessoaDAO {
         }
     }
 
+    public void atualizarPessoa(Pessoa p) throws Exception {
+        String pessoa = "UPDATE pessoa SET nome = ?, sobrenome = ?, cpf = ? WHERE idpessoa = ?";
+        String autenticacao = "UPDATE autenticacao SET login = ? WHERE idautenticacao = ?";
+        
+        try {
+            con = ConnectionFactory.getConnection();
+            con.setAutoCommit(false);
+            ptmt = con.prepareStatement(pessoa);
+            ptmt.setString(1, p.getNome());
+            ptmt.setString(2, p.getSobrenome());
+            ptmt.setString(3, p.getCpf());
+            ptmt.setInt(4, p.getPessoaid());
+            ptmt.executeUpdate();
+            
+            ptmt = con.prepareStatement("select fkautenticacao from pessoa where idpessoa = ?");
+            ptmt.setInt(1, p.getPessoaid());
+            resultSet = ptmt.executeQuery();
+            
+            Integer idautenticacao = 0;
+            if(resultSet.next()) {
+                idautenticacao = resultSet.getInt("fkautenticacao");
+            }
+            
+            ptmt = con.prepareStatement(autenticacao);
+            ptmt.setString(1, p.getLogin());
+            ptmt.setInt(2, idautenticacao);
+            ptmt.execute();
+            
+            con.commit();
+        } catch (Exception e) {
+            con.rollback();
+            throw new RuntimeException("Erro ao buscar pessoa no banco de dados: " + e);
+        }
+    }
+    
+    public void atualizarSenha(Pessoa p) throws Exception {
+        String autenticacao = "UPDATE autenticacao SET senha = ? WHERE idautenticacao = ?";
+        
+        try {
+            con = ConnectionFactory.getConnection();
+            con.setAutoCommit(false);
+            ptmt = con.prepareStatement("select fkautenticacao from pessoa where idpessoa = ?");
+            ptmt.setInt(1, p.getPessoaid());
+            resultSet = ptmt.executeQuery();
+            
+            Integer idautenticacao = 0;
+            if(resultSet.next()) {
+                idautenticacao = resultSet.getInt("fkautenticacao");
+            }
+            
+            ptmt = con.prepareStatement(autenticacao);
+            ptmt.setString(1, p.getSenha());
+            ptmt.setInt(2, idautenticacao);
+            ptmt.execute();
+            
+            con.commit();
+        } catch (Exception e) {
+            con.rollback();
+            throw new RuntimeException("Erro ao buscar pessoa no banco de dados: " + e);
+        }
+    }
+    
 }
