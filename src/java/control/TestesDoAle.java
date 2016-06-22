@@ -34,7 +34,7 @@ import javax.json.Json;
 import javax.xml.bind.DatatypeConverter;
 
 import jdk.nashorn.internal.parser.JSONParser;
-import model.AutenticacaoDao;
+import DAO.AutenticacaoDao;
 import DAO.ConnectionFactory;
 import model.Empresa;
 import model.Pessoa;

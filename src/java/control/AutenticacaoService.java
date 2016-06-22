@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import model.AutenticacaoDao;
+import DAO.AutenticacaoDao;
 import utilitarios.Criptografia;
 import utilitarios.HMAC;
 

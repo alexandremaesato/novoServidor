@@ -21,7 +21,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.POST;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
-import model.AutenticacaoDao;
+import DAO.AutenticacaoDao;
 
 /**
  * REST Web Service
