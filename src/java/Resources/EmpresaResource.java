@@ -107,7 +107,7 @@ public class EmpresaResource {
         value = URLDecoder.decode(value, "UTF-8");
         value = value.substring(0, value.length() - 1);
         String[] keyValuePairs = value.split("=", 2);
-
+        System.out.println(keyValuePairs[1]);
         JsonObject json = new JsonObject();
         /*
             
@@ -312,7 +312,7 @@ public class EmpresaResource {
                 throw new RuntimeException("Erro ao gravar imagem. " + e);
             }
 
-            int idEmpresa = empresadao.cadastrarEmpresa(emp, pessoaid);
+            int idEmpresa = empresadao.cadastrarEmpresaWEB(emp, pessoaid);
             img.setNomeImagem(img_name);
             img.setCaminho("/uploads/");
             img.setPessoaid(pessoaid);

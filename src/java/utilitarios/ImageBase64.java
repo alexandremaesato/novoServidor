@@ -25,7 +25,7 @@ public class ImageBase64 {
         this.path = path;
     }
     
-     public static byte[] decodeImage(String imageDataString) throws org.apache.xml.security.exceptions.Base64DecodingException {
+     public static byte[] decodeImage(String imageDataString) throws Base64DecodingException {
         return Base64.decode(imageDataString);
     }
     

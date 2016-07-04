@@ -66,8 +66,9 @@ public class AvaliacaoResource {
         }else{
             avaliacaoDAO.updateAvaliacao(avaliacao);
         }
-        return gson.toJson(avaliacao);
-        //return gson.toJson(avaliacaoDAO.getAvaliacao(avaliacao));
+        avaliacaoDAO.updateAvaliacao(avaliacao);
+        //return gson.toJson(avaliacao);
+        return gson.toJson(avaliacaoDAO.getAvaliacao(avaliacao));
         
     }
     

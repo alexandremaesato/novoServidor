@@ -45,6 +45,10 @@ public class SecurityFilter implements ContainerRequestFilter {
         List<String> registerHeader = requestContext.getHeaders().get(REGISTER_HEADER_KEY);
         List<String> authHeader = requestContext.getHeaders().get(AUTHORIZATION_HEADER_KEY);
         List<String> tokenList = requestContext.getHeaders().get(TOKEN_URL_PREFIX);
+        //System.out.println("teste: "+requestContext.getUriInfo().getPath() );
+        if( "Empresa/carregarEmpresas/0".equals(requestContext.getUriInfo().getPath())){
+            return;
+        }
         TokenInfo tokenInfo = null;
         String token = "";
         //GoogleIdToken as;

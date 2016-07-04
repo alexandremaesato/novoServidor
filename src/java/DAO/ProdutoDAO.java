@@ -101,22 +101,24 @@ public class ProdutoDAO {
     }
 
     public Produto getProdutoById(int idProduto) throws SQLException {
-        String sql = "SELECT DISTINCT produto.*, imagem.*, "
-                + "	(SELECT COUNT(*) FROM comentario "
-                + "		INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
-                + "		WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
-                + "(SELECT COUNT(*) FROM avaliacao WHERE produto.idproduto = avaliacao.idavaliado " 
-                + "     AND avaliacao.tipoavaliacao = 'produto') AS qtdeavaliacoes, "
-                
-                + "(SELECT avg(avaliacao) FROM avaliacao "
-                + "WHERE produto.idproduto = avaliacao.idavaliado AND avaliacao.tipoavaliacao = 'produto') AS media "
-                
-                + "FROM produto "
-                + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 AND entidade.tabela = 'produto' "
-                + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto'  "
-                + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem'  "
-                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada  "
-                + "WHERE idproduto = ?;";
+        String sql = "SELECT DISTINCT produto.*, imagem.*, " +
+                "(SELECT COUNT(*) FROM comentario " +
+                "INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' " +
+                "WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, " +
+                "(SELECT COUNT(*) FROM avaliacao WHERE produto.idproduto = avaliacao.idavaliado  " +
+                "AND avaliacao.tipoavaliacao = 'produto') AS qtdeavaliacoes, " +
+                "" +
+                "(SELECT avg(avaliacao) FROM avaliacao " +
+                "WHERE produto.idproduto = avaliacao.idavaliado AND avaliacao.tipoavaliacao = 'produto') AS media " +
+                "" +
+                "FROM produto " +
+                "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 AND entidade.tabela = 'produto' " +
+                "INNER JOIN relacao re ON produto.idproduto = re.idrelacionada AND re.tabela_relacionada = 'produto' " +
+                "INNER JOIN empresa ON empresa.idempresa = re.identidade AND re.tabela_entidade = 'empresa' " +
+                "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto' " +
+                "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_entidade = 'produto' " +
+                "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada AND ri.tabela_relacionada = 'imagem' " +
+                "WHERE idproduto = ?;";
 
         try {
             con = ConnectionFactory.getConnection();

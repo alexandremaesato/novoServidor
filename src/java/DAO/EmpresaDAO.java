@@ -35,7 +35,7 @@ public class EmpresaDAO {
     PreparedStatement ptmt = null;
     ResultSet resultSet    = null;
     
-    public int cadastrarEmpresa(Empresa emp, int pessoaid) throws SQLException{
+    public int cadastrarEmpresaWEB(Empresa emp, int pessoaid) throws SQLException{
         
         String cadastrarEmpresa  = "INSERT INTO empresa(nomeempresa, cnpj, descricao) values(?,?,?);";
         String cadastrarEntidade = "INSERT INTO entidade(identidade_criada, deletado, tabela, idresponsavel, data_criacao, data_modificacao, idcriador) values(?,?,?,?,?,?,?);";
@@ -45,6 +45,7 @@ public class EmpresaDAO {
         
         try {
             con = ConnectionFactory.getConnection();
+            con.setAutoCommit(false);
             ptmt = con.prepareStatement(cadastrarEmpresa, Statement.RETURN_GENERATED_KEYS);
                 ptmt.setString(1, emp.getNomeEmpresa());
                 ptmt.setString(2, emp.getCnpj());
@@ -111,9 +112,98 @@ public class EmpresaDAO {
                     ptmt.setString(4, "telefone");
                 ptmt.executeUpdate();
             }
-            
+            con.commit();
             return idEmpresa;
         } catch (SQLException ex) {
+            con.rollback();
+            throw new RuntimeException("Erro ao inserir empresa no banco de dados. "+ex);
+        } finally {
+            ptmt.close();
+        }
+    }
+    
+    public int cadastrarEmpresa(Empresa emp, int pessoaid) throws SQLException{
+        
+        String cadastrarEmpresa  = "INSERT INTO empresa(nomeempresa, cnpj, descricao) values(?,?,?);";
+        String cadastrarEntidade = "INSERT INTO entidade(identidade_criada, deletado, tabela, idresponsavel, data_criacao, data_modificacao, idcriador) values(?,?,?,?,?,?,?);";
+        //String cadastrarEntidade = "INSERT INTO entidade(identidade_criada, deletado, tabela, data_criacao, data_modificacao, idcriador) values(?,?,?,?,?,?);";
+        String cadastrarEndereco = "INSERT INTO endereco(rua, numero, complemento, cep, bairro, cidade, estado, pais) values(?,?,?,?,?,?,?,?);";
+        String cadastrarTelefone = "INSERT INTO telefone(numero, tipo_telefone) values(?,?);";
+        String cadastrarRelacao  = "INSERT INTO relacao(identidade, tabela_entidade, idrelacionada, tabela_relacionada) values(?,?,?,?);";
+        
+        try {
+            con = ConnectionFactory.getConnection();
+            con.setAutoCommit(false);
+            ptmt = con.prepareStatement(cadastrarEmpresa, Statement.RETURN_GENERATED_KEYS);
+                ptmt.setString(1, emp.getNomeEmpresa());
+                ptmt.setString(2, emp.getCnpj());
+                ptmt.setString(3, emp.getDescricao());
+            
+            ptmt.executeUpdate();
+            resultSet = ptmt.getGeneratedKeys();
+            resultSet.next();
+            int idEmpresa = resultSet.getInt(1);
+            
+            
+            ptmt = con.prepareStatement(cadastrarEntidade, Statement.RETURN_GENERATED_KEYS);
+                ptmt.setInt(1, idEmpresa);
+                ptmt.setInt(2, 0);
+                ptmt.setString(3, "empresa");
+                ptmt.setInt(4, 0);
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    Date date = new Date();
+                ptmt.setString(5, dateFormat.format(date));
+                ptmt.setString(6, dateFormat.format(date));
+                ptmt.setInt(7, pessoaid);
+            ptmt.executeUpdate();
+            resultSet = ptmt.getGeneratedKeys();
+            resultSet.next();
+            int idEntidade = resultSet.getInt(1);
+            
+            
+            Endereco endereco = emp.getEndereco();
+            ptmt = con.prepareStatement(cadastrarEndereco, Statement.RETURN_GENERATED_KEYS);
+                ptmt.setString(1, endereco.getRua());
+                ptmt.setString(2, endereco.getNumero());
+                ptmt.setString(3, endereco.getComplemento());
+                ptmt.setString(4, endereco.getCep());
+                ptmt.setString(5, endereco.getBairro());
+                ptmt.setString(6, endereco.getCidade());
+                ptmt.setString(7, endereco.getEstado());
+                ptmt.setString(8, endereco.getPais());
+            ptmt.executeUpdate();
+            resultSet = ptmt.getGeneratedKeys();
+            resultSet.next();
+            int idEndereco = resultSet.getInt(1);
+            
+            ptmt = con.prepareStatement(cadastrarRelacao);
+                ptmt.setInt(1, idEmpresa);
+                ptmt.setString(2, "empresa");
+                ptmt.setInt(3, idEndereco);
+                ptmt.setString(4, "endereco");
+            ptmt.executeUpdate();
+            
+            List<Telefone> telefones = emp.getTelefones();
+            for( Telefone telefone : telefones ){
+                ptmt = con.prepareStatement(cadastrarTelefone, Statement.RETURN_GENERATED_KEYS);
+                    ptmt.setString(1, telefone.getNumero());
+                    ptmt.setString(2, telefone.getTipoTelefone());
+                ptmt.executeUpdate();
+                resultSet = ptmt.getGeneratedKeys();
+                resultSet.next();
+                int idTelefone = resultSet.getInt(1);
+
+                ptmt = con.prepareStatement(cadastrarRelacao);
+                    ptmt.setInt(1, idEmpresa);
+                    ptmt.setString(2, "empresa");
+                    ptmt.setInt(3, idTelefone);
+                    ptmt.setString(4, "telefone");
+                ptmt.executeUpdate();
+            }
+            con.commit();
+            return idEmpresa;
+        } catch (SQLException ex) {
+            con.rollback();
             throw new RuntimeException("Erro ao inserir empresa no banco de dados. "+ex);
         } finally {
             ptmt.close();
@@ -273,7 +363,7 @@ public class EmpresaDAO {
         
         String buscarEntidade = "SELECT * FROM empresa "
                 + "INNER JOIN entidade ON empresa.idempresa = entidade.identidade_criada AND entidade.deletado = 0 "
-                + "where idempresa = ? "
+                + "where idempresa = ? and tabela = 'empresa' "
                 + "GROUP BY empresa.idempresa ";
         
         try{
@@ -421,21 +511,38 @@ public class EmpresaDAO {
     
     public List<Produto> pegarProdutosPorEmpresa(int id) throws SQLException{
         
-        String buscarProdutos = "SELECT DISTINCT produto.*, imagem.*, "
-                + "	(SELECT COUNT(*) FROM comentario "
-                + "		INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
-                + "		WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
-                + "(SELECT COUNT(*) FROM avaliacao WHERE produto.idproduto = avaliacao.idavaliado " 
-                + "AND avaliacao.tipoavaliacao = 'produto') AS qtdeavaliacoes, "
-                + "    (SELECT avg(avaliacao) FROM relacao "
-                + "        inner join avaliacao aval on aval.idavaliado = idrelacionada and tabela_relacionada = aval.tipoavaliacao "
-                + "        where tabela_entidade ='empresa' and identidade = ?  and idrelacionada = produto.idproduto) as media "
-                + "FROM produto "
-                + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 AND entidade.tabela = 'produto' "
-                + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto'  "
-                + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem'  "
-                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada  "
-                + "WHERE rp.identidade = ?;";
+//        String buscarProdutos = "SELECT DISTINCT produto.*, imagem.*, "
+//                + "	(SELECT COUNT(*) FROM comentario "
+//                + "		INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' "
+//                + "		WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, "
+//                + "(SELECT COUNT(*) FROM avaliacao WHERE produto.idproduto = avaliacao.idavaliado " 
+//                + "AND avaliacao.tipoavaliacao = 'produto') AS qtdeavaliacoes, "
+//                + "    (SELECT avg(avaliacao) FROM relacao "
+//                + "        inner join avaliacao aval on aval.idavaliado = idrelacionada and tabela_relacionada = aval.tipoavaliacao "
+//                + "        where tabela_entidade ='empresa' and identidade = ?  and idrelacionada = produto.idproduto) as media "
+//                + "FROM produto "
+//                + "INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 AND entidade.tabela = 'produto' "
+//                + "LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto'  "
+//                + "LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_relacionada = 'imagem'  "
+//                + "LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada  "
+//                + "WHERE rp.identidade = ?;";
+        String buscarProdutos = "SELECT DISTINCT produto.*, imagem.*, empresa.*, entidade.* ," +
+"                               (SELECT COUNT(*) FROM comentario " +
+"                               INNER JOIN relacao ON relacao.idrelacionada = comentario.idcomentario AND relacao.tabela_relacionada = 'comentario' " +
+"                               WHERE relacao.identidade = produto.idproduto AND relacao.tabela_entidade = 'produto') AS qtdecomentarios, " +
+"                               (SELECT COUNT(*) FROM avaliacao WHERE produto.idproduto = avaliacao.idavaliado  " +
+"                                AND avaliacao.tipoavaliacao = 'produto') AS qtdeavaliacoes, " +
+"                                   (SELECT avg(avaliacao) FROM relacao " +
+"                                   inner join avaliacao aval on aval.idavaliado = idrelacionada and tabela_relacionada = aval.tipoavaliacao " +
+"                                 where tabela_entidade ='empresa' and identidade = ?  and idrelacionada = produto.idproduto) as media" +
+"                                FROM produto " +
+"                                INNER JOIN entidade ON produto.idproduto = entidade.identidade_criada AND entidade.deletado = 0 AND entidade.tabela = 'produto' " +
+"                                INNER JOIN relacao re ON produto.idproduto = re.idrelacionada AND re.tabela_relacionada = 'produto' " +
+"                                INNER JOIN empresa ON empresa.idempresa = re.identidade AND re.tabela_entidade = 'empresa' " +
+"                                LEFT JOIN relacao rp ON produto.idproduto = rp.idrelacionada AND rp.tabela_relacionada = 'produto' " +
+"                                LEFT JOIN relacao ri ON ri.identidade = produto.idproduto AND ri.tabela_entidade = 'produto' " +
+"                                LEFT JOIN imagem  ON imagem.idimagem = ri.idrelacionada AND ri.tabela_relacionada = 'imagem' " +
+"                                WHERE idempresa = ? GROUP BY idproduto;";
         
         try{
             List<Produto> produtos = new ArrayList<Produto>();
@@ -443,7 +550,7 @@ public class EmpresaDAO {
             con = ConnectionFactory.getConnection();
             ptmt = con.prepareStatement(buscarProdutos);
             ptmt.setInt(1, id);
-            ptmt.setInt(2, id);
+            ptmt.setInt(2, id);    
             resultSet = ptmt.executeQuery();
             while(resultSet.next()){
                 Produto produto = new Produto();
@@ -569,26 +676,41 @@ public class EmpresaDAO {
     }
     
     public void setSouDono(int idresponsavel, int identidade_criada) throws SQLException{
-        String cadastrarEntidade = "UPDATE entidade SET idresponsavel=?, data_modificacao=?"
-                + "where tabela='empresa' and identidade_criada = ?;";
-        
-        try {
-            con = ConnectionFactory.getConnection();
-            ptmt = con.prepareStatement(cadastrarEntidade);
-                ptmt.setInt(1, idresponsavel);                
-                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                    Date date = new Date();
-                ptmt.setString(2, dateFormat.format(date));
-                ptmt.setInt(3, identidade_criada);
-                
-            
-            ptmt.executeUpdate();
-        } catch (SQLException ex) {
-            throw new RuntimeException("Erro ao atualizar entidade no banco de dados. "+ex);
-        } finally {
-            ptmt.close();
-        }
-    }
+       String cadastrarEntidade = "UPDATE entidade SET idresponsavel=?, data_modificacao=?"
+               + "where tabela='empresa' and identidade_criada = ?;";
+       
+       try {
+           con = ConnectionFactory.getConnection();
+           ptmt = con.prepareStatement(cadastrarEntidade);
+               ptmt.setInt(1, idresponsavel);                
+               DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                   Date date = new Date();
+               ptmt.setString(2, dateFormat.format(date));
+               ptmt.setInt(3, identidade_criada);
+               
+           ptmt.executeUpdate();
+           
+           
+           ptmt = con.prepareStatement("select * from entidade left join relacao on relacao.identidade = ? and relacao.tabela_entidade = 'empresa' and relacao.tabela_relacionada = 'produto' group by relacao.idrelacao");
+           ptmt.setInt(1, identidade_criada);
+           resultSet = ptmt.executeQuery();
+           
+           while(resultSet.next()) {
+               ptmt = con.prepareStatement("update entidade set idresponsavel = ?, data_modificacao = ? where identidade_criada = ? and tabela = 'produto'");
+               ptmt.setInt(1, idresponsavel);
+               ptmt.setString(2, dateFormat.format(date));
+               ptmt.setInt(3, resultSet.getInt("idrelacionada"));
+               ptmt.executeUpdate();
+           }
+
+
+
+       } catch (SQLException ex) {
+           throw new RuntimeException("Erro ao atualizar entidade no banco de dados. "+ex);
+       } finally {
+           ptmt.close();
+       }
+   }
     
     public List<Empresa> buscarMinhasEmpresas(Integer id) throws SQLException{
         

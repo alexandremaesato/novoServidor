@@ -208,7 +208,7 @@ public class AvaliacaoDAO {
     public List<Object> getAvaliacoesByIdEmpresa(int id) throws SQLException{
         String sql = "select distinct * from avaliacao " +
                      "inner join pessoa on pessoa.idpessoa = avaliacao.idpessoa " +
-                     "where idavaliado = ? and tipoavaliacao = 'empresa' " + 
+                     "where idavaliado = ? and tipoavaliacao = 'empresa' and data_modificacao IS NOT NULL " + 
                      "order by idavaliacao DESC " +
                      "limit 3";
         
